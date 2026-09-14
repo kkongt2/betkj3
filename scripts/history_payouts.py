@@ -1,5 +1,5 @@
 """Validated public-report payout parsers, shared with the original calendar collector."""
-import re
+import re,math
 
 def parse_place_quotes(block):
     quotes={};active=False
