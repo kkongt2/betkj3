@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict'),presets=require('../strategy-presets.js');
+const data=new Map(),storage={getItem:k=>data.get(k)||null,setItem:(k,v)=>data.set(k,v)};
+const settings={anchorMode:'analysis',modelMode:'custom',min:3,max:6,weights:[33,9,18,12,10,6,4,3,3,2]};
+assert.deepEqual(presets.read(storage),[]);
+presets.save(storage,'실험 1',settings);settings.weights[0]=34;
+assert.equal(presets.read(storage)[0].settings.weights[0],33);
+presets.save(storage,'실험 1',settings);assert.equal(presets.read(storage).length,1);assert.equal(presets.read(storage)[0].settings.weights[0],34);
+presets.save(storage,'실험 2',{...settings,anchorMode:'odds',min:2,max:4});
+assert.equal(presets.read(storage)[1].settings.anchorMode,'odds');
+assert.throws(()=>presets.save(storage,'',settings));
+assert.throws(()=>presets.save(storage,'잘못된 값',{...settings,weights:Array(10).fill(0)}));
+assert.throws(()=>presets.save(storage,'잘못된 값',{...settings,min:8,max:3}));
+assert.throws(()=>presets.save({...storage,setItem(){throw new Error('storage full')}},'실험 3',settings));
+assert.equal(presets.read(storage).length,2);
+presets.remove(storage,'실험 1');assert.deepEqual(presets.read(storage).map(p=>p.name),['실험 2']);
+data.set(presets.KEY,'{broken');assert.throws(()=>presets.read(storage));
+console.log('PASS saved strategy round trip, independent weights, overwrite, delete, invalid data and storage failure');

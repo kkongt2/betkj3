@@ -1,0 +1,274 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-09-14T10:49:57.343Z",
+  "from": "20210108",
+  "to": "20260913",
+  "sourceRaces": 13032,
+  "search": {
+    "seed": 20260914,
+    "weightCandidates": 3213,
+    "rangeCombinationsPerWeight": 380,
+    "exactWeightCandidates": 62,
+    "exactConfigurations": 23560,
+    "weightsSum": 100,
+    "broadMinimumEvaluated": 10276,
+    "method": "Deterministic sparse/random seeds, 10/5/2/1 percentage-point transfers; score-order screening, then exact site probabilities for all finalist intervals. Same-data retrospective selection, not held-out validation."
+  },
+  "best": {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        51,
+        0,
+        14,
+        0,
+        5,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  "broad": {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        1,
+        0,
+        2,
+        1,
+        0,
+        1,
+        45,
+        38,
+        0,
+        12
+      ],
+      "min": 3,
+      "max": 4
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 12845,
+      "hits": 1369,
+      "excluded": 187,
+      "paidHits": 1369,
+      "payoutTotal": 11768.59999999997
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 1622,
+        "hits": 140,
+        "excluded": 185,
+        "paidHits": 140,
+        "payoutTotal": 1878.5999999999985
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 2243,
+        "hits": 227,
+        "excluded": 0,
+        "paidHits": 227,
+        "payoutTotal": 1944.4000000000003
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 2404,
+        "hits": 234,
+        "excluded": 2,
+        "paidHits": 234,
+        "payoutTotal": 2000.2000000000012
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 2384,
+        "hits": 273,
+        "excluded": 0,
+        "paidHits": 273,
+        "payoutTotal": 2156.0999999999995
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 2417,
+        "hits": 286,
+        "excluded": 0,
+        "paidHits": 286,
+        "payoutTotal": 2096.7000000000003
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 1775,
+        "hits": 209,
+        "excluded": 0,
+        "paidHits": 209,
+        "payoutTotal": 1692.5999999999997
+      }
+    },
+    "metrics": {
+      "rate": 0.10657843518878941,
+      "average": 8.596493791088363,
+      "product": 0.9162008563643418
+    }
+  },
+  "baseline": {
+    "settings": {
+      "anchorMode": "odds",
+      "modelMode": "existing",
+      "weights": [
+        33,
+        9,
+        18,
+        12,
+        10,
+        6,
+        4,
+        3,
+        3,
+        2
+      ],
+      "min": 3,
+      "max": 4
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 12845,
+      "hits": 3056,
+      "excluded": 187,
+      "paidHits": 3056,
+      "payoutTotal": 9354.699999999984
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 1622,
+        "hits": 372,
+        "excluded": 185,
+        "paidHits": 372,
+        "payoutTotal": 1128.5999999999992
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 2243,
+        "hits": 533,
+        "excluded": 0,
+        "paidHits": 533,
+        "payoutTotal": 1601.5999999999992
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 2404,
+        "hits": 537,
+        "excluded": 2,
+        "paidHits": 537,
+        "payoutTotal": 1697.0000000000014
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 2384,
+        "hits": 571,
+        "excluded": 0,
+        "paidHits": 571,
+        "payoutTotal": 1805.9000000000005
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 2417,
+        "hits": 578,
+        "excluded": 0,
+        "paidHits": 578,
+        "payoutTotal": 1751.5000000000016
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 1775,
+        "hits": 465,
+        "excluded": 0,
+        "paidHits": 465,
+        "payoutTotal": 1370.1
+      }
+    },
+    "metrics": {
+      "rate": 0.23791358505254964,
+      "average": 3.061092931937168,
+      "product": 0.7282755936161919
+    }
+  },
+  "sourceSha256": {
+    "qpl-history-years/2021.json": "0faa26f965461a0883a5c6bf477b070ec258b69b5c0785a736b516abef7446df",
+    "qpl-history-years/2022.json": "300c43a5b37537f39524d4401b144066e9413196a9312ba065ee44636b28787f",
+    "qpl-history-years/2023.json": "51405ac8ad42793b9e46a8f5cf57bdb3c8b53da3c6c54fc81a852a452ee50b73",
+    "qpl-history-years/2024.json": "f01a54bb5b915b1e20bedc12a1a0e48595e8385bd91b62293cda36ffe90d373e",
+    "qpl-history-years/2025.json": "d17af783906e718aed6714e134dc895606702018d4bf973f2864432707ca03a1",
+    "qpl-history-years/2026.json": "f36525e5a4e95f6b2cb843a57f384a50995ddbe312ae45a7866762826c2e3e30"
+  }
+}

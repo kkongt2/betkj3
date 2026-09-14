@@ -7,6 +7,7 @@ let selectionRequest=0;
 const expandedResults=new Set(),marketOddsCache=new Map(),loadedMarketOdds=new Map();
 let partnerRange=Betkj3Policy.normalizeRange(),tuningSettings=TuningModel.settings(),qplHistory=null,historyRequest=0;
 let historyWorker=null,historyEngine=null,historyEvaluation=0,historyTimer=null;
+let syncTuningControls=()=>{};
 const strategySettings=()=>({...tuningSettings,...partnerRange});
 const anchorLabel=()=>tuningSettings.anchorMode==='analysis'?'분석 1위':'최종배당 1위';
 function syncStrategyHelp(){$('#rangeHelp').textContent='현재 설정: '+anchorLabel()+' 축마 + 배당 '+partnerRange.min+'~'+partnerRange.max+'위에서 1마리 선택 · 이 기기에 자동 저장';}
@@ -93,7 +94,41 @@ function initTuning(){
   };
   for(const id of ['#weight-'+i,'#weight-range-'+i]){const node=$(id);node.oninput=()=>change(node);node.onchange=()=>{if(!change(node))node.value=String(tuningSettings.weights[i]);};}
  });
- $('#resetWeights').onclick=()=>{tuningSettings.weights=TuningModel.defaults();tuningSettings.modelMode='custom';update();};sync();
+ $('#resetWeights').onclick=()=>{tuningSettings.weights=TuningModel.defaults();tuningSettings.modelMode='custom';update();};syncTuningControls=sync;sync();
+}
+function applySavedStrategy(settings){
+ const config=StrategyPresets.config(settings);
+ tuningSettings=TuningModel.settings(config);partnerRange=Betkj3Policy.normalizeRange(config);
+ $('#partnerMin').value=String(partnerRange.min);$('#partnerMax').value=String(partnerRange.max);syncTuningControls();
+ let persisted=true;try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));localStorage.setItem('betkj3-partner-range',JSON.stringify(partnerRange));}catch{persisted=false;}
+ renderQplHistory();render();return persisted;
+}
+function initStrategyPresets(){
+ const status=$('#presetStatus'),select=$('#savedStrategy');
+ function refresh(selected=''){
+  const entries=StrategyPresets.read(localStorage);
+  select.innerHTML='<option value="">설정을 선택하세요</option>'+entries.map(p=>'<option value="'+esc(p.name)+'">'+esc(p.name)+'</option>').join('');
+  select.value=selected;$('#loadStrategy').disabled=!selected;$('#deleteStrategy').disabled=!selected;
+ }
+ const error=e=>{status.textContent=e.name==='QuotaExceededError'?'브라우저 저장 공간이 부족해 저장하지 못했습니다.':e.message||'설정을 저장하지 못했습니다.';};
+ try{refresh();}catch(e){error(e);}
+ select.onchange=()=>{$('#loadStrategy').disabled=!select.value;$('#deleteStrategy').disabled=!select.value;};
+ $('#saveStrategy').onclick=()=>{try{const name=$('#presetName').value.trim();StrategyPresets.save(localStorage,name,strategySettings());refresh(name);status.textContent='“'+name+'” 설정을 저장했습니다.';}catch(e){error(e);}};
+ $('#loadStrategy').onclick=()=>{try{const p=StrategyPresets.read(localStorage).find(p=>p.name===select.value);if(!p)throw Error('불러올 설정을 선택하세요.');const saved=applySavedStrategy(p.settings);$('#presetName').value=p.name;status.textContent='“'+p.name+'” 설정을 불러왔습니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');}catch(e){error(e);}};
+ $('#deleteStrategy').onclick=()=>{try{const name=select.value;if(!name)throw Error('삭제할 설정을 선택하세요.');StrategyPresets.remove(localStorage,name);refresh();status.textContent='“'+name+'” 설정을 삭제했습니다.';}catch(e){error(e);}};
+ fetchJSON('strategy-search.json?v=5.0').then(doc=>{
+  if(doc.schema!==1||!doc.best?.settings||!doc.best?.all?.evaluated)return;
+  const config=StrategyPresets.config(doc.best.settings),g=doc.best.all,m=QplHistoryEngine.metrics(g);
+  $('#strategySearchSummary').innerHTML='<p class="hint">'+esc(doc.from)+' ~ '+esc(doc.to)+' · 가중치 후보 '+doc.search.weightCandidates.toLocaleString()+'개 탐색</p><p><strong>'+(config.anchorMode==='analysis'?'분석 1위':'최종배당 1위')+' 축마 · 배당 '+config.min+'~'+config.max+'위</strong></p><p>과거 적중률 '+pct(m.rate)+' × 평균배당 '+m.average.toFixed(2)+'배 = <strong>'+m.product.toFixed(3)+'배</strong><br>적중 '+g.hits.toLocaleString()+' / 평가 '+g.evaluated.toLocaleString()+'경주</p><details><summary>가중치와 연도별 결과</summary><p class="hint">'+TuningModel.FEATURES.map((f,i)=>esc(f.label)+' '+config.weights[i]+'%').join(' · ')+'</p><table class="validation-table"><thead><tr><th>연도</th><th>평가 경주</th><th>적중률 × 평균배당</th></tr></thead><tbody>'+Object.entries(doc.best.years).map(([year,x])=>'<tr><td>'+esc(year)+'</td><td>'+x.evaluated.toLocaleString()+'</td><td>'+QplHistoryEngine.metrics(x).product.toFixed(3)+'배</td></tr>').join('')+'</tbody></table></details>';
+  if(g.evaluated<doc.baseline.all.evaluated*.8)$('#strategySearchSummary').innerHTML+='<p class="hint">이 조합은 평가 가능한 전체 경주의 '+pct(g.evaluated/doc.baseline.all.evaluated)+'만 평가합니다. 적은 표본에서 선택된 최고값이라는 점을 함께 확인하세요.</p>';
+  if(doc.broad){
+   const b=doc.broad,bm=QplHistoryEngine.metrics(b.all),bc=StrategyPresets.config(b.settings);
+   $('#strategyBroadSummary').innerHTML='<h3>평가 경주 80% 이상 중 최고</h3><p class="hint">배당 자료가 있는 경주의 80% 이상을 평가하는 후보끼리 비교했습니다.</p><p><strong>'+(bc.anchorMode==='analysis'?'분석 1위':'최종배당 1위')+' 축마 · 배당 '+bc.min+'~'+bc.max+'위</strong><br>적중률 '+pct(bm.rate)+' × 평균배당 '+bm.average.toFixed(2)+'배 = <strong>'+bm.product.toFixed(3)+'배</strong><br>적중 '+b.all.hits.toLocaleString()+' / 평가 '+b.all.evaluated.toLocaleString()+'경주</p>';
+   $('#applySearchBroad').onclick=()=>{const saved=applySavedStrategy(bc);$('#presetName').value='평가 경주 80% 이상 최고';status.textContent='평가 경주 80% 이상 최고 조합을 불러왔습니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
+  }
+  $('#strategySearchResult').hidden=false;
+  $('#applySearchBest').onclick=()=>{const saved=applySavedStrategy(config);$('#presetName').value='전체 기간 탐색 최고';status.textContent='탐색 최고 조합을 불러왔습니다. 이름을 정해 현재 설정 저장을 누르면 보관됩니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
+ }).catch(()=>{});
 }
 function ensurePolicyOdds(date){
  if(!marketOddsCache.has(date))marketOddsCache.set(date,fetchPublicJSON('data/market-odds/'+date+'.json').then(doc=>{
@@ -287,7 +322,7 @@ async function loadProspective(){
   $('#autoHistory').innerHTML=s.recent.slice(0,20).map(r=>'<div class="auto-record"><b>'+esc(r.date)+' '+esc(names[r.venue])+' '+r.race_no+'R</b><p class="hint">기록 '+new Date(r.saved_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+'</p>'+Object.entries(r.tracks).map(([track,t])=>'<p>'+label[track]+'<br>'+['place','pair'].filter(k=>t[k]).map(k=>{const x=t[k];return (k==='place'?'연승 ':'복연승 ')+x.numbers.join('–')+' · '+pct(x.prob)+' · '+(x.status==='settled'?(x.hit?'적중 '+x.odds.toFixed(1)+'배':'미적중'):x.status==='void'?'환불·제외':'결과 대기');}).join('<br>')+'</p>').join('')+'</div>').join('')||'<p class="hint">아직 자동 사전 기록이 없습니다.</p>';
  }catch{$('#autoStats').textContent='자동 사전 기록을 불러오지 못했습니다.';}
 }
-initPartnerRange();initTuning();loadQplHistory();renderHistory();Promise.all([load(),loadTraining(),loadAdvanced(),loadChallenger(),loadProspective()]).then(([ok])=>{renderAdvancedReport();if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initPartnerRange();initTuning();initStrategyPresets();loadQplHistory();renderHistory();Promise.all([load(),loadTraining(),loadAdvanced(),loadChallenger(),loadProspective()]).then(([ok])=>{renderAdvancedReport();if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});

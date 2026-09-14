@@ -1,0 +1,2492 @@
+[
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        51,
+        0,
+        14,
+        0,
+        5,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        51,
+        0,
+        15,
+        0,
+        3,
+        20,
+        11,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        51,
+        0,
+        15,
+        0,
+        3,
+        21,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        12,
+        1,
+        5,
+        20,
+        9,
+        1
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        12,
+        1,
+        5,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        4,
+        20,
+        9,
+        2
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        4,
+        20,
+        10,
+        1
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        4,
+        20,
+        11,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        5,
+        19,
+        9,
+        2
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        5,
+        19,
+        10,
+        1
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        5,
+        19,
+        11,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        5,
+        20,
+        9,
+        1
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        1,
+        4,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        5,
+        20,
+        8,
+        2
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        13,
+        0,
+        5,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        3,
+        20,
+        10,
+        1
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        3,
+        20,
+        11,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        4,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        3,
+        21,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        4,
+        20,
+        9,
+        1
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        4,
+        21,
+        9,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        5,
+        19,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        5,
+        20,
+        9,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        15,
+        0,
+        3,
+        19,
+        11,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        14,
+        0,
+        5,
+        21,
+        8,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        15,
+        0,
+        3,
+        20,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        15,
+        0,
+        3,
+        22,
+        8,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        15,
+        0,
+        4,
+        20,
+        9,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        15,
+        0,
+        3,
+        21,
+        9,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  },
+  {
+    "settings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        0,
+        52,
+        0,
+        15,
+        0,
+        4,
+        19,
+        10,
+        0
+      ],
+      "min": 15,
+      "max": 16
+    },
+    "all": {
+      "total": 13032,
+      "evaluated": 57,
+      "hits": 2,
+      "excluded": 12975,
+      "paidHits": 2,
+      "payoutTotal": 302.3
+    },
+    "years": {
+      "2021": {
+        "total": 1807,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 1801,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2022": {
+        "total": 2243,
+        "evaluated": 6,
+        "hits": 0,
+        "excluded": 2237,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2023": {
+        "total": 2406,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2396,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2024": {
+        "total": 2384,
+        "evaluated": 14,
+        "hits": 1,
+        "excluded": 2370,
+        "paidHits": 1,
+        "payoutTotal": 126.8
+      },
+      "2025": {
+        "total": 2417,
+        "evaluated": 10,
+        "hits": 0,
+        "excluded": 2407,
+        "paidHits": 0,
+        "payoutTotal": 0
+      },
+      "2026": {
+        "total": 1775,
+        "evaluated": 11,
+        "hits": 1,
+        "excluded": 1764,
+        "paidHits": 1,
+        "payoutTotal": 175.5
+      }
+    },
+    "metrics": {
+      "rate": 0.03508771929824561,
+      "average": 151.15,
+      "product": 5.303508771929825
+    }
+  }
+]
