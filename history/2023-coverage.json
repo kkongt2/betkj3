@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "year": "2023",
+  "races": 2406,
+  "reports": 296,
+  "from": "20230106",
+  "to": "20231231",
+  "unavailable": [
+    {
+      "date": "20231217",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Dividend winners mismatch"
+    },
+    {
+      "date": "20230709",
+      "venue": "busan",
+      "race": 6,
+      "reason": "Dividend winners mismatch"
+    }
+  ],
+  "download_errors": [],
+  "source": "kkongt2/timeline training/history-v7.jsonl.gz"
+}
