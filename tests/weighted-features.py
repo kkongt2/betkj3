@@ -12,4 +12,6 @@ assert h.features(heavy)['1']['raw'][7]<f['1']['raw'][7]
 assert m.clip((16-8)/15,0,1)>m.clip((8-8)/7,0,1)
 r2=copy.deepcopy(r);r2['horses'][0]['age']=9;assert m.key(r,r['horses'][0])!=m.key(r2,r2['horses'][0])
 assert len(f['1']['raw'])==13 and f['1']['raw'][11] is not None
+unknown=m.History();past=copy.deepcopy(r);past['grade']=None;unknown.add_day([past]);future=copy.deepcopy(later);future['grade']=None
+assert unknown.features(future)['1']['raw'][7] is None
 print('PASS outcome isolation, strict past date, corrected burden, relative finish, identity and 13 feature schema')

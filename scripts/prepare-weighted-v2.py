@@ -37,7 +37,7 @@ class History:
             for kind in ('jockey','trainer'):
                 p=[x for x in self.people[(r['venue'],kind,clean_person(h.get(kind)))] if d-365<=x['day']<d]
                 people.append(smooth(p,d,lambda x:x['residual'],0,30) if p else None)
-            comparable=last and h.get('burden') and last.get('burden') and grade(r.get('grade'))==last.get('grade') and h.get('rating',0)>0 and abs(h['rating']-last['rating'])<=3
+            comparable=last and h.get('burden') and last.get('burden') and grade(r.get('grade')) is not None and grade(r.get('grade'))==last.get('grade') and h.get('rating',0)>0 and abs(h['rating']-last['rating'])<=3
             burden=clip(last['burden']-h['burden'],-5,5) if comparable else None
             own_body=[x['body'] for x in hist[-10:] if x.get('body') and x['placed']]
             body=-abs(float(h['horse_weight'])-statistics.median(own_body))/statistics.median(own_body) if h.get('horse_weight') and len(own_body)>=3 else None
