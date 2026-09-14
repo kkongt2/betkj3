@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "version": "weighted-v2",
+  "sourceRaces": 12946,
+  "targetRaces": 13032,
+  "horseStarts": 137653,
+  "historyThrough": "20260913",
+  "fitThrough": "20231231",
+  "coverage": {
+    "place": 137653,
+    "win": 137653,
+    "distance": 137653,
+    "rating": 99282,
+    "recent": 137653,
+    "jockey": 137007,
+    "trainer": 137195,
+    "burden": 69959,
+    "body": 49018,
+    "interval": 97972,
+    "speed": 121947,
+    "margin": 125922,
+    "opponents": 91127
+  },
+  "tailDownloadErrors": [],
+  "marginDefinition": "Previous race time minus winner time, seconds normalized to 1200m; not lengths",
+  "speedDefinition": "Previous race time vs preceding-date median winning time for venue/distance/track, fallback venue/distance (minimum 20 records)",
+  "currentResultInputs": false,
+  "sameDayResultsInputs": false
+}

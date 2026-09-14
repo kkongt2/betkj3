@@ -38,12 +38,21 @@ jobs:
           rsync -a --delete --filter='protect /calendar/***' --filter='protect /market-odds/***' _source/data/ data/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data
-          if ! git diff --cached --quiet; then
-            git commit -m "Sync official race cards, final place odds and model data"
-            git pull --rebase origin main
-            git push origin HEAD:main
-          fi
+      - uses: actions/checkout@v4
+        with:
+          repository: kkongt2/timeline
+          ref: main
+          path: _seed
+          sparse-checkout: |
+            training
+            scripts/model-research
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests beautifulsoup4 charset-normalizer
+      - run: python tests/weighted-features.py
+      - run: python scripts/prepare-weighted-v2.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -57,9 +66,10 @@ jobs:
           node tests/search-coverage.cjs
           node scripts/build-qpl-history.cjs
           node tests/archive.cjs
+          node tests/weighted-model.cjs
       - name: Preserve computed history for branch and workflow deployments
         run: |
-          git add qpl-history.json qpl-history-years
+          git add data history/weighted-v2.jsonl.gz history/weighted-source.jsonl.gz qpl-history.json qpl-history-years
           if ! git diff --cached --quiet; then
             git commit -m "Update historical QPL range evaluation data"
             git pull --rebase origin main
@@ -79,3 +89,18 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published model and controls
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          node - <<'NODE'
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const base=process.env.SITE_URL,stamp=Date.now();
+            const read=async path=>{const r=await fetch(new URL(path+'?verify='+stamp,base));assert(r.ok,path+' HTTP '+r.status);return r.text();};
+            const [html,model,history]=await Promise.all([read('index.html'),read('tuning-model.js'),read('qpl-history.json')]);
+            assert(html.includes('weight-12'));assert(html.includes('평균 적중 배당'));assert(model.includes('user-weighted-v2'));
+            assert(JSON.parse(history).races>=13032);
+            console.log('PASS published controls, weighted v2 model and full historical manifest',base);
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE

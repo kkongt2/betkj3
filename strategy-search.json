@@ -1,45 +1,46 @@
 {
   "schema": 1,
-  "generatedAt": "2026-09-14T12:48:15.669Z",
+  "featureVersion": "user-weighted-v2",
+  "generatedAt": "2026-09-14T16:00:55.019Z",
   "from": "20210108",
   "to": "20260913",
   "sourceRaces": 13032,
   "sourceSha256": {
-    "qpl-history-years/2021.json": "0faa26f965461a0883a5c6bf477b070ec258b69b5c0785a736b516abef7446df",
-    "qpl-history-years/2022.json": "300c43a5b37537f39524d4401b144066e9413196a9312ba065ee44636b28787f",
-    "qpl-history-years/2023.json": "51405ac8ad42793b9e46a8f5cf57bdb3c8b53da3c6c54fc81a852a452ee50b73",
-    "qpl-history-years/2024.json": "f01a54bb5b915b1e20bedc12a1a0e48595e8385bd91b62293cda36ffe90d373e",
-    "qpl-history-years/2025.json": "d17af783906e718aed6714e134dc895606702018d4bf973f2864432707ca03a1",
-    "qpl-history-years/2026.json": "f36525e5a4e95f6b2cb843a57f384a50995ddbe312ae45a7866762826c2e3e30"
+    "qpl-history-years/2021.json": "47f386f2b28fbf4f516c051e5cb16a3add5cf27c6f50eb05e10cc6a28f1211fe",
+    "qpl-history-years/2022.json": "1ffbfbb770b9375c2dec40db7938c131991b4455d6307ac67cd91cd32776b60b",
+    "qpl-history-years/2023.json": "8662ccc81e02c225ef014cf9bc1007b057eef719cd78faa572d91ccf10790373",
+    "qpl-history-years/2024.json": "0023cfc89de9eed05f15cc7dde51b9e74952f9b19a657cb62da5c600b78eebc6",
+    "qpl-history-years/2025.json": "e90709d9a4e84642e93f089cd0f2efd13a9ca60671e65a922656005af6ab819a",
+    "qpl-history-years/2026.json": "4df8eee21ecb4d00e16115c0c73ff072f08c23e49a06e7c643ad281f6276b85c"
   },
   "search": {
     "seed": 20260914,
-    "weightCandidates": 13049,
+    "weightCandidates": 4224,
     "rangeCombinationsPerWeight": 380,
-    "exactWeightCandidates": 22,
-    "exactConfigurations": 8360,
     "weightsSum": 100,
     "minimumCoverageRatio": 0.4,
     "minimumEvaluated": 5213,
     "coverageDenominator": 13032,
-    "broadMinimumEvaluated": 10276,
-    "method": "Deterministic sparse/random seeds, 10/5/2/1 percentage-point transfers; score-order screening, then exact site probabilities for all finalist intervals. Same-data retrospective selection, not held-out validation."
+    "method": "Train-only deterministic sparse/random seeds and 10/5/2/1 transfers; finalists independently re-scored by site probabilities on 2024; choose arm on 2024 before reporting 2025 onward."
   },
   "best": {
     "settings": {
       "anchorMode": "analysis",
       "modelMode": "custom",
       "weights": [
-        1,
+        0,
+        0,
+        0,
         0,
         2,
-        1,
+        0,
+        10,
         0,
         1,
-        45,
-        38,
         0,
-        12
+        74,
+        8,
+        5
       ],
       "min": 3,
       "max": 4
@@ -47,148 +48,65 @@
     "all": {
       "total": 13032,
       "evaluated": 12845,
-      "hits": 1369,
+      "hits": 2354,
       "excluded": 187,
-      "paidHits": 1369,
-      "payoutTotal": 11768.59999999997
+      "paidHits": 2354,
+      "payoutTotal": 10457.999999999973
     },
     "years": {
       "2021": {
         "total": 1807,
         "evaluated": 1622,
-        "hits": 140,
+        "hits": 296,
         "excluded": 185,
-        "paidHits": 140,
-        "payoutTotal": 1878.5999999999985
+        "paidHits": 296,
+        "payoutTotal": 1270.3999999999987
       },
       "2022": {
         "total": 2243,
         "evaluated": 2243,
-        "hits": 227,
+        "hits": 389,
         "excluded": 0,
-        "paidHits": 227,
-        "payoutTotal": 1944.4000000000003
+        "paidHits": 389,
+        "payoutTotal": 1710.4000000000003
       },
       "2023": {
         "total": 2406,
         "evaluated": 2404,
-        "hits": 234,
+        "hits": 398,
         "excluded": 2,
-        "paidHits": 234,
-        "payoutTotal": 2000.2000000000012
+        "paidHits": 398,
+        "payoutTotal": 1864.5999999999988
       },
       "2024": {
         "total": 2384,
         "evaluated": 2384,
-        "hits": 273,
+        "hits": 463,
         "excluded": 0,
-        "paidHits": 273,
-        "payoutTotal": 2156.0999999999995
+        "paidHits": 463,
+        "payoutTotal": 2131.5
       },
       "2025": {
         "total": 2417,
         "evaluated": 2417,
-        "hits": 286,
+        "hits": 468,
         "excluded": 0,
-        "paidHits": 286,
-        "payoutTotal": 2096.7000000000003
+        "paidHits": 468,
+        "payoutTotal": 2060.9000000000005
       },
       "2026": {
         "total": 1775,
         "evaluated": 1775,
-        "hits": 209,
+        "hits": 340,
         "excluded": 0,
-        "paidHits": 209,
-        "payoutTotal": 1692.5999999999997
+        "paidHits": 340,
+        "payoutTotal": 1420.2000000000003
       }
     },
     "metrics": {
-      "rate": 0.10657843518878941,
-      "average": 8.596493791088363,
-      "product": 0.9162008563643418
-    }
-  },
-  "broad": {
-    "settings": {
-      "anchorMode": "analysis",
-      "modelMode": "custom",
-      "weights": [
-        1,
-        0,
-        2,
-        1,
-        0,
-        1,
-        45,
-        38,
-        0,
-        12
-      ],
-      "min": 3,
-      "max": 4
-    },
-    "all": {
-      "total": 13032,
-      "evaluated": 12845,
-      "hits": 1369,
-      "excluded": 187,
-      "paidHits": 1369,
-      "payoutTotal": 11768.59999999997
-    },
-    "years": {
-      "2021": {
-        "total": 1807,
-        "evaluated": 1622,
-        "hits": 140,
-        "excluded": 185,
-        "paidHits": 140,
-        "payoutTotal": 1878.5999999999985
-      },
-      "2022": {
-        "total": 2243,
-        "evaluated": 2243,
-        "hits": 227,
-        "excluded": 0,
-        "paidHits": 227,
-        "payoutTotal": 1944.4000000000003
-      },
-      "2023": {
-        "total": 2406,
-        "evaluated": 2404,
-        "hits": 234,
-        "excluded": 2,
-        "paidHits": 234,
-        "payoutTotal": 2000.2000000000012
-      },
-      "2024": {
-        "total": 2384,
-        "evaluated": 2384,
-        "hits": 273,
-        "excluded": 0,
-        "paidHits": 273,
-        "payoutTotal": 2156.0999999999995
-      },
-      "2025": {
-        "total": 2417,
-        "evaluated": 2417,
-        "hits": 286,
-        "excluded": 0,
-        "paidHits": 286,
-        "payoutTotal": 2096.7000000000003
-      },
-      "2026": {
-        "total": 1775,
-        "evaluated": 1775,
-        "hits": 209,
-        "excluded": 0,
-        "paidHits": 209,
-        "payoutTotal": 1692.5999999999997
-      }
-    },
-    "metrics": {
-      "rate": 0.10657843518878941,
-      "average": 8.596493791088363,
-      "product": 0.9162008563643418
+      "rate": 0.18326196963799143,
+      "average": 4.4426508071367765,
+      "product": 0.8141689373296981
     }
   },
   "baseline": {
@@ -196,16 +114,19 @@
       "anchorMode": "odds",
       "modelMode": "existing",
       "weights": [
-        33,
+        22,
+        0,
+        14,
         9,
-        18,
-        12,
+        13,
+        7,
+        5,
+        5,
+        3,
+        2,
         10,
         6,
-        4,
-        3,
-        3,
-        2
+        4
       ],
       "min": 3,
       "max": 4
@@ -273,5 +194,139 @@
       "average": 3.061092931937168,
       "product": 0.7282755936161919
     }
-  }
+  },
+  "temporal": {
+    "train": {
+      "total": 6456,
+      "evaluated": 6269,
+      "hits": 1083,
+      "excluded": 187,
+      "paidHits": 1083,
+      "payoutTotal": 4845.399999999998,
+      "label": "탐색 2021~2023"
+    },
+    "validation": {
+      "total": 2384,
+      "evaluated": 2384,
+      "hits": 463,
+      "excluded": 0,
+      "paidHits": 463,
+      "payoutTotal": 2131.5,
+      "label": "선택 2024"
+    },
+    "test": {
+      "total": 4192,
+      "evaluated": 4192,
+      "hits": 808,
+      "excluded": 0,
+      "paidHits": 808,
+      "payoutTotal": 3481.100000000001,
+      "label": "후속 확인 2025~현재"
+    },
+    "note": "2021~2023년으로 척도와 후보를 만들고 2024년 결과로 조합·승률 유지 여부를 선택했습니다. 2025년 이후는 선택 후 별도 집계했으나 이전 실험에도 사용된 자료여서 완전히 새로운 독립 검증이 아닙니다. 당일 결과는 입력 지표에 사용하지 않습니다."
+  },
+  "ablation": [
+    {
+      "label": "승률 제외",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          10,
+          0,
+          1,
+          0,
+          74,
+          8,
+          5
+        ],
+        "min": 3,
+        "max": 4
+      },
+      "train": {
+        "total": 6456,
+        "evaluated": 6269,
+        "hits": 1083,
+        "excluded": 187,
+        "paidHits": 1083,
+        "payoutTotal": 4845.399999999998,
+        "label": "탐색 2021~2023"
+      },
+      "validation": {
+        "total": 2384,
+        "evaluated": 2384,
+        "hits": 463,
+        "excluded": 0,
+        "paidHits": 463,
+        "payoutTotal": 2131.5,
+        "label": "선택 2024"
+      },
+      "test": {
+        "total": 4192,
+        "evaluated": 4192,
+        "hits": 808,
+        "excluded": 0,
+        "paidHits": 808,
+        "payoutTotal": 3481.100000000001,
+        "label": "후속 확인 2025~현재"
+      }
+    },
+    {
+      "label": "승률 유지",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          10,
+          0,
+          3,
+          0,
+          0,
+          80,
+          1,
+          0,
+          6,
+          0,
+          0,
+          0
+        ],
+        "min": 3,
+        "max": 4
+      },
+      "train": {
+        "total": 6456,
+        "evaluated": 6269,
+        "hits": 748,
+        "excluded": 187,
+        "paidHits": 748,
+        "payoutTotal": 4471.5,
+        "label": "탐색 2021~2023"
+      },
+      "validation": {
+        "total": 2384,
+        "evaluated": 2384,
+        "hits": 337,
+        "excluded": 0,
+        "paidHits": 337,
+        "payoutTotal": 2049,
+        "label": "선택 2024"
+      },
+      "test": {
+        "total": 4192,
+        "evaluated": 4192,
+        "hits": 617,
+        "excluded": 0,
+        "paidHits": 617,
+        "payoutTotal": 3444.699999999999,
+        "label": "후속 확인 2025~현재"
+      }
+    }
+  ]
 }

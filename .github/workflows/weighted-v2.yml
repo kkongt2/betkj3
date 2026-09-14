@@ -1,0 +1,65 @@
+name: Prepare and validate weighted v2
+on:
+  push:
+    branches: ['feature/weighted-v2']
+    paths: ['scripts/**', 'tests/**', '*.js', 'index.html', '.github/workflows/weighted-v2.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: weighted-v2-research
+  cancel-in-progress: true
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: kkongt2/timeline
+          ref: main
+          path: _seed
+          sparse-checkout: |
+            training
+            scripts/model-research
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests beautifulsoup4 charset-normalizer
+      - run: python tests/weighted-features.py
+      - run: python scripts/prepare-weighted-v2.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate compatibility and updated metrics
+        run: |
+          node --check app.js
+          node tests/qpl-policy.cjs
+          node tests/tuning.cjs
+          node tests/presets.cjs
+          node tests/site.cjs
+          node scripts/build-qpl-history.cjs
+          node tests/weighted-model.cjs
+          node tests/archive.cjs
+      - name: Train-only weight search with and without win rate
+        env:
+          OMP_NUM_THREADS: '2'
+        run: |
+          node scripts/export-v2-search.cjs /tmp/weighted-v2.txt
+          g++ -O3 -fopenmp -std=c++17 scripts/search-v2.cpp -o /tmp/search-v2
+          /tmp/search-v2 /tmp/weighted-v2.txt research/v2-with.json 0.4 with
+          /tmp/search-v2 /tmp/weighted-v2.txt research/v2-without.json 0.4 without
+          node scripts/validate-v2.cjs
+          node tests/search-coverage.cjs
+      - name: Preserve reproducible feature snapshots
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add history/weighted-v2.jsonl.gz history/weighted-source.jsonl.gz data qpl-history.json qpl-history-years strategy-search.json research
+          if ! git diff --cached --quiet; then
+            git commit -m 'Build prior-date weighted v2 features and documented coverage'
+            git pull --rebase origin feature/weighted-v2
+            git push origin HEAD:feature/weighted-v2
+          fi

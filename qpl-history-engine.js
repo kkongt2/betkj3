@@ -6,10 +6,10 @@ const QplHistoryEngine=(()=>{
  function create(rows){
   const entries=rows.map(row=>({row,winning:new Map(row.payouts.map(p=>[key(p.numbers),p.odds]))}));
   function evaluateRow(entry,config){
-   const signature=config.modelMode==='custom'?config.weights.join(','):'existing';
+   const signature=config.modelMode!=='existing'?config.modelMode+':'+config.weights.join(','):'existing';
    if(signature!=='existing'&&entry.signature!==signature){
     const analyzed=tuning.apply(tuning.unpack(entry.row),config),prob=new Map(analyzed.places.map(p=>[+p.numbers[0],p.prob]));
-    entry.custom={...entry.row,horses:entry.row.horses.map(h=>[h[0],prob.get(h[0]),h[2],h[3]]),pairs:analyzed.pairs.map(p=>[...p.numbers,p.prob])};entry.signature=signature;
+    entry.custom={...entry.row,horses:entry.row.horses.filter(h=>prob.has(h[0])).map(h=>[h[0],prob.get(h[0]),...h.slice(2)]),pairs:analyzed.pairs.map(p=>[...p.numbers,p.prob])};entry.signature=signature;
    }
    const result=policy.apply(tuning.unpack(signature==='existing'?entry.row:entry.custom),{quotes:entry.row.quotes},config),selected=result.qplPolicy.partner;
    const pair=selected?result.pairs[0]:null,hit=!!pair&&entry.winning.has(key(pair.numbers));
