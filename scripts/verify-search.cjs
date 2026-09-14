@@ -7,7 +7,7 @@ const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0
 function compare(a,b){return !b||a.pick.prob>b.pick.prob||a.pick.prob===b.pick.prob&&(a.partner.prob>b.partner.prob||a.partner.prob===b.partner.prob&&a.partner.number<b.partner.number);}
 function run(rows,weights){
  const results=[];for(const anchorMode of ['odds','analysis'])for(let min=2;min<=20;min++)for(let max=min;max<=20;max++)results.push({settings:{anchorMode,modelMode:weights?'custom':'existing',weights:weights||tuning.defaults(),min,max},all:blank(),years:{}});
- const indices=Object.fromEntries(results.map((r,i)=>[[r.settings.anchorMode,r.settings.min,r.settings.max].join(':'),i]));
+ const grids={odds:[],analysis:[]},yearTotals={};for(const row of rows)yearTotals[row.date.slice(0,4)]=(yearTotals[row.date.slice(0,4)]||0)+1;for(const r of results)(grids[r.settings.anchorMode][r.settings.min]||(grids[r.settings.anchorMode][r.settings.min]=[]))[r.settings.max]=r;
  for(const row of rows){
   if(!row.settled)continue;
   const base=tuning.apply(tuning.unpack(row),{modelMode:weights?'custom':'existing',weights});
@@ -17,13 +17,13 @@ function run(rows,weights){
    const byRank=new Map(all.qplPolicy.candidates.map(c=>[c.partner.rank,c]));
    for(let min=2;min<=20;min++){let picked=null;for(let max=min;max<=20;max++){
     const c=byRank.get(max);if(c&&compare(c,picked))picked=c;if(!picked)continue;
-    const out=results[indices[[anchorMode,min,max].join(':')]],year=row.date.slice(0,4);
+    const out=grids[anchorMode][min][max],year=row.date.slice(0,4);
     const amount=payouts.get(picked.pick.numbers.slice().sort((a,b)=>a-b).join('-'))||0;
     for(const g of [out.all,out.years[year]||(out.years[year]=blank())]){g.evaluated++;g.hits+=amount>0;g.paidHits+=amount>0;g.payoutTotal+=amount;}
    }}
   }
  }
- for(const out of results){out.all.total=rows.length;out.all.excluded=rows.length-out.all.evaluated;for(const [year,g]of Object.entries(out.years)){g.total=rows.filter(r=>r.date.startsWith(year)).length;g.excluded=g.total-g.evaluated;}out.metrics=engine.metrics(out.all);}
+ for(const out of results){out.all.total=rows.length;out.all.excluded=rows.length-out.all.evaluated;for(const [year,g]of Object.entries(out.years)){g.total=yearTotals[year];g.excluded=g.total-g.evaluated;}out.metrics=engine.metrics(out.all);}
  return results;
 }
 if(!isMainThread){const rows=loadRows();parentPort.on('message',({i,weights})=>parentPort.postMessage({i,results:run(rows,weights)}));}
@@ -35,9 +35,9 @@ else{
  function dispatch(worker){if(next<candidates.length){const i=next++;worker.postMessage({i,weights:candidates[i]});}else{worker.terminate();if(done===candidates.length)finish();}}
  function finish(){
   const rank=(a,b)=>(b.metrics.product??-1)-(a.metrics.product??-1)||b.all.evaluated-a.all.evaluated||a.settings.max-b.settings.max;
-  results.sort(rank);const baseline=results.find(r=>r.settings.modelMode==='existing'&&r.settings.anchorMode==='odds'&&r.settings.min===3&&r.settings.max===4),best=results[0],broad=results.filter(r=>r.all.evaluated>=baseline.all.evaluated*.8)[0];
-  const report={schema:1,generatedAt:new Date().toISOString(),from:manifest.from,to:manifest.to,sourceRaces:manifest.races,sourceSha256:Object.fromEntries(manifest.shards.map(s=>[s.url,crypto.createHash('sha256').update(fs.readFileSync(s.url)).digest('hex')])),search:{seed:source.seed,weightCandidates:source.weightCandidates,rangeCombinationsPerWeight:380,exactWeightCandidates:candidates.length,exactConfigurations:results.length,weightsSum:100,broadMinimumEvaluated:Math.ceil(baseline.all.evaluated*.8),method:'Deterministic sparse/random seeds, 10/5/2/1 percentage-point transfers; score-order screening, then exact site probabilities for all finalist intervals. Same-data retrospective selection, not held-out validation.'},best,broad,baseline};
-  fs.writeFileSync('strategy-search.json',JSON.stringify(report,null,2));fs.writeFileSync('research/strategy-search-top.json',JSON.stringify(results.slice(0,30),null,2));
+  results.sort(rank);const baseline=results.find(r=>r.settings.modelMode==='existing'&&r.settings.anchorMode==='odds'&&r.settings.min===3&&r.settings.max===4),minimumCoverageRatio=source.minimumCoverageRatio||.4,minimumEvaluated=Math.ceil(manifest.races*minimumCoverageRatio),eligible=results.filter(r=>r.all.evaluated>=minimumEvaluated),best=eligible[0],broad=results.filter(r=>r.all.evaluated>=baseline.all.evaluated*.8)[0];
+  const report={schema:1,generatedAt:new Date().toISOString(),from:manifest.from,to:manifest.to,sourceRaces:manifest.races,sourceSha256:Object.fromEntries(manifest.shards.map(s=>[s.url,crypto.createHash('sha256').update(fs.readFileSync(s.url)).digest('hex')])),search:{seed:source.seed,weightCandidates:source.weightCandidates,rangeCombinationsPerWeight:380,exactWeightCandidates:candidates.length,exactConfigurations:results.length,weightsSum:100,minimumCoverageRatio,minimumEvaluated,coverageDenominator:manifest.races,broadMinimumEvaluated:Math.ceil(baseline.all.evaluated*.8),method:'Deterministic sparse/random seeds, 10/5/2/1 percentage-point transfers; score-order screening, then exact site probabilities for all finalist intervals. Same-data retrospective selection, not held-out validation.'},best,broad,baseline};
+  fs.writeFileSync('strategy-search.json',JSON.stringify(report,null,2));fs.writeFileSync('research/strategy-search-top.json',JSON.stringify(eligible.slice(0,30),null,2));
   console.log(JSON.stringify({best,broad,baseline}));
  }
 }

@@ -2,7 +2,7 @@ const fs=require('node:fs');
 const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));
 const rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows);
 const valid=rows.filter(r=>r.settled&&r.horses.filter(h=>!r.starters||r.starters.includes(h[0])).every(h=>r.quotes.some(q=>q.numbers[0]===h[0])));
-let lines=[String(valid.length)];
+let lines=[valid.length+' '+rows.length];
 for(const r of valid){
  const hs=r.horses.slice().sort((a,b)=>a[0]-b[0]);
  lines.push([r.date,hs.length,r.k].join(' '));

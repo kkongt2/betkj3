@@ -35,20 +35,27 @@ std::vector<Result> evaluate(W w,bool existing=false){
  std::vector<Result> out;for(int m=0;m<2;m++)for(int l=2;l<=20;l++)for(int h=l;h<=20;h++)if(count[m][l][h])out.push_back({w,m,l,h,count[m][l][h],hits[m][l][h],paid[m][l][h]});return out;
 }
 int main(int argc,char**argv){
- std::ifstream in(argv[1]);int n;in>>n;races.resize(n);for(auto&r:races){in>>r.date>>r.n>>r.k;for(int i=0;i<r.n;i++){in>>r.number[i]>>r.odds[i]>>r.prob[i];for(double&x:r.f[i])in>>x;}for(int i=0;i<r.n;i++)for(int j=0;j<r.n;j++)in>>r.q[i][j]>>r.paid[i][j];}if(!in)return 2;
- std::mt19937 rng(20260914);std::set<W> seen;std::vector<Result> global,wide;int tested=0;
- auto trim=[](std::vector<Result>&v){std::sort(v.begin(),v.end(),[](const Result&a,const Result&b){if(a.value()!=b.value())return a.value()>b.value();if(a.n!=b.n)return a.n>b.n;return a.w<b.w;});std::set<W> keep;v.erase(std::remove_if(v.begin(),v.end(),[&](const Result&r){return !keep.insert(r.w).second;}),v.end());if(v.size()>30)v.resize(30);};
+ std::ifstream in(argv[1]);int n,totalRaces;in>>n>>totalRaces;races.resize(n);for(auto&r:races){in>>r.date>>r.n>>r.k;for(int i=0;i<r.n;i++){in>>r.number[i]>>r.odds[i]>>r.prob[i];for(double&x:r.f[i])in>>x;}for(int i=0;i<r.n;i++)for(int j=0;j<r.n;j++)in>>r.q[i][j]>>r.paid[i][j];}if(!in)return 2;
+ const double minimumRatio=argc>3?std::stod(argv[3]):.4;if(minimumRatio<.4||minimumRatio>1||totalRaces<n)return 3;const int minimumEvaluated=int(std::ceil(totalRaces*minimumRatio));
+ std::mt19937 rng(20260914);std::set<W> seen;std::vector<Result> global,wide;Result intervalBest[2][21][21]={};int tested=0;
+ auto trim=[](std::vector<Result>&v){std::sort(v.begin(),v.end(),[](const Result&a,const Result&b){if(a.value()!=b.value())return a.value()>b.value();if(a.n!=b.n)return a.n>b.n;return a.w<b.w;});std::set<W> keep;v.erase(std::remove_if(v.begin(),v.end(),[&](const Result&r){return !keep.insert(r.w).second;}),v.end());if(v.size()>20)v.resize(20);};
  auto batch=[&](std::vector<W> list){std::vector<W> unique;for(auto w:list)if(seen.insert(w).second)unique.push_back(w);std::vector<std::vector<Result>> all(unique.size());
   #pragma omp parallel for schedule(dynamic)
   for(size_t i=0;i<unique.size();i++)all[i]=evaluate(unique[i]);
-  for(auto&v:all){for(auto&r:v){global.push_back(r);if(r.n>=int(n*.8))wide.push_back(r);}trim(global);trim(wide);}tested+=unique.size();std::cerr<<"Tested "<<tested<<" weights; best "<<global[0].value()<<" n="<<global[0].n<<"; broad "<<wide[0].value()<<"\n";
+  for(auto&v:all){for(auto&r:v){if(r.n>=minimumEvaluated){global.push_back(r);auto&best=intervalBest[r.mode][r.lo][r.hi];if(!best.n||r.value()>best.value())best=r;}if(r.n>=int(std::ceil(n*.8)))wide.push_back(r);}trim(global);trim(wide);}tested+=unique.size();std::cerr<<"Tested "<<tested<<" weights; best "<<global[0].value()<<" n="<<global[0].n<<"; broad "<<wide[0].value()<<"\n";
  };
  std::vector<W> initial={{33,9,18,12,10,6,4,3,3,2}};
+ if(argc>4){std::ifstream seeds(argv[4]);while(seeds){W w={};for(int&x:w)seeds>>x;if(seeds)initial.push_back(w);}}
  for(int i=0;i<10;i++){W w={};w[i]=100;initial.push_back(w);for(int j=i+1;j<10;j++)for(int a=10;a<100;a+=10){W x={};x[i]=a;x[j]=100-a;initial.push_back(x);}}
- for(int k=0;k<700;k++){double a[10],total=0;for(int i=0;i<10;i++){a[i]=std::pow(-std::log((rng()+1.0)/(rng.max()+2.0)),k%3+1);total+=a[i];}W w={};int used=0;for(int i=0;i<10;i++){w[i]=int(a[i]*100/total);used+=w[i];}while(used++<100)w[rng()%10]++;initial.push_back(w);}
+ for(int k=0;k<1800;k++){double a[10],total=0;for(int i=0;i<10;i++){a[i]=std::pow(-std::log((rng()+1.0)/(rng.max()+2.0)),k%3+1);total+=a[i];}W w={};int used=0;for(int i=0;i<10;i++){w[i]=int(a[i]*100/total);used+=w[i];}while(used++<100)w[rng()%10]++;initial.push_back(w);}
  batch(initial);
- for(int step:{10,5,2,1})for(int round=0;round<2;round++){
-  std::vector<W> candidates;for(auto*board:{&global,&wide})for(int b=0;b<std::min(5,int(board->size()));b++)for(int i=0;i<10;i++)for(int j=0;j<10;j++)if(i!=j&&(*board)[b].w[i]>=step){W w=(*board)[b].w;w[i]-=step;w[j]+=step;candidates.push_back(w);}batch(candidates);
+ for(int step:{10,5,2,1})for(int round=0;round<3;round++){
+  std::vector<W> candidates;for(auto*board:{&global,&wide})for(int b=0;b<std::min(7,int(board->size()));b++)for(int i=0;i<10;i++)for(int j=0;j<10;j++)if(i!=j&&(*board)[b].w[i]>=step){W w=(*board)[b].w;w[i]-=step;w[j]+=step;candidates.push_back(w);}batch(candidates);
  }
- std::ofstream out(argv[2]);out<<"{\"seed\":20260914,\"weightCandidates\":"<<tested<<",\"rangeCombinationsPerWeight\":380,\"finalists\":[";bool first=true;std::set<W> emitted;for(auto*board:{&global,&wide})for(const auto&r:*board)if(emitted.insert(r.w).second){if(!first)out<<',';first=false;out<<"{\"weights\":[";for(int i=0;i<10;i++){if(i)out<<',';out<<r.w[i];}out<<"],\"proxyProduct\":"<<r.value()<<'}';}out<<"]}\n";
+ for(int step:{10,5,2,1}){
+  std::set<W> leaders,neighbors;for(int m=0;m<2;m++)for(int lo=2;lo<=20;lo++)for(int hi=lo;hi<=20;hi++)if(intervalBest[m][lo][hi].n)leaders.insert(intervalBest[m][lo][hi].w);
+  for(auto w:leaders)for(int i=0;i<10;i++)for(int j=0;j<10;j++)if(i!=j&&w[i]>=step){W x=w;x[i]-=step;x[j]+=step;if(!seen.count(x))neighbors.insert(x);}
+  std::vector<W> candidates(neighbors.begin(),neighbors.end());std::shuffle(candidates.begin(),candidates.end(),rng);if(candidates.size()>2500)candidates.resize(2500);batch(candidates);
+ }
+ std::ofstream out(argv[2]);out<<"{\"seed\":20260914,\"weightCandidates\":"<<tested<<",\"sourceRaces\":"<<totalRaces<<",\"minimumCoverageRatio\":"<<minimumRatio<<",\"minimumEvaluated\":"<<minimumEvaluated<<",\"rangeCombinationsPerWeight\":380,\"finalists\":[";bool first=true;std::set<W> emitted;for(auto*board:{&global,&wide})for(const auto&r:*board)if(emitted.insert(r.w).second){if(!first)out<<',';first=false;out<<"{\"weights\":[";for(int i=0;i<10;i++){if(i)out<<',';out<<r.w[i];}out<<"],\"proxyProduct\":"<<r.value()<<'}';}out<<"]}\n";
 }

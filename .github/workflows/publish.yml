@@ -54,6 +54,7 @@ jobs:
           node tests/site.cjs
           node tests/tuning.cjs
           node tests/presets.cjs
+          node tests/search-coverage.cjs
           node scripts/build-qpl-history.cjs
           node tests/archive.cjs
       - name: Preserve computed history for branch and workflow deployments

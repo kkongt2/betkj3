@@ -10,7 +10,9 @@ This is retrospective same-data optimization over the available 2021–2026 arch
 It is not out-of-sample validation. Existing learned models and final odds have
 the same limitations as the site's historical statistics. Choosing the maximum
 among many configurations can overfit, particularly for rare high-rank intervals.
-The report includes the unconstrained maximum and a separate maximum requiring
+The primary maximum requires at least 40% of ALL source races, including records
+with unavailable payouts in the denominator. Its threshold is rounded up.
+The report also retains a separate maximum requiring
 at least 80% of the baseline's evaluable races. Neither is a guaranteed global
 maximum over every possible weight vector or a forecast of future returns.
 
@@ -19,7 +21,7 @@ Reproduce from repository root (Node.js and g++ with OpenMP):
 ```sh
 node scripts/export-search.cjs /tmp/betkj3-search-input.txt
 g++ -O3 -std=c++17 -fopenmp -ffp-contract=off scripts/search-strategy.cpp -o /tmp/betkj3-search
-OMP_NUM_THREADS=6 /tmp/betkj3-search /tmp/betkj3-search-input.txt research/strategy-search-finalists.json
+OMP_NUM_THREADS=6 /tmp/betkj3-search /tmp/betkj3-search-input.txt research/strategy-search-finalists.json 0.4 research/strategy-search-seeds.txt
 node scripts/verify-search.cjs research/strategy-search-finalists.json
 node scripts/check-search-report.cjs
 ```
@@ -28,7 +30,10 @@ Search weights are integer percentages summing to 100. The deterministic seed is
 20260914. Initial candidates include default, single-feature, two-feature and
 random sparse/dense weights. Both anchor modes and all 190 contiguous rank ranges
 from 2 through 20 are screened per vector. Local transfers use 10, 5, 2 and 1
-percentage-point increments around the strongest broad and unconstrained vectors.
+percentage-point increments around the strongest 40%-coverage and broad-coverage vectors. Previous finalists
+are retained as seeds in strategy-search-seeds.txt. Additional searches start
+from each eligible anchor/rank interval's own best weights, with up to 2,500 new
+neighbor vectors per 10/5/2/1 percentage-point stage.
 
 Native screening uses the monotonic ordering of Plackett–Luce strengths for custom
 probabilities. Ties and floating-point probability sums can alter the site's tie

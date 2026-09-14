@@ -1,5 +1,6 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),engine=require('../qpl-history-engine.js');
 const report=JSON.parse(fs.readFileSync('strategy-search.json')),manifest=JSON.parse(fs.readFileSync('qpl-history.json'));
+assert.equal(report.search.minimumEvaluated,Math.ceil(report.sourceRaces*.4));assert.equal(report.search.coverageDenominator,report.sourceRaces);assert(report.best.all.evaluated>=report.search.minimumEvaluated);
 const rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows),evaluation=engine.create(rows);
 (async()=>{
  for(const name of ['best','broad','baseline']){
