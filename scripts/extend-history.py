@@ -55,11 +55,12 @@ def main():
         except Exception as e:return report,{},str(e)
     with ThreadPoolExecutor(max_workers=3) as pool:
         for i,(report,blocks,error) in enumerate(pool.map(collect,reports)):
-            if error:errors.append({'date':report['date'],'meet':report['meet'],'error':error});continue
+            if error:errors.append({'date':report['date'],'meet':report['meet'],'error':error})
             for r in grouped[report['date'],VENUES[report['meet']]]:
                 card=card_for(r);market={'quotes':[]};block=blocks.get(r['race_no'],'');ns=[h['number'] for h in card['horses']]
                 result={'status':'unavailable','source':report['source'],'starters':ns};card['official_result']=result
                 try:
+                    if error:raise ValueError('Official report unavailable: '+error)
                     winners=[h['number'] for h in sorted(r['horses'],key=lambda h:h['finish'])[:3]]
                     result['pair']=dividends(block,'pair',[tuple(sorted(p)) for p in combinations(winners,2)])
                     result['place']=dividends(block,'place',[(n,) for n in r['place_winners']]);result['status']='confirmed'
@@ -69,10 +70,10 @@ def main():
                 except ValueError as e:issues.append({'date':r['date'],'venue':r['venue'],'race':r['race_no'],'reason':str(e)})
                 output.append({'race':card,'market':market})
             if (i+1)%20==0:print(year,'reports',i+1,'/',len(reports),'races',len(output),'excluded',len(issues),flush=True)
-    if errors:raise RuntimeError('Report download failures: '+json.dumps(errors,ensure_ascii=False))
+    if errors:print('Unavailable reports:',json.dumps(errors,ensure_ascii=False),flush=True)
     if len(output)!=len(selected):raise RuntimeError('Incomplete historical expansion')
     target.parent.mkdir(parents=True,exist_ok=True)
     target.write_bytes(gzip.compress(''.join(json.dumps(x,ensure_ascii=False,separators=(',',':'))+'\n' for x in output).encode(),mtime=0))
-    info={'schema':1,'year':year,'races':len(output),'reports':len(reports),'from':min((x['race']['date'] for x in output),default=None),'to':max((x['race']['date'] for x in output),default=None),'unavailable':issues,'source':'kkongt2/timeline training/history-v7.jsonl.gz'}
+    info={'schema':1,'year':year,'races':len(output),'reports':len(reports),'from':min((x['race']['date'] for x in output),default=None),'to':max((x['race']['date'] for x in output),default=None),'unavailable':issues,'download_errors':errors,'source':'kkongt2/timeline training/history-v7.jsonl.gz'}
     coverage.write_text(json.dumps(info,ensure_ascii=False,indent=2));print('Completed',year,len(output),'races',len(issues),'unavailable',flush=True)
 if __name__=='__main__':main()
