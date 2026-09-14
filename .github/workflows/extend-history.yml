@@ -9,7 +9,7 @@ permissions:
   pages: write
   id-token: write
 concurrency:
-  group: betkj3-history-expansion-v2
+  group: betkj3-history-expansion
   cancel-in-progress: true
 jobs:
   collect:
