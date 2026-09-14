@@ -1,0 +1,27 @@
+const assert=require('node:assert/strict'),model=require('../model.js'),tuning=require('../tuning-model.js'),policy=require('../qpl-policy.js'),history=require('../qpl-history-engine.js');
+const race={date:'20250928',venue:'seoul',race_no:1,horses:Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1),rating:10*i,starts_1y:10,wins_1y:5-i,seconds_1y:0,thirds_1y:0})),official_result:{pair:{status:'confirmed',payouts:[{numbers:[1,3],odds:3.6}]}}};
+const market={quotes:[1.1,1.2,2,3,5,8].map((odds,i)=>({numbers:[i+1],odds}))};
+const base=model.analyze(race),saved=JSON.stringify(base),rating=[0,0,0,100,0,0,0,0,0,0],win=[0,100,0,0,0,0,0,0,0,0];
+assert.strictEqual(tuning.apply(base,{modelMode:'existing'}),base);
+const custom=tuning.apply(base,{modelMode:'custom',weights:rating});assert.equal(custom.places[0].numbers[0],6);
+assert.equal(policy.apply(custom,market,{anchorMode:'analysis',min:2,max:4}).qplPolicy.anchor.number,6);
+assert.equal(tuning.apply(base,{modelMode:'custom',weights:win}).places[0].numbers[0],1);
+assert.equal(JSON.stringify(base),saved);assert.equal(custom.selection.place.qualified,false);
+assert(Math.abs(custom.places.reduce((s,p)=>s+p.prob,0)-2)<1e-10);
+assert(Math.abs(custom.pairs.reduce((s,p)=>s+p.prob,0)-3)<1e-10);
+assert(tuning.validWeights([1,0,0,0,0,0,0,0,0,0]));assert(!tuning.validWeights(Array(10).fill(0)));assert(!tuning.validWeights(Array(10).fill(.5)));
+const restored=tuning.unpack(tuning.pack(base,market));
+const again=tuning.apply(restored,{modelMode:'custom',weights:rating});
+for(const pick of custom.pairs)assert.equal(pick.prob,again.pairs.find(p=>p.numbers.join('-')===pick.numbers.join('-')).prob);
+assert(Math.abs(history.metrics({evaluated:10,hits:3,paidHits:3,payoutTotal:9}).product-.9)<1e-12);
+assert.equal(history.metrics({evaluated:10,hits:0,paidHits:0,payoutTotal:0}).product,0);
+assert.equal(history.metrics({evaluated:10,hits:3,paidHits:2,payoutTotal:6}).product,null);
+assert.equal(history.metrics({evaluated:0,hits:0,paidHits:0,payoutTotal:0}).product,null);
+(async()=>{
+ const rows=Array.from({length:81},()=>tuning.pack(base,market)),engine=history.create(rows);
+ let valid=true;const obsolete=engine.evaluate({modelMode:'custom',weights:rating},'20250914','20260914',()=>valid);valid=false;
+ assert.equal(await obsolete,null);
+ const latest=await engine.evaluate({modelMode:'custom',weights:win,anchorMode:'analysis',min:3,max:4},'20250914','20260914');
+ assert.equal(latest.all.evaluated,81);assert.equal(latest.all.hits,81);assert.equal(latest.all.paidHits,81);
+ console.log('PASS custom weights, analysis anchor, probability sums, history equivalence, product and cancelled stale calculation');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -38,3 +38,10 @@ assert.equal(avg.all.hits,3);assert.equal(avg.all.paidHits,2);assert.equal((avg.
 assert.equal(avg.seoul.payoutTotal,2.2);assert.equal(avg.busan.payoutTotal,5.4);
 assert.equal(summarize(payoutRows,{min:2,max:4},'20250914','20260914').all.paidHits,0);
 console.log('PASS average winning payout excludes losses and missing odds, and follows selected range');
+const analysisBase={...base,places:base.places.map(p=>({...p,prob:p.numbers[0]===4?1:p.prob}))};
+const analysis=apply(analysisBase,{quotes},{min:3,max:4,anchorMode:'analysis'});
+assert.equal(analysis.qplPolicy.anchor.number,4);assert.equal(analysis.qplPolicy.partner.number,3);
+assert.deepEqual(analysis.pairs[0].numbers,[3,4]);
+assert.equal(apply(analysisBase,{quotes},{min:4,max:4,anchorMode:'analysis'}).pairs.length,0);
+assert.equal(apply({...analysisBase,official_result:{starters:[1,2,3,5,6]}},{quotes},{min:2,max:4,anchorMode:'analysis'}).qplPolicy.anchor.number,1);
+console.log('PASS analysis anchor, anchor exclusion from partner range and withdrawn anchor');

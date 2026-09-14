@@ -130,5 +130,4 @@ function candidateReasons(r,x,type){
  if(r.mode==='value'&&(x.ev===null||x.ev<(type==='place'?.1:.15)))why.push(x.ev===null?'배당 입력 필요':'검토 기준 미달');
  return why;
 }
-if(typeof module!=='undefined')module.exports={setChallengerModel,analyze,probs,candidateReasons,MODEL_VERSION,setTrainedModel,setAdvancedModel,predictEstimator,pairFeatures,advancedReady};
-
+if(typeof module!=='undefined')module.exports={score,setChallengerModel,analyze,probs,candidateReasons,MODEL_VERSION,setTrainedModel,setAdvancedModel,predictEstimator,pairFeatures,advancedReady};
