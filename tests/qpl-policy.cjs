@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict'),{apply}=require('../qpl-policy.js');
+const horses=Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1)}));
+const base={horses,places:horses.map((h,i)=>({numbers:[h.number],prob:.9-i*.1})),pairs:horses.flatMap((h,i)=>horses.slice(i+1).map(j=>({numbers:[h.number,j.number],names:[h.name,j.name],prob:h.number===1&&j.number===2?.99:h.number===1&&j.number===3?.25:h.number===1&&j.number===4?.3:.1}))),models:{place:'existing',pair:'existing'},selection:{pair:{qualified:true}},selectivePicks:{pair:{numbers:[1,2]}}};
+const quotes=[1.1,1.2,2,3,5,8].map((odds,i)=>({numbers:[i+1],odds}));
+const result=apply(base,{quotes});
+assert.deepEqual(result.pairs[0].numbers,[1,4]);assert.equal(result.qplPolicy.partner.rank,4);
+assert.deepEqual(result.qplPolicy.candidates.map(c=>c.partner.number).sort(),[3,4]);
+assert.equal(result.pairs.length,1);assert.equal(result.selection.pair.qualified,false);assert.equal(result.selectivePicks.pair,null);
+assert.deepEqual(base.selectivePicks.pair.numbers,[1,2]);assert.equal(base.pairs.length,15);
+for(const q of [null,{quotes:quotes.slice(0,5)},{quotes:[...quotes,quotes[0]]},{quotes:quotes.map((q,i)=>i? q:{...q,odds:0})}])assert.equal(apply(base,q).pairs.length,0);
+assert.equal(apply({...base,horses:horses.slice(0,3)},{quotes}).pairs.length,0);
+const tied=apply({...base,places:base.places.map(p=>({...p,prob:p.numbers[0]===2?1:p.prob}))},{quotes:quotes.map((q,i)=>i===1?{...q,odds:1.1}:q)});
+assert.equal(tied.qplPolicy.anchor.number,2);
+const tiePair=apply({...base,pairs:base.pairs.map(p=>({...p,prob:.2}))},{quotes});assert.equal(tiePair.qplPolicy.partner.number,3);
+const excluded=apply({...base,official_result:{starters:[1,2,3,4,5]}},{quotes:quotes.slice(0,5)});assert.equal(excluded.qplPolicy.status,'ready');
+const reverse=apply({...base,places:[...base.places].reverse(),pairs:[...base.pairs].reverse()},{quotes:[...quotes].reverse()});assert.deepEqual(reverse.pairs[0].numbers,[1,4]);
+console.log('PASS fixed lowest-odds anchor; only rank 3/4 partners; existing pair probabilities; ties, missing odds, exclusions and no input mutation');
