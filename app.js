@@ -221,7 +221,7 @@ async function chooseAvailable(){
  const request=++selectionRequest;
  const dates=venueDates();let d=$('#date').value.replaceAll('-','');if(!dates.includes(d))d=dates.find(x=>x>=day().replaceAll('-',''))||dates.at(-1)||'';
  $('#date').value=d?d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8):'';
- const archiveNeeded=d<day().replaceAll('-','')&&(source?.calendar||[]).some(x=>x.date===d)&&!dateRaces(d).every(r=>r.calendar_archive);
+ const archiveNeeded=d<day().replaceAll('-','')&&(source?.calendar||[]).some(x=>x.date===d)&&!dateRaces(d).every(r=>r.calendar_archive||r.archiveLoaded);
  if(d&&(!dateRaces(d).length||archiveNeeded)){
   const requestedVenue=venue;current=null;ranked=null;$('#analysis').hidden=true;$('#overview').hidden=true;renderSelectors();
   $('#dataStatus').textContent=d+' 경주를 불러오는 중…';
@@ -229,7 +229,7 @@ async function chooseAvailable(){
    const doc=await fetchPublicJSON('data/calendar/'+d+'.json');
    if(request!==selectionRequest)return;
    if(doc.date!==d||!Array.isArray(doc.races)||doc.races.some(r=>r.date!==d)||!doc.races.some(r=>r.venue===requestedVenue))throw Error('날짜별 경주 확인 필요');
-   races=races.filter(r=>r.date!==d).concat(doc.races);
+   races=races.filter(r=>r.date!==d).concat(doc.races.map(r=>({...r,archiveLoaded:true})));
    $('#dataStatus').textContent=d+' · '+dateRaces(d).length+'개 경주';
   }catch{if(request===selectionRequest)$('#dataStatus').textContent='지난 경주를 불러오지 못했습니다. 날짜를 다시 누르거나 새로고침해 주세요.';return;}
  }
