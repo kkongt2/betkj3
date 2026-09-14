@@ -4,7 +4,7 @@ const doc={updated_at:'2026-09-14T09:00:00+09:00',races:[fixture]},odds={schema:
 const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,dataset:{},classList:{toggle(){}},setAttribute(){},addEventListener(t,f){this[t]=f},focus(){}});
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:()=>null,setItem(){}},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?{schema:1,policyVersion:'betkj3-final-place-range-v2',generatedAt:'2026-09-14T00:00:00Z',rows:[{date:fixture.date,venue:'seoul',settled:true,candidates:[{partner:{rank:2,number:2,prob:.9},pick:{prob:.9},hit:false},{partner:{rank:3,number:3,prob:.8},pick:{prob:.8},hit:true}]}]}:String(url).includes('market-odds/')?odds:doc}),alert:msg=>{throw Error(msg)}};
+const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:()=>null,setItem(){}},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?{schema:1,policyVersion:'betkj3-final-place-range-v2',generatedAt:'2026-09-14T00:00:00Z',rows:[{date:fixture.date,venue:'seoul',settled:true,candidates:[{partner:{rank:2,number:2,prob:.9},pick:{prob:.9},hit:false},{partner:{rank:3,number:3,prob:.8},pick:{prob:.8},hit:true,payout:3.6}]}]}:String(url).includes('market-odds/')?odds:doc}),alert:msg=>{throw Error(msg)}};
 vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await new Promise(setImmediate);await new Promise(setImmediate);
  assert(nodes['#placeLead'].innerHTML.includes('data-result-toggle'));
@@ -12,9 +12,11 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  assert(!nodes['#raceOverview'].innerHTML.includes('data-result-type="pair"'));
  assert(nodes['#pairLead'].innerHTML.includes('동반입상확률 비교'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('100.0%'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('평균 적중 배당<strong>3.60배')); 
  assert(!fs.readFileSync('index.html','utf8').includes('수익성 검토'));
  nodes['#partnerMin'].value='2';nodes['#partnerMin'].onchange();
  assert(nodes['#qplHistoryStats'].innerHTML.includes('0.0%'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('평균 적중 배당<strong>—')); 
  assert(nodes['#pairLead'].innerHTML.includes('배당 2위'));
  nodes['#partnerMin'].value='3';nodes['#partnerMax'].value='6';nodes['#partnerMax'].onchange();
  assert(nodes['#pairLead'].innerHTML.includes('배당 6위'));

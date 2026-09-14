@@ -25,6 +25,7 @@ for(const file of fs.readdirSync('data/calendar').filter(f=>/^\d{8}\.json$/.test
    const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
    const hit=r.official_result.pair.payouts.some(x=>key(x.numbers)===key(full.pairs[0].numbers));
    assert.equal(compact.hit,hit);
+   assert.equal(compact.payout,r.official_result.pair.payouts.find(x=>key(x.numbers)===key(full.pairs[0].numbers))?.odds??null);
    const k=range.min+'~'+range.max,c=counts.get(k)||{evaluated:0,hits:0};c.evaluated++;c.hits+=hit?1:0;counts.set(k,c);
   }
  }

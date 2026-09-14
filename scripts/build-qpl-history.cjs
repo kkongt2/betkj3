@@ -13,8 +13,8 @@ for(const file of fs.readdirSync('data/calendar').filter(f=>/^\d{8}\.json$/.test
   const key=[r.date,r.venue,r.race_no].join(':');if(seen.has(key))continue;seen.add(key);
   const base=model.analyze(r,'accuracy'),result=policy.apply(base,markets[r.venue+':'+r.race_no]?.place,{min:2,max:20});
   const market=r.official_result?.pair,settled=market?.status==='confirmed'&&Array.isArray(market.payouts)&&market.payouts.length>0;
-  const winning=new Set((settled?market.payouts:[]).map(p=>pairKey(p.numbers)));
-  rows.push({date:r.date,venue:r.venue,race:r.race_no,settled:!!settled,candidates:(result.qplPolicy.candidates||[]).map(c=>({partner:{rank:c.partner.rank,number:c.partner.number,prob:c.partner.prob},pick:{prob:c.pick.prob},hit:winning.has(pairKey(c.pick.numbers))}))});
+  const winning=new Map((settled?market.payouts:[]).map(p=>[pairKey(p.numbers),p.odds]));
+  rows.push({date:r.date,venue:r.venue,race:r.race_no,settled:!!settled,candidates:(result.qplPolicy.candidates||[]).map(c=>({partner:{rank:c.partner.rank,number:c.partner.number,prob:c.partner.prob},pick:{prob:c.pick.prob},hit:winning.has(pairKey(c.pick.numbers)),payout:winning.get(pairKey(c.pick.numbers))??null}))});
  }
 }
 const source=JSON.parse(fs.readFileSync('data/latest.json'));
