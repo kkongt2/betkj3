@@ -1,15 +1,16 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const fixture={date:'20250928',venue:'seoul',race_no:1,start_time:'10:00',horses:Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1),rating:50-i,starts_1y:10,wins_1y:2,seconds_1y:1,thirds_1y:1})),official_result:{status:'confirmed',starters:[1,2,3,4,5,6],place:{status:'confirmed',payouts:[{numbers:[1],odds:1.1},{numbers:[3],odds:2}]},pair:{status:'confirmed',payouts:[{numbers:[1,3],odds:3}]}}};
-const doc={updated_at:'2026-09-14T09:00:00+09:00',races:[fixture]},odds={schema:1,date:fixture.date,races:{'seoul:1':{place:{quotes:[1.1,1.2,2,3,5,8].map((odds,i)=>({numbers:[i+1],odds}))}}}};
+const doc={updated_at:'2026-09-14T09:00:00+09:00',races:[fixture],calendar:[{date:fixture.date,venues:['seoul']}]},odds={schema:1,date:fixture.date,races:{'seoul:1':{place:{quotes:[1.1,1.2,2,3,5,8].map((odds,i)=>({numbers:[i+1],odds}))}}}};
 const nativeModel=require('../model.js'),nativeTuning=require('../tuning-model.js');
 const historyDoc={schema:2,policyVersion:'betkj3-configurable-anchor-v3',generatedAt:doc.updated_at,rows:[nativeTuning.pack(nativeModel.analyze(fixture),odds.races['seoul:1'].place)]};
 const flush=()=>new Promise(resolve=>setTimeout(resolve,180));
 const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,dataset:{},classList:{toggle(){}},setAttribute(){},addEventListener(t,f){this[t]=f},focus(){}});
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:()=>null,setItem(){}},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?historyDoc:String(url).includes('market-odds/')?odds:doc}),alert:msg=>{throw Error(msg)}};
+const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:()=>null,setItem(){}},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?historyDoc:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
 vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await flush();
+ assert.equal(vm.runInContext('current.calendar_archive',sandbox),true);
  assert(nodes['#placeLead'].innerHTML.includes('data-result-toggle'));
  assert(!nodes['#pairLead'].innerHTML.includes('data-result-toggle'));
  assert(!nodes['#raceOverview'].innerHTML.includes('data-result-type="pair"'));
