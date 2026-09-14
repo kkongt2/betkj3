@@ -32,8 +32,8 @@ async function loadQplHistory(){
  const id=++historyRequest;$('#retryQplHistory').hidden=true;
  if(!qplHistory)$('#qplHistoryStats').textContent='과거 경주를 불러오는 중…';
  try{
-  const doc=await fetchJSON('qpl-history.json?v=3&t='+Date.now());
-  if(doc.schema!==2||doc.policyVersion!==Betkj3Policy.VERSION||!Array.isArray(doc.rows))throw Error('통계 자료 형식 확인 필요');
+  const doc=await fetchJSON('qpl-history.json?v=4&t='+Date.now());
+  if(![2,3].includes(doc.schema)||doc.policyVersion!==Betkj3Policy.VERSION||(doc.schema===2?!Array.isArray(doc.rows):!Array.isArray(doc.shards)))throw Error('통계 자료 형식 확인 필요');
   if(id!==historyRequest)return;qplHistory=doc;setupHistoryEngine();renderQplHistory();
  }catch{
   if(id!==historyRequest)return;
@@ -44,16 +44,16 @@ async function loadQplHistory(){
 function setupHistoryEngine(){
  historyWorker?.terminate();historyWorker=null;historyEngine=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=3.0');
-  historyWorker.onmessage=({data})=>{if(data.id!==historyEvaluation)return;if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
+  historyWorker=new Worker('qpl-history-worker.js?v=4.0');
+  historyWorker.onmessage=({data})=>{if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
-  historyWorker.postMessage({type:'init',rows:qplHistory.rows});
+  historyWorker.postMessage({type:'init',manifest:qplHistory});
  }catch{historyWorker=null;}
 }
 function fallbackHistory(){historyWorker?.terminate();historyWorker=null;historyEngine=null;renderQplHistory();}
 function renderQplHistory(){
  if(!qplHistory)return;
- const id=++historyEvaluation,config=strategySettings(),from=browseFrom(),to=day().replaceAll('-','');
+ const id=++historyEvaluation,config=strategySettings(),from='00000000',to=day().replaceAll('-','');
  clearTimeout(historyTimer);
  $('#qplHistoryStats').textContent='현재 설정으로 과거 경주를 다시 계산하는 중…';
  $('#qplHistoryStats').setAttribute('aria-busy','true');
@@ -61,15 +61,15 @@ function renderQplHistory(){
   if(id!==historyEvaluation)return;
   if(historyWorker){historyWorker.postMessage({type:'evaluate',id,settings:config,from,to});return;}
   try{
-   historyEngine=historyEngine||QplHistoryEngine.create(qplHistory.rows);
+   if(!historyEngine){const doc=qplHistory,rows=await QplHistoryEngine.load(doc,url=>fetchJSON(url+'?t='+Date.now(),60000));if(id!==historyEvaluation)return;historyEngine=QplHistoryEngine.create(rows);}
    const groups=await historyEngine.evaluate(config,from,to,()=>id===historyEvaluation);
    if(groups&&id===historyEvaluation)showQplHistory(groups);
   }catch{if(id===historyEvaluation){$('#qplHistoryStats').textContent='통계 계산에 실패했습니다. 다시 불러오기를 눌러 주세요.';$('#retryQplHistory').hidden=false;$('#qplHistoryStats').setAttribute('aria-busy','false');}}
  },120);
 }
 function showQplHistory(groups){
- const from=browseFrom(),to=day().replaceAll('-',''),g=groups.all,m=QplHistoryEngine.metrics(g);
- const eligibleDates=qplHistory.rows.filter(r=>r.date>=from&&r.date<=to).map(r=>r.date).sort();
+ const from='00000000',to=day().replaceAll('-',''),g=groups.all,m=QplHistoryEngine.metrics(g);
+ const eligibleDates=qplHistory.schema===3?[qplHistory.from,qplHistory.to].filter(Boolean):(qplHistory.rows||[]).filter(r=>r.date<=to).map(r=>r.date).sort();
  const format=d=>d.slice(0,4)+'.'+d.slice(4,6)+'.'+d.slice(6,8);
  $('#qplHistoryStats').setAttribute('aria-busy','false');
  $('#qplHistoryStats').innerHTML='<p class="hint">'+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 · '+(tuningSettings.modelMode==='custom'?'사용자 가중치':'기존 학습 모델')+'<br>'+(eligibleDates.length?format(eligibleDates[0])+' ~ '+format(eligibleDates.at(-1)):'기간 내 경주 없음')+'</p><div class="history-totals"><div>적중 횟수<strong>'+g.hits.toLocaleString()+'회</strong></div><div>평가 경주<strong>'+g.evaluated.toLocaleString()+'경주</strong></div><div>과거 적중률<strong>'+(m.rate===null?'—':pct(m.rate))+'</strong></div><div>평균 적중 배당<strong>'+(m.average===null?'—':m.average.toFixed(2)+'배')+'</strong>'+(g.paidHits<g.hits?'<small>배당 확인 '+g.paidHits+' / '+g.hits+'적중</small>':'')+'</div><div class="history-product">적중률 × 평균배당<strong>'+(m.product===null?'—':m.product.toFixed(3)+'배')+'</strong><small>'+(m.product===null?'평가 또는 배당 자료 부족':'세전 환급률 '+pct(m.product))+'</small></div></div><table class="validation-table"><thead><tr><th>경마장</th><th>적중 / 평가</th><th>적중률</th></tr></thead><tbody>'+Object.keys(names).map(v=>{const x=groups[v];return '<tr><td>'+names[v]+'</td><td>'+x.hits+' / '+x.evaluated+'</td><td>'+(x.evaluated?pct(x.hits/x.evaluated):'—')+'</td></tr>';}).join('')+'</tbody></table><p class="hint">전체 '+g.total.toLocaleString()+'경주 중 '+g.excluded.toLocaleString()+'경주 제외 · 자료 갱신 '+esc(new Date(qplHistory.generatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+'</p>';
@@ -168,8 +168,8 @@ function pickHTML(x,r,type,lead=false){
 }
 function render(){if(!current)return;ranked=analyzeForSite(current,'accuracy',odds);const r=ranked;$('#analysis').hidden=false;$('#raceTitle').textContent=(names[r.venue]||r.venue_name||'직접 입력')+' '+r.race_no+'R';$('#raceMeta').textContent=[r.date,r.title,manual?'직접 입력 / 데모':''].filter(Boolean).join(' · ');$('#horseCount').textContent=r.horses.length+'두';$('#placeRule').textContent=r.k+'착 이내';$('#modeHelp').textContent='연승은 '+(tuningSettings.modelMode==='custom'?'사용자 가중치':'기존 모델')+' 추정확률 순입니다. 복연승은 '+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률이 가장 높은 조합입니다.';const warning=timingReasons(r);$('#raceWarning').hidden=!warning.length;$('#raceWarning').textContent=warning.join(' · ');$('#placeLead').innerHTML=pickHTML(r.places[0],r,'place',true);$('#pairLead').innerHTML=pickHTML(r.pairs[0],r,'pair',true);$('#placeList').innerHTML=r.places.slice(1,5).map(x=>pickHTML(x,r,'place')).join('');$('#pairList').innerHTML='<p class="hint">복연승은 새 기준을 통과한 한 조합만 표시합니다.</p>';$('#horses').innerHTML=r.horses.map(h=>`<div class="horse"><strong>${h.number} ${esc(h.name)} · ${probabilityHTML(h.prob)}</strong><p class="hint">${h.reasons.map(esc).join(' · ')}</p><p class="hint">레이팅 ${esc(h.rating??'—')} · 부담 ${esc(h.burden??'—')}kg · 마체중 ${esc(h.horse_weight??'미발표')} · 데이터 ${Math.round(h.quality*100)}%</p></div>`).join('');$('#savePrediction').disabled=!r.pairs.length||manual||!Number.isFinite(start(r))||start(r)<=Date.now()||warning.length>0;renderOverview();}
 function select(r,isManual=false){current=r;manual=isManual;odds={place:{},qpl:{}};$('#placeOdds').value='';$('#pairOdds').value='';if(names[r.venue])setVenue(r.venue);const d=String(r.date||'');if(/^\d{8}$/.test(d))$('#date').value=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);if(r.race_no)$('#raceNo').value=r.race_no;$('#saveStatus').textContent='경주·추천 기준별 최초 기록을 보존합니다.';renderSelectors();render();if(!isManual){const requested=current;ensurePolicyOdds(d).then(()=>{if(current===requested)render();});}}
-async function fetchJSON(url){
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+async function fetchJSON(url,timeoutMs=8000){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{const res=await fetch(url,{cache:'no-store',signal:controller.signal});if(!res.ok)throw Error('HTTP '+res.status);return await res.json();}finally{clearTimeout(timer);}
 }
 async function fetchLiveDocument(){

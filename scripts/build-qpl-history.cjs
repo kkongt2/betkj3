@@ -1,19 +1,17 @@
-// Precompute model probabilities once per data sync; range changes only select and score.
-const fs=require('node:fs'),model=require('../model.js'),policy=require('../qpl-policy.js'),tuning=require('../tuning-model.js');
-global.KraV7=require('../model-v7.js');
+// Keep every verified source year; deliver bounded-size yearly files to mobile clients.
+const fs=require('node:fs'),model=require('../model.js'),policy=require('../qpl-policy.js'),tuning=require('../tuning-model.js'),inputs=require('./history-inputs.cjs');
 model.setTrainedModel(JSON.parse(fs.readFileSync('data/training-report.json')));
 model.setAdvancedModel(JSON.parse(fs.readFileSync('data/model-v6.json')));
 model.setChallengerModel(JSON.parse(fs.readFileSync('data/model-v7.json')));
-const rows=[],seen=new Set();
-const pairKey=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
-for(const file of fs.readdirSync('data/calendar').filter(f=>/^\d{8}\.json$/.test(f)).sort()){
- const races=JSON.parse(fs.readFileSync('data/calendar/'+file)).races;
- const path='data/market-odds/'+file,markets=fs.existsSync(path)?JSON.parse(fs.readFileSync(path)).races:{};
- for(const r of races){
-  const key=[r.date,r.venue,r.race_no].join(':');if(seen.has(key))continue;seen.add(key);
-  rows.push(tuning.pack(model.analyze(r,'accuracy'),markets[r.venue+':'+r.race_no]?.place));
- }
+const rows=inputs().map(x=>tuning.pack(model.analyze(x.race,'accuracy'),x.market));
+const generatedAt=JSON.parse(fs.readFileSync('data/latest.json')).updated_at||new Date().toISOString();
+fs.mkdirSync('qpl-history-years',{recursive:true});
+const shards=[];
+for(const year of [...new Set(rows.map(r=>r.date.slice(0,4)))]){
+ const selected=rows.filter(r=>r.date.startsWith(year)),url='qpl-history-years/'+year+'.json';
+ fs.writeFileSync(url,JSON.stringify({schema:2,policyVersion:policy.VERSION,rows:selected}));
+ shards.push({url,rows:selected.length,from:selected[0].date,to:selected.at(-1).date});
 }
-const source=JSON.parse(fs.readFileSync('data/latest.json'));
-fs.writeFileSync('qpl-history.json',JSON.stringify({schema:2,policyVersion:policy.VERSION,generatedAt:source.updated_at||new Date().toISOString(),rows}));
-console.log('Built QPL range history:',rows.length,'races;',fs.statSync('qpl-history.json').size,'bytes');
+const doc={schema:3,policyVersion:policy.VERSION,generatedAt,from:rows[0]?.date,to:rows.at(-1)?.date,races:rows.length,shards};
+fs.writeFileSync('qpl-history.json',JSON.stringify(doc));
+console.log('Built all-history index:',doc.from,'to',doc.to,doc.races,'races;',shards.length,'yearly files');

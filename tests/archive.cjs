@@ -2,17 +2,17 @@ const fs=require('node:fs'),assert=require('node:assert/strict'),model=require('
 model.setTrainedModel(JSON.parse(fs.readFileSync('data/training-report.json')));
 model.setAdvancedModel(JSON.parse(fs.readFileSync('data/model-v6.json')));
 model.setChallengerModel(JSON.parse(fs.readFileSync('data/model-v7.json')));
-const history=JSON.parse(fs.readFileSync('qpl-history.json'));assert.equal(history.schema,2);assert.equal(history.policyVersion,policy.VERSION);
+const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));assert.equal(manifest.schema,3);assert.equal(manifest.policyVersion,policy.VERSION);
+const history={rows:manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows)};assert.equal(history.rows.length,manifest.races);
+if(fs.existsSync('history/2021.jsonl.gz')){assert(manifest.from.startsWith('2021'));assert(history.rows.length>12000);}
 const index=new Map(history.rows.map((r,i)=>[[r.date,r.venue,r.race].join(':'),i])),evaluator=engine.create(history.rows);
 const settings=[{min:3,max:4},{min:2,max:4,anchorMode:'analysis'},{min:3,max:6,anchorMode:'analysis',modelMode:'custom',weights:tuning.defaults()},{min:2,max:4,modelMode:'custom',weights:[0,0,0,100,0,0,0,0,0,0]},{min:3,max:6,anchorMode:'analysis',modelMode:'custom',weights:[1,1,1,1,1,1,1,1,1,1]}];
 const totals=settings.map(()=>({evaluated:0,hits:0,payoutTotal:0}));let count=0;
 const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
-for(const file of fs.readdirSync('data/calendar').filter(f=>/^\d{8}\.json$/.test(f))){
- const races=JSON.parse(fs.readFileSync('data/calendar/'+file)).races,path='data/market-odds/'+file,markets=fs.existsSync(path)?JSON.parse(fs.readFileSync(path)).races:{};
- for(const r of races){
+for(const {race:r,market} of require('../scripts/history-inputs.cjs')()){
   const base=model.analyze(r),i=index.get([r.date,r.venue,r.race_no].join(':'));assert.notEqual(i,undefined);count++;
   settings.forEach((s,j)=>{
-   const full=policy.apply(tuning.apply(base,s),markets[r.venue+':'+r.race_no]?.place,s),compact=evaluator.evaluateRow(i,s),picked=compact.candidates[0];
+   const full=policy.apply(tuning.apply(base,s),market,s),compact=evaluator.evaluateRow(i,s),picked=compact.candidates[0];
    assert.equal(full.qplPolicy.partner?.number,picked?.partner.number);
    if(!picked||!compact.settled)return;
    assert.equal(full.pairs[0].prob,picked.pick.prob);
@@ -20,7 +20,6 @@ for(const file of fs.readdirSync('data/calendar').filter(f=>/^\d{8}\.json$/.test
    assert.equal(picked.hit,!!paid);assert.equal(picked.payout,paid?.odds??null);
    const g=totals[j];g.evaluated++;if(paid){g.hits++;g.payoutTotal+=paid.odds;}
   });
- }
 }
 assert(count>2000,'Full historical archive required');
 (async()=>{

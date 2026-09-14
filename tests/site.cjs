@@ -3,11 +3,13 @@ const fixture={date:'20250928',venue:'seoul',race_no:1,start_time:'10:00',horses
 const doc={updated_at:'2026-09-14T09:00:00+09:00',races:[fixture],calendar:[{date:fixture.date,venues:['seoul']}]},odds={schema:1,date:fixture.date,races:{'seoul:1':{place:{quotes:[1.1,1.2,2,3,5,8].map((odds,i)=>({numbers:[i+1],odds}))}}}};
 const nativeModel=require('../model.js'),nativeTuning=require('../tuning-model.js');
 const historyDoc={schema:2,policyVersion:'betkj3-configurable-anchor-v3',generatedAt:doc.updated_at,rows:[nativeTuning.pack(nativeModel.analyze(fixture),odds.races['seoul:1'].place)]};
+const historicalRows=[{...historyDoc.rows[0],date:'20210108'},...historyDoc.rows];
+const historyManifest={schema:3,policyVersion:historyDoc.policyVersion,generatedAt:doc.updated_at,from:'20210108',to:fixture.date,races:2,shards:[{url:'qpl-history-years/2021.json',rows:1},{url:'qpl-history-years/2025.json',rows:1}]};
 const flush=()=>new Promise(resolve=>setTimeout(resolve,180));
 const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,dataset:{},classList:{toggle(){}},setAttribute(){},addEventListener(t,f){this[t]=f},focus(){}});
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:()=>null,setItem(){}},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?historyDoc:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
+const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:()=>null,setItem(){}},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
 vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await flush();
  assert.equal(vm.runInContext('current.calendar_archive',sandbox),true);
@@ -16,6 +18,8 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  assert(!nodes['#raceOverview'].innerHTML.includes('data-result-type="pair"'));
  assert(nodes['#pairLead'].innerHTML.includes('동반입상확률 비교'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('100.0%'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('2021.01.08'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('2경주'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('평균 적중 배당<strong>3.00배')); 
  assert(!fs.readFileSync('index.html','utf8').includes('수익성 검토'));
  nodes['#partnerMin'].value='2';nodes['#partnerMin'].onchange();await flush();
