@@ -17,5 +17,6 @@ for(const file of fs.readdirSync('data/calendar').filter(f=>/^\d{8}\.json$/.test
   rows.push({date:r.date,venue:r.venue,race:r.race_no,settled:!!settled,candidates:(result.qplPolicy.candidates||[]).map(c=>({partner:{rank:c.partner.rank,number:c.partner.number,prob:c.partner.prob},pick:{prob:c.pick.prob},hit:winning.has(pairKey(c.pick.numbers))}))});
  }
 }
-fs.writeFileSync('qpl-history.json',JSON.stringify({schema:1,policyVersion:policy.VERSION,generatedAt:new Date().toISOString(),rows}));
+const source=JSON.parse(fs.readFileSync('data/latest.json'));
+fs.writeFileSync('qpl-history.json',JSON.stringify({schema:1,policyVersion:policy.VERSION,generatedAt:source.updated_at||new Date().toISOString(),rows}));
 console.log('Built QPL range history:',rows.length,'races;',fs.statSync('qpl-history.json').size,'bytes');

@@ -2,7 +2,7 @@ name: Sync race data and publish betkj3
 on:
   push:
     branches: [main]
-    paths-ignore: ['data/**']
+    paths-ignore: ['data/**', 'qpl-history.json']
   workflow_dispatch:
   schedule:
     - cron: '7,27,47 * * * *'
@@ -51,6 +51,14 @@ jobs:
           node tests/site.cjs
           node scripts/build-qpl-history.cjs
           node tests/archive.cjs
+      - name: Preserve computed history for branch and workflow deployments
+        run: |
+          git add qpl-history.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update historical QPL range evaluation data"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
       - uses: actions/configure-pages@v5
       - name: Prepare static site
         run: |
