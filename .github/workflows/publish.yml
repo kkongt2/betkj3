@@ -49,12 +49,13 @@ jobs:
           node --check app.js
           node tests/qpl-policy.cjs
           node tests/site.cjs
+          node scripts/build-qpl-history.cjs
           node tests/archive.cjs
       - uses: actions/configure-pages@v5
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp index.html style.css app.js model.js model-v7.js qpl-policy.js _site/
+          cp index.html style.css app.js model.js model-v7.js qpl-policy.js qpl-history.json _site/
           cp -R data _site/data
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3

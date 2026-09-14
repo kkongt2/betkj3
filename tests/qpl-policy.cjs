@@ -8,10 +8,25 @@ assert.deepEqual(result.qplPolicy.candidates.map(c=>c.partner.number).sort(),[3,
 assert.equal(result.pairs.length,1);assert.equal(result.selection.pair.qualified,false);assert.equal(result.selectivePicks.pair,null);
 assert.deepEqual(base.selectivePicks.pair.numbers,[1,2]);assert.equal(base.pairs.length,15);
 for(const q of [null,{quotes:quotes.slice(0,5)},{quotes:[...quotes,quotes[0]]},{quotes:quotes.map((q,i)=>i? q:{...q,odds:0})}])assert.equal(apply(base,q).pairs.length,0);
-assert.equal(apply({...base,horses:horses.slice(0,3)},{quotes}).pairs.length,0);
+assert.equal(apply({...base,horses:horses.slice(0,2)},{quotes}).pairs.length,0);
 const tied=apply({...base,places:base.places.map(p=>({...p,prob:p.numbers[0]===2?1:p.prob}))},{quotes:quotes.map((q,i)=>i===1?{...q,odds:1.1}:q)});
 assert.equal(tied.qplPolicy.anchor.number,2);
 const tiePair=apply({...base,pairs:base.pairs.map(p=>({...p,prob:.2}))},{quotes});assert.equal(tiePair.qplPolicy.partner.number,3);
 const excluded=apply({...base,official_result:{starters:[1,2,3,4,5]}},{quotes:quotes.slice(0,5)});assert.equal(excluded.qplPolicy.status,'ready');
 const reverse=apply({...base,places:[...base.places].reverse(),pairs:[...base.pairs].reverse()},{quotes:[...quotes].reverse()});assert.deepEqual(reverse.pairs[0].numbers,[1,4]);
 console.log('PASS fixed lowest-odds anchor; only rank 3/4 partners; existing pair probabilities; ties, missing odds, exclusions and no input mutation');
+
+assert.deepEqual(apply(base,{quotes},{min:2,max:4}).pairs[0].numbers,[1,2]);
+assert.deepEqual(apply(base,{quotes},{min:3,max:6}).pairs[0].numbers,[1,4]);
+assert.deepEqual(apply(base,{quotes},{min:6,max:20}).pairs[0].numbers,[1,6]);
+assert.equal(apply(base,{quotes},{min:7,max:20}).pairs.length,0);
+assert.deepEqual(apply(base,{quotes},{min:2,max:2}).pairs[0].numbers,[1,2]);
+const {summarize,normalizeRange}=require('../qpl-policy.js');
+assert.deepEqual(normalizeRange({min:6,max:3}),{min:3,max:6});
+assert.deepEqual(normalizeRange({min:0,max:99}),{min:3,max:4});
+const candidates=[{partner:{rank:2,number:2,prob:.8},pick:{prob:.9},hit:false},{partner:{rank:3,number:3,prob:.7},pick:{prob:.6},hit:true}];
+const rows=[{date:'20250914',venue:'seoul',settled:true,candidates},{date:'20260913',venue:'busan',settled:true,candidates},{date:'20250913',venue:'jeju',settled:true,candidates},{date:'20260914',venue:'jeju',settled:false,candidates},{date:'20260915',venue:'seoul',settled:true,candidates}];
+assert.deepEqual(summarize(rows,{min:3,max:4},'20250914','20260914').all,{total:3,evaluated:2,hits:2,excluded:1});
+assert.equal(summarize(rows,{min:2,max:4},'20250914','20260914').all.hits,0);
+assert.equal(summarize(rows,{min:4,max:6},'20250914','20260914').all.evaluated,0);
+console.log('PASS configurable ranges, field-size clipping, inclusive dates, unavailable results and changing historical hit counts');
