@@ -2,7 +2,8 @@ name: Sync race data and publish betkj3
 on:
   push:
     branches: [main]
-    paths-ignore: ['data/**', 'qpl-history.json']
+    paths-ignore: ['data/**', 'qpl-history.json', 'qpl-history-years/**', 'history/**']
+  workflow_call:
   workflow_dispatch:
   schedule:
     - cron: '7,27,47 * * * *'
@@ -32,7 +33,7 @@ jobs:
       - name: Copy the complete race archive
         run: |
           mkdir -p data
-          rsync -a --delete _source/data/ data/
+          rsync -a --delete --filter='protect /calendar/***' --filter='protect /market-odds/***' _source/data/ data/
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data
