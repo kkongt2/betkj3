@@ -80,12 +80,12 @@ function initTuning(){
  function sync(){
   $('#anchorMode').value=tuningSettings.anchorMode;$('#analysisModel').value=tuningSettings.modelMode;
   TuningModel.FEATURES.forEach((f,i)=>{$('#weight-'+i).value=String(tuningSettings.weights[i]??0);$('#weight-range-'+i).value=String(tuningSettings.weights[i]??0);});
-  $('#weightStatus').textContent=(TuningModel.label(tuningSettings.modelMode)+' 적용')+' · 가중치 합계 '+tuningSettings.weights.reduce((a,b)=>a+b,0)+'% (계산 시 100%로 환산)';
+  $('#weightStatus').textContent=(TuningModel.label(tuningSettings.modelMode)+' 적용')+(tuningSettings.modelMode==='legacy'?' · 기존 10개 지표 사용; 아래 설명은 수정 지표이며 값을 조절하면 전환됩니다.':'')+' · 가중치 합계 '+tuningSettings.weights.reduce((a,b)=>a+b,0)+'% (계산 시 100%로 환산)';
   syncStrategyHelp();
  }
  function update(){try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}sync();renderQplHistory();render();}
  $('#anchorMode').onchange=()=>{tuningSettings.anchorMode=$('#anchorMode').value==='analysis'?'analysis':'odds';update();};
- $('#analysisModel').onchange=()=>{tuningSettings.modelMode=['custom','legacy'].includes($('#analysisModel').value)?$('#analysisModel').value:'existing';if(tuningSettings.modelMode==='custom')tuningSettings.weights=TuningModel.FEATURES.map((_,i)=>tuningSettings.weights[i]??0);if(tuningSettings.modelMode==='legacy')tuningSettings.weights=tuningSettings.weights.slice(0,10);update();};
+ $('#analysisModel').onchange=()=>{tuningSettings.modelMode=['custom','legacy'].includes($('#analysisModel').value)?$('#analysisModel').value:'existing';if(tuningSettings.modelMode==='custom')tuningSettings.weights=TuningModel.FEATURES.map((_,i)=>tuningSettings.weights[i]??0);if(tuningSettings.modelMode==='legacy')tuningSettings=TuningModel.settings({...tuningSettings,weights:tuningSettings.weights.slice(0,10)});update();};
  TuningModel.FEATURES.forEach((f,i)=>{
   const change=node=>{
    const value=node.value.trim(),weights=TuningModel.FEATURES.map((_,i)=>tuningSettings.weights[i]??0);weights[i]=value===''?NaN:Number(value);
@@ -120,7 +120,7 @@ function initStrategyPresets(){
   if(doc.schema!==1||!doc.best?.settings||!Number.isInteger(doc.sourceRaces)||doc.sourceRaces<=0||!(doc.search?.minimumCoverageRatio>=.4)||!(doc.best?.all?.evaluated>=Math.ceil(doc.sourceRaces*.4)))return;
   const config=StrategyPresets.config(doc.best.settings),g=doc.best.all,m=QplHistoryEngine.metrics(g);
   $('#strategySearchSummary').innerHTML='<p class="hint">'+esc(doc.from)+' ~ '+esc(doc.to)+' · 가중치 후보 '+doc.search.weightCandidates.toLocaleString()+'개 탐색 · '+(doc.temporal?'2024년 검증으로 선택':'이전 계산식')+'</p><p><strong>'+(config.anchorMode==='analysis'?'분석 1위':'최종배당 1위')+' 축마 · 배당 '+config.min+'~'+config.max+'위</strong></p><p>과거 적중률 '+pct(m.rate)+' × 평균배당 '+m.average.toFixed(2)+'배 = <strong>'+m.product.toFixed(3)+'배</strong><br>적중 '+g.hits.toLocaleString()+' / 평가 '+g.evaluated.toLocaleString()+'경주</p><details><summary>가중치와 연도별 결과</summary><p class="hint">'+TuningModel.FEATURES.map((f,i)=>esc(f.label)+' '+config.weights[i]+'%').join(' · ')+'</p><table class="validation-table"><thead><tr><th>연도</th><th>평가 경주</th><th>적중률 × 평균배당</th></tr></thead><tbody>'+Object.entries(doc.best.years).map(([year,x])=>'<tr><td>'+esc(year)+'</td><td>'+x.evaluated.toLocaleString()+'</td><td>'+QplHistoryEngine.metrics(x).product.toFixed(3)+'배</td></tr>').join('')+'</tbody></table></details>';
-  $('#strategySearchSummary').innerHTML+='<p class="hint">전체 '+doc.sourceRaces.toLocaleString()+'경주의 40% 이상, 최소 '+Math.ceil(doc.sourceRaces*.4).toLocaleString()+'경주를 평가한 후보 중 최고입니다. 실제 평가 비율 '+pct(g.evaluated/doc.sourceRaces)+' · '+g.evaluated.toLocaleString()+'경주.</p>';
+  $('#strategySearchSummary').innerHTML+='<p class="hint">전체 '+doc.sourceRaces.toLocaleString()+'경주의 40% 이상, 최소 '+Math.ceil(doc.sourceRaces*.4).toLocaleString()+'경주를 평가하고 2024년 검증 성적으로 선택한 조합입니다. 실제 평가 비율 '+pct(g.evaluated/doc.sourceRaces)+' · '+g.evaluated.toLocaleString()+'경주.</p>';
   if(doc.temporal){const rows=['train','validation','test'].map(k=>{const x=doc.temporal[k],m=QplHistoryEngine.metrics(x);return '<tr><td>'+esc(x.label)+'</td><td>'+x.evaluated.toLocaleString()+' / '+x.total.toLocaleString()+'</td><td>'+pct(m.rate)+'</td><td>'+(m.average??0).toFixed(2)+'</td><td>'+m.product.toFixed(3)+'</td></tr>';}).join('');$('#strategySearchSummary').innerHTML+='<h4>시간순 검증</h4><table class="validation-table"><thead><tr><th>기간</th><th>평가 / 전체</th><th>적중률</th><th>평균배당</th><th>곱</th></tr></thead><tbody>'+rows+'</tbody></table><p class="hint">'+esc(doc.temporal.note)+'</p><h4>별도 승률 지표 비교</h4><p class="hint">'+doc.ablation.map(x=>esc(x.label)+' · 2024년 '+QplHistoryEngine.metrics(x.validation).product.toFixed(3)+'배 · 후속 기간 '+QplHistoryEngine.metrics(x.test).product.toFixed(3)+'배').join('<br>')+'</p>';}
   $('#applySearchBroad').hidden=!doc.broad;
   if(doc.broad){
@@ -129,7 +129,7 @@ function initStrategyPresets(){
    $('#applySearchBroad').onclick=()=>{const saved=applySavedStrategy(bc);$('#presetName').value='평가 경주 80% 이상 최고';status.textContent='평가 경주 80% 이상 최고 조합을 불러왔습니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
   }
   $('#strategySearchResult').hidden=false;
-  $('#applySearchBest').onclick=()=>{const saved=applySavedStrategy(config);$('#presetName').value='전체 경주 40% 이상 최고';status.textContent='전체 경주 40% 이상 최고 조합을 불러왔습니다. 이름을 정해 현재 설정 저장을 누르면 보관됩니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
+  $('#applySearchBest').onclick=()=>{const saved=applySavedStrategy(config);$('#presetName').value='시간순 검증 선택 조합';status.textContent='시간순 검증 선택 조합 조합을 불러왔습니다. 이름을 정해 현재 설정 저장을 누르면 보관됩니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
  }).catch(()=>{});
 }
 function ensurePolicyOdds(date){

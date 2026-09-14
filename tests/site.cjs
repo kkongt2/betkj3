@@ -10,7 +10,7 @@ const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,data
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
 const savedData=new Map([['betkj3-tuning',JSON.stringify({modelMode:'existing'})]]);
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
+const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('strategy-search.json')?JSON.parse(fs.readFileSync('strategy-search.json')):String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
 vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','strategy-presets.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await flush();
  assert.equal(vm.runInContext('current.calendar_archive',sandbox),true);
@@ -56,6 +56,12 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  nodes['#deleteStrategy'].onclick();assert(nodes['#presetStatus'].textContent.includes('삭제했습니다'));
  nodes['#analysisModel'].value='existing';nodes['#analysisModel'].onchange();await flush();
  assert(nodes['#qplHistoryStats'].innerHTML.includes('기존 학습 모델'));
+ assert.equal(nodes['#strategySearchResult'].hidden,false);assert(nodes['#strategySearchSummary'].innerHTML.includes('시간순 검증'));
+ nodes['#applySearchBest'].onclick();await flush();
+ const expected=JSON.parse(fs.readFileSync('strategy-search.json')).best.settings;
+ assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),expected.weights.join(','));
+ assert.equal(vm.runInContext('tuningSettings.modelMode',sandbox),'custom');
+ assert.equal(vm.runInContext('partnerRange.min',sandbox),expected.min);
  vm.runInContext('loadedMarketOdds.clear();render()',sandbox);
  assert(nodes['#pairLead'].innerHTML.includes('최종배당 대기'));assert(nodes['#pairLead'].innerHTML.includes('실제 결과'));assert(nodes['#savePrediction'].disabled);
  assert(nodes['#raceOverview'].innerHTML.includes('최종배당 대기'));assert(!nodes['#raceOverview'].innerHTML.includes('출전정보 확인 필요'));

@@ -16,3 +16,5 @@ const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));let starts=0;
 for(const s of manifest.shards)for(const r of JSON.parse(fs.readFileSync(s.url)).rows)for(const h of r.horses){assert.equal(h[4]?.length,13);assert(h[4].every(x=>Number.isFinite(x)&&x>=0&&x<=1));if(h[5]?.through)assert(h[5].through<r.date);starts++;}
 const coverage=JSON.parse(fs.readFileSync('data/weighted-coverage.json'));assert.equal(coverage.currentResultInputs,false);assert.equal(coverage.sameDayResultsInputs,false);assert.equal(coverage.fitThrough,'20231231');
 console.log('PASS new metric sensitivity, official starter filtering, compact/live probability equivalence, old preset migration, 13-weight save roundtrip and',starts,'prior-date feature vectors');
+
+assert.equal(tuning.settings({modelMode:'legacy',weights:[0,0,0,0,0,0,0,0,0,0,100,0,0]}).weights.length,10);

@@ -89,3 +89,18 @@ jobs:
       - name: Deploy GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Verify published model and controls
+        env:
+          SITE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: |
+          node - <<'NODE'
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const base=process.env.SITE_URL,stamp=Date.now();
+            const read=async path=>{const r=await fetch(new URL(path+'?verify='+stamp,base));assert(r.ok,path+' HTTP '+r.status);return r.text();};
+            const [html,model,history]=await Promise.all([read('index.html'),read('tuning-model.js'),read('qpl-history.json')]);
+            assert(html.includes('weight-12'));assert(html.includes('평균 적중 배당'));assert(model.includes('user-weighted-v2'));
+            assert(JSON.parse(history).races>=13032);
+            console.log('PASS published controls, weighted v2 model and full historical manifest',base);
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
