@@ -23,6 +23,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/checkout@v4
         with:
           repository: kkongt2/timeline
