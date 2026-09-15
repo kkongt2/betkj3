@@ -27,3 +27,5 @@
 
 
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.table-scroll table{min-width:440px}
+
+.preset-candidate{padding:16px 0;border-bottom:1px solid #dce2eb}.preset-candidate:last-of-type{border-bottom:0}.preset-candidate h3{margin:0 0 8px}.preset-candidate details{margin-top:12px}.preset-candidate>button{width:100%}
