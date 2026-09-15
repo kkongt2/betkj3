@@ -1,0 +1,2828 @@
+{
+  "schema": 1,
+  "version": "user-weighted-v3",
+  "generatedAt": "2026-09-15T00:55:06.718Z",
+  "sourceRaces": 13032,
+  "from": "20240101",
+  "to": "20260913",
+  "minimumCoverageRatio": 0.4,
+  "search": {
+    "weightCandidates": 20915,
+    "windows": [
+      24,
+      36
+    ],
+    "innerSelectionMonths": 3,
+    "assessmentMonths": 3,
+    "scaleFitThrough": "20230930",
+    "venuePriorRaces": 1000,
+    "minimumVenueTrain": 500,
+    "minimumVenueSelection": 100,
+    "historicalQuarterCoverageBuffer": 0.6,
+    "minimumRanksCompared": 2
+  },
+  "folds": [
+    {
+      "from": "20240101",
+      "to": "20240401",
+      "through": "20240331",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20210101",
+      "trainThrough": "20230924",
+      "validationFrom": "20231001",
+      "validationThrough": "20231231",
+      "style": "기록 전체 혼합",
+      "choice": "venue",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          95,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0
+        ],
+        "min": 8,
+        "max": 9,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            0,
+            0,
+            0,
+            0,
+            4,
+            0
+          ],
+          "busan": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            0,
+            0,
+            0,
+            0,
+            4,
+            0
+          ],
+          "jeju": [
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            37,
+            1,
+            36,
+            6,
+            3,
+            0,
+            0,
+            6,
+            7
+          ]
+        }
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          95,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0
+        ],
+        "min": 8,
+        "max": 9
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          95,
+          0,
+          0,
+          0,
+          0,
+          4,
+          0
+        ],
+        "min": 8,
+        "max": 9,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            0,
+            0,
+            0,
+            0,
+            4,
+            0
+          ],
+          "busan": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            0,
+            0,
+            0,
+            0,
+            4,
+            0
+          ],
+          "jeju": [
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            37,
+            1,
+            36,
+            6,
+            3,
+            0,
+            0,
+            6,
+            7
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2500,
+          "selectionRaces": 294,
+          "shrinkage": 0.7142857142857143,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1701,
+          "selectionRaces": 196,
+          "shrinkage": 0.6297667530544243,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1601,
+          "selectionRaces": 164,
+          "shrinkage": 0.6155324875048058,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 654,
+          "evaluated": 649,
+          "hits": 27,
+          "excluded": 5,
+          "paidHits": 27,
+          "payoutTotal": 891.8999999999997
+        },
+        "regional": {
+          "total": 654,
+          "evaluated": 648,
+          "hits": 31,
+          "excluded": 6,
+          "paidHits": 31,
+          "payoutTotal": 931.0999999999999
+        }
+      },
+      "common": {
+        "total": 580,
+        "evaluated": 574,
+        "hits": 24,
+        "excluded": 6,
+        "paidHits": 24,
+        "payoutTotal": 545.4999999999999
+      },
+      "regional": {
+        "total": 580,
+        "evaluated": 574,
+        "hits": 20,
+        "excluded": 6,
+        "paidHits": 20,
+        "payoutTotal": 473.10000000000014
+      },
+      "selected": {
+        "total": 580,
+        "evaluated": 574,
+        "hits": 20,
+        "excluded": 6,
+        "paidHits": 20,
+        "payoutTotal": 473.10000000000014
+      }
+    },
+    {
+      "from": "20240401",
+      "to": "20240701",
+      "through": "20240630",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20210401",
+      "trainThrough": "20231231",
+      "validationFrom": "20240101",
+      "validationThrough": "20240331",
+      "style": "기록 전체 혼합",
+      "choice": "venue",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          94,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        "min": 9,
+        "max": 12,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            94,
+            0,
+            0,
+            0,
+            0,
+            5,
+            0
+          ],
+          "busan": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            98,
+            0,
+            0,
+            0,
+            0,
+            2,
+            0
+          ],
+          "jeju": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            94,
+            0,
+            0,
+            0,
+            0,
+            5,
+            0
+          ]
+        }
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          94,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        "min": 9,
+        "max": 12
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          94,
+          0,
+          0,
+          0,
+          0,
+          5,
+          0
+        ],
+        "min": 9,
+        "max": 12,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            94,
+            0,
+            0,
+            0,
+            0,
+            5,
+            0
+          ],
+          "busan": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            98,
+            0,
+            0,
+            0,
+            0,
+            2,
+            0
+          ],
+          "jeju": [
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            94,
+            0,
+            0,
+            0,
+            0,
+            5,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2656,
+          "selectionRaces": 260,
+          "shrinkage": 0.7264770240700219,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1833,
+          "selectionRaces": 161,
+          "shrinkage": 0.6470172961524885,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1669,
+          "selectionRaces": 159,
+          "shrinkage": 0.6253278381416261,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 580,
+          "evaluated": 553,
+          "hits": 14,
+          "excluded": 27,
+          "paidHits": 14,
+          "payoutTotal": 728.8
+        },
+        "regional": {
+          "total": 580,
+          "evaluated": 553,
+          "hits": 14,
+          "excluded": 27,
+          "paidHits": 14,
+          "payoutTotal": 757.9
+        }
+      },
+      "common": {
+        "total": 630,
+        "evaluated": 551,
+        "hits": 12,
+        "excluded": 79,
+        "paidHits": 12,
+        "payoutTotal": 284.5
+      },
+      "regional": {
+        "total": 630,
+        "evaluated": 551,
+        "hits": 12,
+        "excluded": 79,
+        "paidHits": 12,
+        "payoutTotal": 284.5
+      },
+      "selected": {
+        "total": 630,
+        "evaluated": 551,
+        "hits": 12,
+        "excluded": 79,
+        "paidHits": 12,
+        "payoutTotal": 284.5
+      }
+    },
+    {
+      "from": "20240701",
+      "to": "20241001",
+      "through": "20240929",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20210701",
+      "trainThrough": "20240331",
+      "validationFrom": "20240401",
+      "validationThrough": "20240630",
+      "style": "평균 기록",
+      "choice": "common",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          1,
+          94,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 6,
+        "max": 7
+      },
+      "commonSettings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          1,
+          94,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 6,
+        "max": 7
+      },
+      "regionalSettings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          5,
+          1,
+          94,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 6,
+        "max": 7,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            1,
+            94,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "busan": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            1,
+            94,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            5,
+            1,
+            94,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2685,
+          "selectionRaces": 272,
+          "shrinkage": 0.728629579375848,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1840,
+          "selectionRaces": 191,
+          "shrinkage": 0.647887323943662,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1695,
+          "selectionRaces": 167,
+          "shrinkage": 0.6289424860853432,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 630,
+          "evaluated": 630,
+          "hits": 83,
+          "excluded": 0,
+          "paidHits": 83,
+          "payoutTotal": 580.1
+        },
+        "regional": {
+          "total": 630,
+          "evaluated": 630,
+          "hits": 83,
+          "excluded": 0,
+          "paidHits": 83,
+          "payoutTotal": 580.1
+        }
+      },
+      "common": {
+        "total": 550,
+        "evaluated": 550,
+        "hits": 57,
+        "excluded": 0,
+        "paidHits": 57,
+        "payoutTotal": 370.8999999999999
+      },
+      "regional": {
+        "total": 550,
+        "evaluated": 550,
+        "hits": 57,
+        "excluded": 0,
+        "paidHits": 57,
+        "payoutTotal": 370.8999999999999
+      },
+      "selected": {
+        "total": 550,
+        "evaluated": 550,
+        "hits": 57,
+        "excluded": 0,
+        "paidHits": 57,
+        "payoutTotal": 370.8999999999999
+      }
+    },
+    {
+      "from": "20241001",
+      "to": "20250101",
+      "through": "20241229",
+      "partial": false,
+      "months": 24,
+      "trainFrom": "20221001",
+      "trainThrough": "20240630",
+      "validationFrom": "20240701",
+      "validationThrough": "20240929",
+      "style": "기록 전체 혼합",
+      "choice": "venue",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          1,
+          0,
+          3,
+          0,
+          0,
+          6,
+          1,
+          10,
+          0,
+          13,
+          1,
+          0,
+          4,
+          13,
+          7,
+          41
+        ],
+        "min": 7,
+        "max": 11,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            1,
+            0,
+            3,
+            0,
+            0,
+            6,
+            1,
+            10,
+            0,
+            13,
+            1,
+            0,
+            4,
+            13,
+            7,
+            41
+          ],
+          "busan": [
+            1,
+            0,
+            3,
+            0,
+            0,
+            6,
+            1,
+            10,
+            0,
+            13,
+            1,
+            0,
+            4,
+            13,
+            7,
+            41
+          ],
+          "jeju": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            3,
+            1,
+            58,
+            0,
+            6,
+            0,
+            0,
+            2,
+            6,
+            3,
+            19
+          ]
+        }
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          1,
+          0,
+          3,
+          0,
+          0,
+          6,
+          1,
+          10,
+          0,
+          13,
+          1,
+          0,
+          4,
+          13,
+          7,
+          41
+        ],
+        "min": 7,
+        "max": 11
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          1,
+          0,
+          3,
+          0,
+          0,
+          6,
+          1,
+          10,
+          0,
+          13,
+          1,
+          0,
+          4,
+          13,
+          7,
+          41
+        ],
+        "min": 7,
+        "max": 11,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            1,
+            0,
+            3,
+            0,
+            0,
+            6,
+            1,
+            10,
+            0,
+            13,
+            1,
+            0,
+            4,
+            13,
+            7,
+            41
+          ],
+          "busan": [
+            1,
+            0,
+            3,
+            0,
+            0,
+            6,
+            1,
+            10,
+            0,
+            13,
+            1,
+            0,
+            4,
+            13,
+            7,
+            41
+          ],
+          "jeju": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            3,
+            1,
+            58,
+            0,
+            6,
+            0,
+            0,
+            2,
+            6,
+            3,
+            19
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 1842,
+          "selectionRaces": 226,
+          "shrinkage": 0.6481351161154116,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1242,
+          "selectionRaces": 172,
+          "shrinkage": 0.5539696699375558,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1144,
+          "selectionRaces": 152,
+          "shrinkage": 0.5335820895522388,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 550,
+          "evaluated": 550,
+          "hits": 21,
+          "excluded": 0,
+          "paidHits": 21,
+          "payoutTotal": 562.2
+        },
+        "regional": {
+          "total": 550,
+          "evaluated": 550,
+          "hits": 23,
+          "excluded": 0,
+          "paidHits": 23,
+          "payoutTotal": 582.9000000000001
+        }
+      },
+      "common": {
+        "total": 624,
+        "evaluated": 624,
+        "hits": 26,
+        "excluded": 0,
+        "paidHits": 26,
+        "payoutTotal": 348.3999999999999
+      },
+      "regional": {
+        "total": 624,
+        "evaluated": 624,
+        "hits": 24,
+        "excluded": 0,
+        "paidHits": 24,
+        "payoutTotal": 324.1
+      },
+      "selected": {
+        "total": 624,
+        "evaluated": 624,
+        "hits": 24,
+        "excluded": 0,
+        "paidHits": 24,
+        "payoutTotal": 324.1
+      }
+    },
+    {
+      "from": "20250101",
+      "to": "20250401",
+      "through": "20250330",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20220101",
+      "trainThrough": "20240929",
+      "validationFrom": "20241001",
+      "validationThrough": "20241229",
+      "style": "평균 기록",
+      "choice": "venue",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          2,
+          3,
+          0,
+          2,
+          3,
+          69,
+          2,
+          1,
+          1,
+          16,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 2,
+        "max": 3,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            2,
+            3,
+            0,
+            2,
+            3,
+            69,
+            2,
+            1,
+            1,
+            16,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "busan": [
+            6,
+            1,
+            17,
+            4,
+            1,
+            2,
+            27,
+            3,
+            9,
+            4,
+            6,
+            14,
+            6,
+            0,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            2,
+            3,
+            0,
+            2,
+            3,
+            69,
+            2,
+            1,
+            1,
+            16,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          2,
+          3,
+          0,
+          2,
+          3,
+          69,
+          2,
+          1,
+          1,
+          16,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 2,
+        "max": 3
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          2,
+          3,
+          0,
+          2,
+          3,
+          69,
+          2,
+          1,
+          1,
+          16,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 2,
+        "max": 3,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            2,
+            3,
+            0,
+            2,
+            3,
+            69,
+            2,
+            1,
+            1,
+            16,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "busan": [
+            6,
+            1,
+            17,
+            4,
+            1,
+            2,
+            27,
+            3,
+            9,
+            4,
+            6,
+            14,
+            6,
+            0,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            2,
+            3,
+            0,
+            2,
+            3,
+            69,
+            2,
+            1,
+            1,
+            16,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2766,
+          "selectionRaces": 283,
+          "shrinkage": 0.7344662772172066,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1917,
+          "selectionRaces": 182,
+          "shrinkage": 0.6571820363387042,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1726,
+          "selectionRaces": 159,
+          "shrinkage": 0.6331621423330888,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 624,
+          "evaluated": 624,
+          "hits": 127,
+          "excluded": 0,
+          "paidHits": 127,
+          "payoutTotal": 622.1999999999998
+        },
+        "regional": {
+          "total": 624,
+          "evaluated": 624,
+          "hits": 139,
+          "excluded": 0,
+          "paidHits": 139,
+          "payoutTotal": 661.3000000000001
+        }
+      },
+      "common": {
+        "total": 586,
+        "evaluated": 586,
+        "hits": 119,
+        "excluded": 0,
+        "paidHits": 119,
+        "payoutTotal": 557.7000000000003
+      },
+      "regional": {
+        "total": 586,
+        "evaluated": 586,
+        "hits": 122,
+        "excluded": 0,
+        "paidHits": 122,
+        "payoutTotal": 510.80000000000007
+      },
+      "selected": {
+        "total": 586,
+        "evaluated": 586,
+        "hits": 122,
+        "excluded": 0,
+        "paidHits": 122,
+        "payoutTotal": 510.80000000000007
+      }
+    },
+    {
+      "from": "20250401",
+      "to": "20250701",
+      "through": "20250629",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20220401",
+      "trainThrough": "20241229",
+      "validationFrom": "20250101",
+      "validationThrough": "20250330",
+      "style": "평균+변동성",
+      "choice": "venue",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          95,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 7,
+        "max": 10,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            1,
+            0,
+            4,
+            13,
+            7,
+            1,
+            38,
+            1,
+            1,
+            3,
+            0,
+            0,
+            1,
+            0,
+            0,
+            30
+          ],
+          "busan": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          95,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 7,
+        "max": 10
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          95,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 7,
+        "max": 10,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            1,
+            0,
+            4,
+            13,
+            7,
+            1,
+            38,
+            1,
+            1,
+            3,
+            0,
+            0,
+            1,
+            0,
+            0,
+            30
+          ],
+          "busan": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            95,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2834,
+          "selectionRaces": 256,
+          "shrinkage": 0.7391757955138237,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1947,
+          "selectionRaces": 174,
+          "shrinkage": 0.660671869697998,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1756,
+          "selectionRaces": 156,
+          "shrinkage": 0.637155297532656,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 586,
+          "evaluated": 586,
+          "hits": 35,
+          "excluded": 0,
+          "paidHits": 35,
+          "payoutTotal": 721.5
+        },
+        "regional": {
+          "total": 586,
+          "evaluated": 586,
+          "hits": 40,
+          "excluded": 0,
+          "paidHits": 40,
+          "payoutTotal": 780.8
+        }
+      },
+      "common": {
+        "total": 617,
+        "evaluated": 616,
+        "hits": 23,
+        "excluded": 1,
+        "paidHits": 23,
+        "payoutTotal": 367.70000000000005
+      },
+      "regional": {
+        "total": 617,
+        "evaluated": 616,
+        "hits": 26,
+        "excluded": 1,
+        "paidHits": 26,
+        "payoutTotal": 354.49999999999994
+      },
+      "selected": {
+        "total": 617,
+        "evaluated": 616,
+        "hits": 26,
+        "excluded": 1,
+        "paidHits": 26,
+        "payoutTotal": 354.49999999999994
+      }
+    },
+    {
+      "from": "20250701",
+      "to": "20251001",
+      "through": "20250928",
+      "partial": false,
+      "months": 24,
+      "trainFrom": "20230701",
+      "trainThrough": "20250330",
+      "validationFrom": "20250401",
+      "validationThrough": "20250629",
+      "style": "평균 기록",
+      "choice": "common",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          0,
+          8,
+          0,
+          1,
+          5,
+          48,
+          6,
+          1,
+          3,
+          27,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 9,
+        "max": 10
+      },
+      "commonSettings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          0,
+          8,
+          0,
+          1,
+          5,
+          48,
+          6,
+          1,
+          3,
+          27,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 9,
+        "max": 10
+      },
+      "regionalSettings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          0,
+          8,
+          0,
+          1,
+          5,
+          48,
+          6,
+          1,
+          3,
+          27,
+          0,
+          0,
+          0,
+          0
+        ],
+        "min": 9,
+        "max": 10,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            1,
+            0,
+            8,
+            0,
+            1,
+            5,
+            48,
+            6,
+            1,
+            3,
+            27,
+            0,
+            0,
+            0,
+            0
+          ],
+          "busan": [
+            0,
+            1,
+            0,
+            8,
+            0,
+            1,
+            5,
+            48,
+            6,
+            1,
+            3,
+            27,
+            0,
+            0,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            1,
+            0,
+            8,
+            0,
+            1,
+            5,
+            48,
+            6,
+            1,
+            3,
+            27,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 1842,
+          "selectionRaces": 263,
+          "shrinkage": 0.6481351161154116,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1244,
+          "selectionRaces": 181,
+          "shrinkage": 0.5543672014260249,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1129,
+          "selectionRaces": 173,
+          "shrinkage": 0.530295913574448,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 617,
+          "evaluated": 564,
+          "hits": 48,
+          "excluded": 53,
+          "paidHits": 48,
+          "payoutTotal": 780.3000000000001
+        },
+        "regional": {
+          "total": 617,
+          "evaluated": 564,
+          "hits": 48,
+          "excluded": 53,
+          "paidHits": 48,
+          "payoutTotal": 780.3000000000001
+        }
+      },
+      "common": {
+        "total": 608,
+        "evaluated": 534,
+        "hits": 24,
+        "excluded": 74,
+        "paidHits": 24,
+        "payoutTotal": 360.6000000000001
+      },
+      "regional": {
+        "total": 608,
+        "evaluated": 534,
+        "hits": 24,
+        "excluded": 74,
+        "paidHits": 24,
+        "payoutTotal": 360.6000000000001
+      },
+      "selected": {
+        "total": 608,
+        "evaluated": 534,
+        "hits": 24,
+        "excluded": 74,
+        "paidHits": 24,
+        "payoutTotal": 360.6000000000001
+      }
+    },
+    {
+      "from": "20251001",
+      "to": "20260101",
+      "through": "20251228",
+      "partial": false,
+      "months": 24,
+      "trainFrom": "20231001",
+      "trainThrough": "20250629",
+      "validationFrom": "20250701",
+      "validationThrough": "20250928",
+      "style": "중앙값",
+      "choice": "venue",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          7,
+          3,
+          0,
+          2,
+          3,
+          63,
+          1,
+          1,
+          1,
+          0,
+          17,
+          1,
+          1,
+          0,
+          0
+        ],
+        "min": 8,
+        "max": 11,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ],
+          "busan": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ],
+          "jeju": [
+            4,
+            3,
+            5,
+            2,
+            12,
+            6,
+            33,
+            2,
+            0,
+            21,
+            0,
+            10,
+            1,
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          7,
+          3,
+          0,
+          2,
+          3,
+          63,
+          1,
+          1,
+          1,
+          0,
+          17,
+          1,
+          1,
+          0,
+          0
+        ],
+        "min": 8,
+        "max": 11
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          7,
+          3,
+          0,
+          2,
+          3,
+          63,
+          1,
+          1,
+          1,
+          0,
+          17,
+          1,
+          1,
+          0,
+          0
+        ],
+        "min": 8,
+        "max": 11,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ],
+          "busan": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ],
+          "jeju": [
+            4,
+            3,
+            5,
+            2,
+            12,
+            6,
+            33,
+            2,
+            0,
+            21,
+            0,
+            10,
+            1,
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 1854,
+          "selectionRaces": 250,
+          "shrinkage": 0.649614576033637,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1257,
+          "selectionRaces": 181,
+          "shrinkage": 0.5569339831634914,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1130,
+          "selectionRaces": 177,
+          "shrinkage": 0.5305164319248826,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 608,
+          "evaluated": 599,
+          "hits": 30,
+          "excluded": 9,
+          "paidHits": 30,
+          "payoutTotal": 676.6000000000001
+        },
+        "regional": {
+          "total": 608,
+          "evaluated": 599,
+          "hits": 30,
+          "excluded": 9,
+          "paidHits": 30,
+          "payoutTotal": 683.4000000000002
+        }
+      },
+      "common": {
+        "total": 606,
+        "evaluated": 601,
+        "hits": 29,
+        "excluded": 5,
+        "paidHits": 29,
+        "payoutTotal": 441.6
+      },
+      "regional": {
+        "total": 606,
+        "evaluated": 601,
+        "hits": 30,
+        "excluded": 5,
+        "paidHits": 30,
+        "payoutTotal": 458.2
+      },
+      "selected": {
+        "total": 606,
+        "evaluated": 601,
+        "hits": 30,
+        "excluded": 5,
+        "paidHits": 30,
+        "payoutTotal": 458.2
+      }
+    },
+    {
+      "from": "20260101",
+      "to": "20260401",
+      "through": "20260329",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20230101",
+      "trainThrough": "20250928",
+      "validationFrom": "20251001",
+      "validationThrough": "20251228",
+      "style": "평균+변동성",
+      "choice": "common",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          1,
+          0,
+          2,
+          0,
+          36,
+          0,
+          40,
+          5,
+          0,
+          0,
+          1,
+          0,
+          0,
+          14
+        ],
+        "min": 2,
+        "max": 5
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          1,
+          0,
+          2,
+          0,
+          36,
+          0,
+          40,
+          5,
+          0,
+          0,
+          1,
+          0,
+          0,
+          14
+        ],
+        "min": 2,
+        "max": 5
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          1,
+          0,
+          2,
+          0,
+          36,
+          0,
+          40,
+          5,
+          0,
+          0,
+          1,
+          0,
+          0,
+          14
+        ],
+        "min": 2,
+        "max": 5,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            1,
+            1,
+            0,
+            2,
+            0,
+            36,
+            0,
+            40,
+            5,
+            0,
+            0,
+            1,
+            0,
+            0,
+            14
+          ],
+          "busan": [
+            0,
+            1,
+            1,
+            0,
+            2,
+            0,
+            36,
+            0,
+            40,
+            5,
+            0,
+            0,
+            1,
+            0,
+            0,
+            14
+          ],
+          "jeju": [
+            0,
+            1,
+            1,
+            0,
+            2,
+            0,
+            36,
+            0,
+            40,
+            5,
+            0,
+            0,
+            1,
+            0,
+            0,
+            14
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2850,
+          "selectionRaces": 264,
+          "shrinkage": 0.7402597402597403,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1951,
+          "selectionRaces": 175,
+          "shrinkage": 0.6611318197221281,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1800,
+          "selectionRaces": 167,
+          "shrinkage": 0.6428571428571429,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 606,
+          "evaluated": 606,
+          "hits": 102,
+          "excluded": 0,
+          "paidHits": 102,
+          "payoutTotal": 728.6000000000001
+        },
+        "regional": {
+          "total": 606,
+          "evaluated": 606,
+          "hits": 102,
+          "excluded": 0,
+          "paidHits": 102,
+          "payoutTotal": 728.6000000000001
+        }
+      },
+      "common": {
+        "total": 604,
+        "evaluated": 604,
+        "hits": 87,
+        "excluded": 0,
+        "paidHits": 87,
+        "payoutTotal": 494.3
+      },
+      "regional": {
+        "total": 604,
+        "evaluated": 604,
+        "hits": 87,
+        "excluded": 0,
+        "paidHits": 87,
+        "payoutTotal": 494.3
+      },
+      "selected": {
+        "total": 604,
+        "evaluated": 604,
+        "hits": 87,
+        "excluded": 0,
+        "paidHits": 87,
+        "payoutTotal": 494.3
+      }
+    },
+    {
+      "from": "20260401",
+      "to": "20260701",
+      "through": "20260628",
+      "partial": false,
+      "months": 36,
+      "trainFrom": "20230401",
+      "trainThrough": "20251228",
+      "validationFrom": "20260101",
+      "validationThrough": "20260329",
+      "style": "중앙값",
+      "choice": "common",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          7,
+          3,
+          0,
+          2,
+          3,
+          63,
+          1,
+          1,
+          1,
+          0,
+          17,
+          1,
+          1,
+          0,
+          0
+        ],
+        "min": 4,
+        "max": 10
+      },
+      "commonSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          7,
+          3,
+          0,
+          2,
+          3,
+          63,
+          1,
+          1,
+          1,
+          0,
+          17,
+          1,
+          1,
+          0,
+          0
+        ],
+        "min": 4,
+        "max": 10
+      },
+      "regionalSettings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          7,
+          3,
+          0,
+          2,
+          3,
+          63,
+          1,
+          1,
+          1,
+          0,
+          17,
+          1,
+          1,
+          0,
+          0
+        ],
+        "min": 4,
+        "max": 10,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ],
+          "busan": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ],
+          "jeju": [
+            0,
+            7,
+            3,
+            0,
+            2,
+            3,
+            63,
+            1,
+            1,
+            1,
+            0,
+            17,
+            1,
+            1,
+            0,
+            0
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2876,
+          "selectionRaces": 262,
+          "shrinkage": 0.7420020639834881,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1959,
+          "selectionRaces": 189,
+          "shrinkage": 0.6620479891855356,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1823,
+          "selectionRaces": 153,
+          "shrinkage": 0.6457669146298264,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 604,
+          "evaluated": 604,
+          "hits": 71,
+          "excluded": 0,
+          "paidHits": 71,
+          "payoutTotal": 784.6000000000001
+        },
+        "regional": {
+          "total": 604,
+          "evaluated": 604,
+          "hits": 71,
+          "excluded": 0,
+          "paidHits": 71,
+          "payoutTotal": 784.6000000000001
+        }
+      },
+      "common": {
+        "total": 653,
+        "evaluated": 653,
+        "hits": 54,
+        "excluded": 0,
+        "paidHits": 54,
+        "payoutTotal": 376.6
+      },
+      "regional": {
+        "total": 653,
+        "evaluated": 653,
+        "hits": 54,
+        "excluded": 0,
+        "paidHits": 54,
+        "payoutTotal": 376.6
+      },
+      "selected": {
+        "total": 653,
+        "evaluated": 653,
+        "hits": 54,
+        "excluded": 0,
+        "paidHits": 54,
+        "payoutTotal": 376.6
+      }
+    },
+    {
+      "from": "20260701",
+      "to": "20261001",
+      "through": "20260913",
+      "partial": true,
+      "months": 36,
+      "trainFrom": "20230701",
+      "trainThrough": "20260329",
+      "validationFrom": "20260401",
+      "validationThrough": "20260628",
+      "style": "평균+변동성",
+      "choice": "common",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          36,
+          0,
+          35,
+          4,
+          1,
+          0,
+          1,
+          0,
+          0,
+          19
+        ],
+        "min": 8,
+        "max": 10
+      },
+      "commonSettings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          36,
+          0,
+          35,
+          4,
+          1,
+          0,
+          1,
+          0,
+          0,
+          19
+        ],
+        "min": 8,
+        "max": 10
+      },
+      "regionalSettings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          1,
+          1,
+          1,
+          1,
+          0,
+          36,
+          0,
+          35,
+          4,
+          1,
+          0,
+          1,
+          0,
+          0,
+          19
+        ],
+        "min": 8,
+        "max": 10,
+        "weightScope": "venue",
+        "venueWeights": {
+          "seoul": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            36,
+            0,
+            35,
+            4,
+            1,
+            0,
+            1,
+            0,
+            0,
+            19
+          ],
+          "busan": [
+            0,
+            1,
+            1,
+            0,
+            2,
+            0,
+            36,
+            0,
+            38,
+            4,
+            0,
+            0,
+            1,
+            0,
+            0,
+            17
+          ],
+          "jeju": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            36,
+            0,
+            35,
+            4,
+            1,
+            0,
+            1,
+            0,
+            0,
+            19
+          ]
+        }
+      },
+      "venueSupport": {
+        "seoul": {
+          "trainingRaces": 2881,
+          "selectionRaces": 264,
+          "shrinkage": 0.7423344498840505,
+          "fallback": false
+        },
+        "busan": {
+          "trainingRaces": 1970,
+          "selectionRaces": 195,
+          "shrinkage": 0.6632996632996633,
+          "fallback": false
+        },
+        "jeju": {
+          "trainingRaces": 1799,
+          "selectionRaces": 194,
+          "shrinkage": 0.6427295462665238,
+          "fallback": false
+        }
+      },
+      "selection": {
+        "common": {
+          "total": 653,
+          "evaluated": 631,
+          "hits": 43,
+          "excluded": 22,
+          "paidHits": 43,
+          "payoutTotal": 638.3000000000002
+        },
+        "regional": {
+          "total": 653,
+          "evaluated": 631,
+          "hits": 43,
+          "excluded": 22,
+          "paidHits": 43,
+          "payoutTotal": 638.3000000000002
+        }
+      },
+      "common": {
+        "total": 518,
+        "evaluated": 499,
+        "hits": 25,
+        "excluded": 19,
+        "paidHits": 25,
+        "payoutTotal": 324.19999999999993
+      },
+      "regional": {
+        "total": 518,
+        "evaluated": 499,
+        "hits": 24,
+        "excluded": 19,
+        "paidHits": 24,
+        "payoutTotal": 297.99999999999994
+      },
+      "selected": {
+        "total": 518,
+        "evaluated": 499,
+        "hits": 25,
+        "excluded": 19,
+        "paidHits": 25,
+        "payoutTotal": 324.19999999999993
+      }
+    }
+  ],
+  "common": {
+    "all": {
+      "total": 6576,
+      "evaluated": 6392,
+      "hits": 480,
+      "excluded": 184,
+      "paidHits": 480,
+      "payoutTotal": 4472
+    },
+    "metrics": {
+      "rate": 0.07509386733416772,
+      "average": 9.316666666666666,
+      "product": 0.6996245306633292
+    },
+    "maxDrawdown": 2059.9,
+    "netUnits": -1920
+  },
+  "regional": {
+    "all": {
+      "total": 6576,
+      "evaluated": 6392,
+      "hits": 480,
+      "excluded": 184,
+      "paidHits": 480,
+      "payoutTotal": 4305.599999999999
+    },
+    "metrics": {
+      "rate": 0.07509386733416772,
+      "average": 8.969999999999999,
+      "product": 0.6735919899874844
+    },
+    "maxDrawdown": 2163.1000000000004,
+    "netUnits": -2086.4000000000005
+  },
+  "selected": {
+    "all": {
+      "total": 6576,
+      "evaluated": 6392,
+      "hits": 481,
+      "excluded": 184,
+      "paidHits": 481,
+      "payoutTotal": 4331.8
+    },
+    "metrics": {
+      "rate": 0.07525031289111389,
+      "average": 9.005821205821206,
+      "product": 0.6776908635794744
+    },
+    "maxDrawdown": 2136.8999999999996,
+    "netUnits": -2060.2
+  },
+  "recordComparison": [
+    {
+      "label": "평균 기록",
+      "all": {
+        "total": 6576,
+        "evaluated": 6502,
+        "hits": 654,
+        "excluded": 74,
+        "paidHits": 654,
+        "payoutTotal": 4515.3
+      },
+      "metrics": {
+        "rate": 0.10058443555828976,
+        "average": 6.904128440366973,
+        "product": 0.6944478621962474
+      },
+      "maxDrawdown": 2049.3000000000006,
+      "netUnits": -1986.6999999999998
+    },
+    {
+      "label": "중앙값",
+      "all": {
+        "total": 6576,
+        "evaluated": 6497,
+        "hits": 678,
+        "excluded": 79,
+        "paidHits": 678,
+        "payoutTotal": 4716.699999999999
+      },
+      "metrics": {
+        "rate": 0.10435585654917655,
+        "average": 6.95678466076696,
+        "product": 0.7259812221025087
+      },
+      "maxDrawdown": 1814.1999999999998,
+      "netUnits": -1780.300000000001
+    },
+    {
+      "label": "최고 기록",
+      "all": {
+        "total": 6576,
+        "evaluated": 6497,
+        "hits": 679,
+        "excluded": 79,
+        "paidHits": 679,
+        "payoutTotal": 4799.5
+      },
+      "metrics": {
+        "rate": 0.10450977374172694,
+        "average": 7.068483063328424,
+        "product": 0.7387255656456826
+      },
+      "maxDrawdown": 1746.0999999999985,
+      "netUnits": -1697.5
+    },
+    {
+      "label": "평균+변동성",
+      "all": {
+        "total": 6576,
+        "evaluated": 6434,
+        "hits": 445,
+        "excluded": 142,
+        "paidHits": 445,
+        "payoutTotal": 4109.5
+      },
+      "metrics": {
+        "rate": 0.06916381722101336,
+        "average": 9.234831460674158,
+        "product": 0.6387161952129313
+      },
+      "maxDrawdown": 2383.3999999999974,
+      "netUnits": -2324.5
+    },
+    {
+      "label": "기록 전체 혼합",
+      "all": {
+        "total": 6576,
+        "evaluated": 6417,
+        "hits": 661,
+        "excluded": 159,
+        "paidHits": 661,
+        "payoutTotal": 4669.5
+      },
+      "metrics": {
+        "rate": 0.10300763596696276,
+        "average": 7.064296520423601,
+        "product": 0.727676484338476
+      },
+      "maxDrawdown": 1889.0999999999997,
+      "netUnits": -1747.5
+    }
+  ],
+  "live": {
+    "forQuarter": "20260701",
+    "settings": {
+      "anchorMode": "odds",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        36,
+        0,
+        35,
+        4,
+        1,
+        0,
+        1,
+        0,
+        0,
+        19
+      ],
+      "min": 8,
+      "max": 10
+    },
+    "venueSupport": {
+      "seoul": {
+        "trainingRaces": 2881,
+        "selectionRaces": 264,
+        "shrinkage": 0.7423344498840505,
+        "fallback": false
+      },
+      "busan": {
+        "trainingRaces": 1970,
+        "selectionRaces": 195,
+        "shrinkage": 0.6632996632996633,
+        "fallback": false
+      },
+      "jeju": {
+        "trainingRaces": 1799,
+        "selectionRaces": 194,
+        "shrinkage": 0.6427295462665238,
+        "fallback": false
+      }
+    },
+    "style": "평균+변동성",
+    "months": 36,
+    "retrospective": {
+      "all": {
+        "total": 13032,
+        "evaluated": 12679,
+        "hits": 759,
+        "excluded": 353,
+        "paidHits": 759,
+        "payoutTotal": 9553.300000000003
+      },
+      "metrics": {
+        "rate": 0.05986276520230302,
+        "average": 12.586693017127804,
+        "product": 0.7534742487577887
+      }
+    }
+  },
+  "sourceSha256": {
+    "qpl-history-years/2021.json": "7be299012cd647e21edc28f737cb9f0523129a905acc05789d5e27da0cdba96f",
+    "qpl-history-years/2022.json": "e41b91764784df9f8d777ed9e8b28ea1c5cb26125373924db1f330dba0136768",
+    "qpl-history-years/2023.json": "8b0082ee5162f0168371d98a3f90fb1483ad5db3f924e0b73ac493c403649576",
+    "qpl-history-years/2024.json": "d7e73059b2585588ad7e43caa9fa888c0cfbc0d57c45898483c8526c4b87254e",
+    "qpl-history-years/2025.json": "073be332c2c621a09152df4091fffbfa146ad2221b91155f85bd39996fc2c8c5",
+    "qpl-history-years/2026.json": "564c891624593bfb68d0446a6edd416507f5ae7d2d5a58a2ac618b2ff1392732"
+  },
+  "note": "각 분기 직전 3개월로 가중치·학습기간·기록 방식·공통/경마장별 사용 여부를 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 최종배당 기준 사후 재계산입니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다."
+}
