@@ -64,7 +64,7 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  assert.equal(vm.runInContext('partnerRange.min',sandbox),expected.min);
  assert.equal(nodes['#applyRolling'].hidden,false);assert(nodes['#rollingReport'].innerHTML.includes('보정 기록 방식 비교'));nodes['#applyRolling'].onclick();await flush();
  const rolling=JSON.parse(fs.readFileSync('rolling-report.json')).live.settings;assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),rolling.weights.join(','));
- nodes['#weightScope'].value='venue';nodes['#weightScope'].onchange();nodes['#weightVenue'].value='seoul';nodes['#weightVenue'].onchange();
+ nodes['#applyRollingVenue'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.weightScope',sandbox),'venue');nodes['#applyRollingCommon'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.weightScope',sandbox),undefined);nodes['#weightScope'].value='venue';nodes['#weightScope'].onchange();nodes['#weightVenue'].value='seoul';nodes['#weightVenue'].onchange();
  const busan=vm.runInContext('tuningSettings.venueWeights.busan.join(",")',sandbox);nodes['#weight-15'].value='17';nodes['#weight-15'].oninput();await flush();
  assert.equal(vm.runInContext('tuningSettings.venueWeights.seoul[15]',sandbox),17);assert.equal(vm.runInContext('tuningSettings.venueWeights.busan.join(",")',sandbox),busan);
  nodes['#presetName'].value='경마장별 저장';nodes['#saveStrategy'].onclick();nodes['#weight-15'].value='18';nodes['#weight-15'].oninput();nodes['#loadStrategy'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.venueWeights.seoul[15]',sandbox),17);
