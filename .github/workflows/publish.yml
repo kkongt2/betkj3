@@ -101,7 +101,7 @@ jobs:
             const [html,model,history]=await Promise.all([read('index.html'),read('tuning-model.js'),read('qpl-history.json')]);
             assert(html.includes('weight-15'));assert(html.includes('평균 적중 배당'));assert(model.includes('user-weighted-seoul-v1'));
             const manifest=JSON.parse(history);assert.equal(manifest.scope,'seoul');assert(manifest.races>4000);const live=JSON.parse(await read('data/latest.json'));assert.equal(live.scope,'seoul');assert(live.races.every(r=>r.venue==='seoul'));assert(live.calendar.every(d=>d.venues.every(v=>v==='seoul')));assert(!/부경|제주|전국|weightVenue/.test(html));for(const shard of manifest.shards){const d=JSON.parse(await read(shard.url));assert(d.rows.every(r=>r.venue==='seoul'));}const rolling=JSON.parse(await read('rolling-report.json'));assert.equal(rolling.scope,'seoul');assert(rolling.folds.length>=4);assert(rolling.selected.all.evaluated>=Math.ceil(rolling.selected.all.total*.4));
-            const top5=JSON.parse(await read('top5-presets.json'));assert.equal(top5.scope,'seoul');assert.equal(top5.presets.length,5);assert(html.includes('top5Presets'));assert(top5.presets.every(p=>p.all.evaluated>=Math.ceil(top5.sourceRaces*.4)));
+            const top5=JSON.parse(await read('top5-presets.json'));assert.equal(top5.scope,'seoul');assert.equal(top5.presets.length,10);assert(html.includes('top5Presets'));assert(top5.presets.every(p=>p.all.evaluated>=Math.ceil(top5.sourceRaces*.4)&&p.all.hits*10>=p.all.evaluated));
             console.log('PASS published Seoul-only controls, model, live calendar, every historical shard and quarterly report',base);
           })().catch(e=>{console.error(e);process.exitCode=1});
           NODE

@@ -7,7 +7,7 @@ let selectionRequest=0;
 const expandedResults=new Set(),marketOddsCache=new Map(),loadedMarketOdds=new Map();
 let partnerRange=Betkj3Policy.normalizeRange(),tuningSettings=TuningModel.settings(),qplHistory=null,historyRequest=0;
 let historyWorker=null,historyEngine=null,historyEvaluation=0,historyTimer=null;
-let syncTuningControls=()=>{};
+let syncTuningControls=()=>{},refreshPresetOptions=()=>{};
 const strategySettings=()=>({...tuningSettings,...partnerRange});
 const anchorLabel=()=>tuningSettings.anchorMode==='analysis'?'분석 1위':'최종배당 1위';
 function syncStrategyHelp(){$('#rangeHelp').textContent='현재 설정: '+anchorLabel()+' 축마 + 배당 '+partnerRange.min+'~'+partnerRange.max+'위에서 1마리 선택 · 이 기기에 자동 저장';}
@@ -107,7 +107,7 @@ function initStrategyPresets(){
   select.value=selected;$('#loadStrategy').disabled=!selected;$('#deleteStrategy').disabled=!selected;
  }
  const error=e=>{status.textContent=e.name==='QuotaExceededError'?'브라우저 저장 공간이 부족해 저장하지 못했습니다.':e.message||'설정을 저장하지 못했습니다.';};
- try{refresh();}catch(e){error(e);}
+ refreshPresetOptions=refresh;try{refresh();}catch(e){error(e);}
  select.onchange=()=>{$('#loadStrategy').disabled=!select.value;$('#deleteStrategy').disabled=!select.value;};
  $('#saveStrategy').onclick=()=>{try{const name=$('#presetName').value.trim();StrategyPresets.save(localStorage,name,strategySettings());refresh(name);status.textContent='“'+name+'” 설정을 저장했습니다.';}catch(e){error(e);}};
  $('#loadStrategy').onclick=()=>{try{const p=StrategyPresets.read(localStorage).find(p=>p.name===select.value);if(!p)throw Error('불러올 설정을 선택하세요.');const saved=applySavedStrategy(p.settings);$('#presetName').value=p.name;status.textContent='“'+p.name+'” 설정을 불러왔습니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');}catch(e){error(e);}};
@@ -271,7 +271,7 @@ async function fetchPublicJSON(path){
  }
  throw Error('불러오기 실패');
 }
-initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy);loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});

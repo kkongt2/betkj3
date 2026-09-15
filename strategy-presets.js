@@ -18,8 +18,14 @@ const StrategyPresets=(()=>{
   if(index>=0)entries[index]=preset;else{if(entries.length>=50)throw Error('최대 50개까지 저장할 수 있습니다.');entries.push(preset);}
   storage.setItem(KEY,JSON.stringify({schema:1,entries}));return entries;
  }
+ function saveMany(storage,presets){
+  const entries=read(storage),next=new Map(entries.map(p=>[p.name,p]));
+  for(const item of presets){const name=String(item.name).trim();if(!name||name.length>60)throw Error('설정 이름을 1~60자로 입력하세요.');next.set(name,{name,settings:config(item.settings)});}
+  if(next.size>50)throw Error('최대 50개까지 저장할 수 있습니다. 기존 설정을 정리해 주세요.');
+  const out=[...next.values()];storage.setItem(KEY,JSON.stringify({schema:1,entries:out}));return out;
+ }
  function remove(storage,name){const entries=read(storage).filter(p=>p.name!==name);storage.setItem(KEY,JSON.stringify({schema:1,entries}));return entries;}
- return {KEY,config,read,save,remove};
+ return {KEY,config,read,save,saveMany,remove};
 })();
 if(typeof module!=='undefined')module.exports=StrategyPresets;
 

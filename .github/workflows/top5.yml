@@ -1,7 +1,7 @@
-name: Find top five Seoul presets
+name: Find ten diverse Seoul presets
 on:
   push:
-    branches: ['feature/seoul-top5']
+    branches: ['feature/seoul-top10']
     paths: ['scripts/**', 'tests/**', '.github/workflows/top5.yml']
   workflow_dispatch:
 permissions:
@@ -23,6 +23,7 @@ jobs:
           g++ -O3 -fopenmp -std=c++17 scripts/search-top5.cpp -o /tmp/search-top5
           node scripts/top5-presets.cjs
           node tests/top5.cjs
+          node tests/diversity.cjs
       - name: Check preset controls
         run: node tests/site.cjs
       - name: Preserve verified presets
@@ -31,7 +32,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add top5-presets.json
           if ! git diff --cached --quiet; then
-            git commit -m 'Record five exact Seoul presets meeting 40 percent coverage'
-            git pull --rebase origin feature/seoul-top5
-            git push origin HEAD:feature/seoul-top5
+            git commit -m 'Record ten diverse Seoul presets meeting 10 percent hits and 40 percent coverage'
+            git pull --rebase origin feature/seoul-top10
+            git push origin HEAD:feature/seoul-top10
           fi

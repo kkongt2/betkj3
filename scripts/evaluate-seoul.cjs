@@ -5,11 +5,11 @@ const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));
 const loadRows=()=>manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows);
 const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
 function compare(a,b){return !b||a.pick.prob>b.pick.prob||a.pick.prob===b.pick.prob&&(a.partner.prob>b.partner.prob||a.partner.prob===b.partner.prob&&a.partner.number<b.partner.number);}
-function run(rows,weights){
+function run(rows,weights,options={}){
  rows=rows.filter(r=>r.venue==='seoul');
- const results=[];for(const anchorMode of ['odds','analysis'])for(let min=2;min<=20;min++)for(let max=min;max<=20;max++)results.push({settings:{anchorMode,modelMode:weights?'custom':'existing',weights:weights||tuning.defaults(),min,max},all:blank(),years:{}});
+ const results=[];for(const anchorMode of ['odds','analysis'])for(let min=2;min<=20;min++)for(let max=min;max<=20;max++)results.push({settings:{anchorMode,modelMode:weights?'custom':'existing',weights:weights||tuning.defaults(),min,max},all:blank(),years:{},...(options.predictions?{predictions:new Uint16Array(rows.length)}:{})});
  const grids={odds:[],analysis:[]},yearTotals={};for(const row of rows)yearTotals[row.date.slice(0,4)]=(yearTotals[row.date.slice(0,4)]||0)+1;for(const r of results)(grids[r.settings.anchorMode][r.settings.min]||(grids[r.settings.anchorMode][r.settings.min]=[]))[r.settings.max]=r;
- for(const row of rows){
+ for(const [rowIndex,row] of rows.entries()){
   if(!row.settled)continue;
   const base=tuning.apply(tuning.unpack(row),{modelMode:weights?'custom':'existing',weights});
   const payouts=new Map(row.payouts.map(p=>[p.numbers.slice().sort((a,b)=>a-b).join('-'),p.odds]));
@@ -19,7 +19,7 @@ function run(rows,weights){
    for(let min=2;min<=20;min++){let picked=null;for(let max=min;max<=20;max++){
     const c=byRank.get(max);if(c&&compare(c,picked))picked=c;if(!picked)continue;
     const out=grids[anchorMode][min][max],year=row.date.slice(0,4);
-    const amount=payouts.get(picked.pick.numbers.slice().sort((a,b)=>a-b).join('-'))||0;
+    const ns=picked.pick.numbers.slice().sort((a,b)=>a-b),amount=payouts.get(ns.join('-'))||0;if(options.predictions)out.predictions[rowIndex]=ns[0]*32+ns[1];
     for(const g of [out.all,out.years[year]||(out.years[year]=blank())]){g.evaluated++;g.hits+=amount>0;g.paidHits+=amount>0;g.payoutTotal+=amount;}
    }}
   }
