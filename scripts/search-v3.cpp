@@ -9,15 +9,15 @@
 #include <set>
 #include <vector>
 #include <omp.h>
-using W=std::array<int,16>;
-struct Race{int date,n,k;int number[20];double odds[20],prob[20],f[20][16],q[20][20],paid[20][20];};
+using W=std::array<int,17>;
+struct Race{int date,n,k;int number[20];double odds[20],prob[20],f[20][17],q[20][20],paid[20][20];};
 struct Result{W w;int mode,lo,hi,n,hits;double paid;double value()const{return n?paid/n:0;}};
 std::vector<Race> races;
 std::vector<Result> evaluate(W w,bool existing=false){
  double paid[2][21][21]={};int count[2][21][21]={},hits[2][21][21]={};
  for(const auto&r:races){
   double score[20];int rank[20],active=0;double sum=std::accumulate(w.begin(),w.end(),0.0),mean=0;
-  for(int i=0;i<r.n;i++){if(r.odds[i]>=1)rank[active++]=i;score[i]=0;for(int j=0;j<16;j++)score[i]+=r.f[i][j]*w[j]/sum;score[i]*=6.28;mean+=score[i];}
+  for(int i=0;i<r.n;i++){if(r.odds[i]>=1)rank[active++]=i;score[i]=0;for(int j=0;j<17;j++)score[i]+=r.f[i][j]*w[j]/sum;score[i]*=6.28;mean+=score[i];}
   mean/=r.n;for(int i=0;i<r.n;i++)score[i]=existing?r.prob[i]:std::exp(std::max(-4.0,std::min(4.0,(score[i]-mean)*.6)));
   auto better=[&](int a,int b){return b<0||score[a]>score[b]||(score[a]==score[b]&&r.number[a]<r.number[b]);};
   std::sort(rank,rank+active,[&](int a,int b){return r.odds[a]!=r.odds[b]?r.odds[a]<r.odds[b]:better(a,b);});
@@ -40,13 +40,13 @@ int main(int argc,char**argv){
  const int minimumEvaluated=int(std::ceil(totalRaces*.4));
  int style=std::stoi(argv[3]),maxLo=std::stoi(argv[4]);std::mt19937 rng(20260915);std::set<W> seen;std::vector<Result> board;int tested=0;
  auto allowed=[&](int j){return j!=10&&j!=13&&j!=14&&j!=15||style==4||(style==3&&(j==10||j==15))||(style<3&&j==(style==0?10:style==1?13:14));};
- std::vector<int> ids;for(int i=0;i<16;i++)if(allowed(i))ids.push_back(i);
+ std::vector<int> ids;for(int i=0;i<17;i++)if(allowed(i))ids.push_back(i);
  auto batch=[&](std::vector<W> ws){for(auto w:ws){if(!seen.insert(w).second)continue;tested++;auto scores=evaluate(w);for(auto&r:scores)if(r.n>=minimumEvaluated&&r.lo<=maxLo&&r.hi>r.lo)board.push_back(r);
  std::sort(board.begin(),board.end(),[](const Result&a,const Result&b){if(a.value()!=b.value())return a.value()>b.value();if(a.n!=b.n)return a.n>b.n;if(a.w!=b.w)return a.w<b.w;if(a.mode!=b.mode)return a.mode<b.mode;if(a.lo!=b.lo)return a.lo<b.lo;return a.hi<b.hi;});
  std::set<W> keep;board.erase(std::remove_if(board.begin(),board.end(),[&](auto&r){return !keep.insert(r.w).second;}),board.end());if(board.size()>2)board.resize(2);}};
  std::vector<W> initial;for(int i:ids){W w={};w[i]=100;initial.push_back(w);}
- for(int t=0;t<100;t++){W w={};double a[16]={},total=0;for(int i:ids){a[i]=std::pow(-std::log((rng()+1.0)/(rng.max()+2.0)),t%3+1);total+=a[i];}int used=0;for(int i:ids){w[i]=int(a[i]*100/total);used+=w[i];}while(used++<100)w[ids[rng()%ids.size()]]++;initial.push_back(w);}
+ for(int t=0;t<100;t++){W w={};double a[17]={},total=0;for(int i:ids){a[i]=std::pow(-std::log((rng()+1.0)/(rng.max()+2.0)),t%3+1);total+=a[i];}int used=0;for(int i:ids){w[i]=int(a[i]*100/total);used+=w[i];}while(used++<100)w[ids[rng()%ids.size()]]++;initial.push_back(w);}
  batch(initial);if(board.empty())return 4;
  for(int step:{5,1}){std::vector<W> next;for(int t=0;t<48;t++){W w=board[0].w;int a=ids[rng()%ids.size()],b=ids[rng()%ids.size()];if(a!=b&&w[a]>=step){w[a]-=step;w[b]+=step;next.push_back(w);}}batch(next);}
- std::ofstream out(argv[2]);out<<"{\"weightCandidates\":"<<tested<<",\"finalists\":[";bool first=true;for(const auto&r:board){if(!first)out<<',';first=false;out<<"{\"weights\":[";for(int i=0;i<16;i++){if(i)out<<',';out<<r.w[i];}out<<"]}";}out<<"]}";
+ std::ofstream out(argv[2]);out<<"{\"weightCandidates\":"<<tested<<",\"finalists\":[";bool first=true;for(const auto&r:board){if(!first)out<<',';first=false;out<<"{\"weights\":[";for(int i=0;i<17;i++){if(i)out<<',';out<<r.w[i];}out<<"]}";}out<<"]}";
 }

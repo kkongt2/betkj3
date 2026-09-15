@@ -33,7 +33,7 @@ async function loadQplHistory(){
  const id=++historyRequest;$('#retryQplHistory').hidden=true;
  if(!qplHistory)$('#qplHistoryStats').textContent='과거 경주를 불러오는 중…';
  try{
-  const doc=await fetchJSON('qpl-history.json?v=seoul-1'+Date.now());
+  const doc=await fetchJSON('qpl-history.json?v=last5-1'+Date.now());
   if(doc.scope!=='seoul'||![2,3].includes(doc.schema)||doc.policyVersion!==Betkj3Policy.VERSION||(doc.schema===2?!Array.isArray(doc.rows):!Array.isArray(doc.shards)))throw Error('통계 자료 형식 확인 필요');
   if(id!==historyRequest)return;qplHistory=doc;setupHistoryEngine();renderQplHistory();
  }catch{
@@ -45,7 +45,7 @@ async function loadQplHistory(){
 function setupHistoryEngine(){
  historyWorker?.terminate();historyWorker=null;historyEngine=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=seoul-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=last5-1');
   historyWorker.onmessage=({data})=>{if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});

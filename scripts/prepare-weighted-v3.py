@@ -4,9 +4,9 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-VERSION='weighted-seoul-v1'
+VERSION='weighted-seoul-last5-v2'
 FIT_TO='20230930'
-FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency']
+FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency','mean_finish5']
 def day(s):return datetime.strptime(s,'%Y%m%d').toordinal()
 def avg(xs,default=None):return sum(xs)/len(xs) if xs else default
 def clip(x,a,b):return max(a,min(b,x))
@@ -28,10 +28,10 @@ class History:
         d=day(r['date']);field=active(r);ratings=[float(h['rating']) for h in field if h.get('rating',0)>0];field_rating=avg(ratings);base=(2 if len(field)<=7 else 3)/max(3,len(field));result={}
         for h in r['horses']:
             hist=[x for x in self.horses[key(r,h)] if x['day']<d];yr=[x for x in hist if x['day']>=d-365];recent=hist[-5:];last=hist[-1] if hist else None
-            place=smooth(yr,d,lambda x:x['placed'],base,8)
-            win=smooth(yr,d,lambda x:x['win'],1/max(3,len(field)),12)
-            near=[x for x in yr if abs(x['distance']-r['distance'])<=200]
-            dist=smooth(near,d,lambda x:x['placed'],place,6)
+            place=avg([x['placed'] for x in recent],base)
+            win=avg([x['win'] for x in recent],1/max(3,len(field)))
+            near=[x for x in recent if abs(x['distance']-r['distance'])<=200]
+            dist=avg([x['placed'] for x in near],place)
             rating=(float(h['rating'])-field_rating) if h.get('rating',0)>0 and field_rating is not None else None
             form=smooth(recent,d,lambda x:x['form'],.5,3)
             people=[]
@@ -55,8 +55,8 @@ class History:
             median=statistics.median(records) if records else None
             best=max(records)*len(records)/(len(records)+3) if records else None
             consistency=-statistics.pstdev(records) if len(records)>=3 else None
-            values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency]
-            result[str(h['number'])]={'raw':values,'starts':len(yr),'recordStarts':sum(x.get('speed') is not None for x in recent),'marginStarts':sum(x.get('margin') is not None for x in recent),'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None}
+            values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency,avg([x['form'] for x in recent],.5)]
+            result[str(h['number'])]={'raw':values,'starts':len(recent),'distanceStarts':len(near),'meanFinish':avg([x['finish'] for x in recent]),'meanFinishScore':avg([x['form'] for x in recent]),'fieldSizes':[x['fieldSize'] for x in recent],'recordStarts':sum(x.get('speed') is not None for x in recent),'marginStarts':sum(x.get('margin') is not None for x in recent),'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None}
         return result
     def add_day(self,rs):
         rs=[r for r in rs if r.get('venue')=='seoul']
@@ -77,7 +77,7 @@ class History:
                 expected=smooth(hist,d,lambda x:x['placed'],base,8)
                 seconds=h.get('race_seconds');valid=seconds and 10<seconds<600 and h['finish']<=n
                 other=[float(x['rating']) for x in r['horses'] if x['number']!=h['number'] and x.get('rating',0)>0]
-                entry=dict(day=d,placed=int(h['number'] in winners),win=int(h['finish']==1),form=clip((n-h['finish'])/max(1,n-1),0,1),
+                entry=dict(day=d,finish=h['finish'],fieldSize=n,placed=int(h['number'] in winners),win=int(h['finish']==1),form=clip((n-h['finish'])/max(1,n-1),0,1),
                     distance=r['distance'],rating=float(h.get('rating') or 0),grade=grade(r.get('grade')),burden=h.get('burden'),body=h.get('horse_weight'),
                     speed=clip((ref-seconds)*1200/r['distance'],-20,20) if ref is not None and valid else None,
                     margin=clip((seconds-winner_time)*1200/r['distance'],0,30) if valid and winner_time else None,opponents=avg(other))
@@ -164,6 +164,7 @@ def main():
             'fitThrough':FIT_TO,'coverage':dict(zip(FEATURES,coverage)),'tailDownloadErrors':errors,
             'marginDefinition':'Previous race time minus winner time, seconds normalized to 1200m; not lengths',
             'speedDefinition':'Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral',
+            'recentDefinition':'Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included','meanFinishDefinition':'Arithmetic mean of (fieldSize-finish)/(fieldSize-1) over the same previous five starts; nonfinish is clipped to zero',
             'currentResultInputs':False,'sameDayResultsInputs':False}
     Path('data/weighted-v3-coverage.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps(report,ensure_ascii=False),flush=True)

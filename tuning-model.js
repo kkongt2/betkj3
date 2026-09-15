@@ -1,16 +1,16 @@
 'use strict';
 const TuningModel=(()=>{
  const engine=typeof module!=='undefined'?require('./model.js'):{score,probs};
- const VERSION='user-weighted-seoul-v1';
- const FEATURES=[["place","최근 1년 연승 입상률",22,"실제 연승 적중 착순 적용 · 최근 기록 강조 · 소표본 보정"],["win","최근 1년 승률",0,"별도 승률 포함·제외를 시간순 비교 · 0%이면 제외"],["distance","유사 거리 연승 입상률",14,"현재 거리 ±200m · 전체 입상률로 소표본 보정"],["rating","상대 레이팅",9,"출전마 평균과 차이 · 극단값에 흔들리는 최소·최대 환산 제거"],["recent","출전 두수 보정 최근 착순",13,"최근 5경주 착순을 해당 경주 출전 두수로 보정"],["jockey","기수 기대 대비 입상",7,"과거 기승마 전적으로 예상한 입상 대비 실제 성적 · 소표본 보정"],["trainer","조교사 기대 대비 입상",5,"과거 관리마 전적으로 예상한 입상 대비 실제 성적 · 소표본 보정"],["burden","직전 대비 부담중량",5,"같은 등급·유사 레이팅일 때 자신의 직전 중량과 비교"],["body","입상 당시 마체중과 차이",3,"자신의 과거 입상 체중 중앙값과 비교 · 최소 3회"],["interval","평소 출전 간격과 차이",2,"자신의 과거 출전 주기와 비교 · 최소 3개 간격"],["speed","등급·거리·주로 보정 평균 기록",4,"이전 경주 기록을 해당 경주 이전의 경마장·거리·주로 기준 기록과 비교"],["margin","선두와의 시간차",6,"이전 경주 선두와의 시간차를 1200m 기준으로 보정 · 거리 단위 착차 아님"],["opposition","과거 상대 수준·등급 변화",4,"과거 상대 평균 레이팅과 현재 출전마 수준·등급 비교"],["speed_median","보정 기록 중앙값",3,"최근 5경주의 유효 등급 보정 기록 중앙값"],["speed_best","보정 최고 기록",2,"최근 5경주 최고 보정 기록 · 소표본 보정"],["speed_consistency","보정 기록 안정성",1,"최근 5경주 보정 기록의 표준편차 감점 · 최소 3회"]].map(([id,label,weight,description])=>({id,label,weight,description}));
+ const VERSION='user-weighted-seoul-last5-v2';
+ const FEATURES=[["place","최근 5경주 연승 입상률",22,"해당 말의 직전 5경주 · 실제 연승 입상 횟수 ÷ 출전 횟수"],["win","최근 5경주 승률",0,"해당 말의 직전 5경주 · 1착 횟수 ÷ 출전 횟수"],["distance","최근 5경주 유사 거리 입상률",14,"직전 5경주 중 현재 거리 ±200m · 대상 경주가 없으면 최근 5경주 입상률"],["rating","상대 레이팅",9,"출전마 평균과 차이 · 극단값에 흔들리는 최소·최대 환산 제거"],["recent","최근 5경주 착순 · 최근 강조",8,"출전 두수 보정 착순 · 최근 경주에 가중치와 소표본 보정 적용"],["jockey","기수 기대 대비 입상",7,"과거 기승마 전적으로 예상한 입상 대비 실제 성적 · 소표본 보정"],["trainer","조교사 기대 대비 입상",5,"과거 관리마 전적으로 예상한 입상 대비 실제 성적 · 소표본 보정"],["burden","직전 대비 부담중량",5,"같은 등급·유사 레이팅일 때 자신의 직전 중량과 비교"],["body","입상 당시 마체중과 차이",3,"자신의 과거 입상 체중 중앙값과 비교 · 최소 3회"],["interval","평소 출전 간격과 차이",2,"자신의 과거 출전 주기와 비교 · 최소 3개 간격"],["speed","등급·거리·주로 보정 평균 기록",4,"이전 경주 기록을 해당 경주 이전의 경마장·거리·주로 기준 기록과 비교"],["margin","선두와의 시간차",6,"이전 경주 선두와의 시간차를 1200m 기준으로 보정 · 거리 단위 착차 아님"],["opposition","과거 상대 수준·등급 변화",4,"과거 상대 평균 레이팅과 현재 출전마 수준·등급 비교"],["speed_median","보정 기록 중앙값",3,"최근 5경주의 유효 등급 보정 기록 중앙값"],["speed_best","보정 최고 기록",2,"최근 5경주 최고 보정 기록 · 소표본 보정"],["speed_consistency","보정 기록 안정성",1,"최근 5경주 보정 기록의 표준편차 감점 · 최소 3회"],["mean_finish5","최근 5경주 두수 보정 평균 순위",5,"각 경주의 (두수−순위)/(두수−1)을 동일 가중치로 평균 · 높을수록 우수"]].map(([id,label,weight,description])=>({id,label,weight,description}));
  const defaults=()=>FEATURES.map(f=>f.weight);
- function validWeights(w){return Array.isArray(w)&&[10,13,FEATURES.length].includes(w.length)&&w.every(n=>Number.isInteger(n)&&n>=0&&n<=100)&&w.some(n=>n>0);}
+ function validWeights(w){return Array.isArray(w)&&[10,13,16,FEATURES.length].includes(w.length)&&w.every(n=>Number.isInteger(n)&&n>=0&&n<=100)&&w.some(n=>n>0);}
  function settings(s={}){
   const candidate=s.weightScope==='venue'&&validWeights(s.venueWeights?.seoul)?s.venueWeights.seoul:s.weights;
   const weights=validWeights(candidate)?FEATURES.map((_,i)=>candidate[i]??0):defaults();
   return {anchorMode:s.anchorMode==='analysis'?'analysis':'odds',modelMode:'custom',weights};
  }
- const label=()=> '서울 전용 가중치 (16개)';
+ const label=()=> '서울 최근 5경주 가중치 (17개)';
  function weightsFor(s){return settings(s).weights;}
  function apply(base,input){
   if(base.venue!=='seoul')throw Error('서울 경주만 분석할 수 있습니다.');
@@ -20,7 +20,7 @@ const TuningModel=(()=>{
   if(Array.isArray(starters)&&starters.length){const active=new Set(starters.map(Number));base={...base,horses:base.horses.filter(h=>active.has(+h.number)),places:base.places.filter(p=>p.numbers.every(n=>active.has(+n))),pairs:base.pairs.filter(p=>p.numbers.every(n=>active.has(+n)))};base.k=base.horses.length<=7?2:3;}
   if(!base.horses.length)return base;
   const field=base.horses.slice().sort((a,b)=>+a.number-+b.number),sum=config.weights.reduce((a,b)=>a+b,0);
-  const features=field.map(h=>h.weighted_v3_features||Array(16).fill(.5));
+  const features=field.map(h=>h.weighted_v3_features||Array(FEATURES.length).fill(.5));
   const raw=features.map(f=>f.reduce((s,x,i)=>s+x*config.weights[i]/sum,0)*6.28),mean=raw.reduce((a,b)=>a+b,0)/raw.length;
   const strengths=raw.map(x=>Math.exp(Math.max(-4,Math.min(4,(x-mean)*.6))));
   const place=engine.probs(strengths,base.k),pair=engine.probs(strengths,3);
