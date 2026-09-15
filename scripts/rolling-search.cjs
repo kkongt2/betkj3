@@ -1,7 +1,7 @@
 'use strict';
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),cp=require('node:child_process'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const tuning=require('../tuning-model.js'),policy=require('../qpl-policy.js'),engine=require('../qpl-history-engine.js'),{run}=require('./evaluate-v2.cjs');
-const VENUES=['seoul','busan','jeju'],STYLES=['평균 기록','중앙값','최고 기록','기록 혼합·변동성'];
+const VENUES=['seoul','busan','jeju'],STYLES=['평균 기록','중앙값','최고 기록','평균+변동성','기록 전체 혼합'];
 const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
 const plus=(a,b)=>{for(const k of Object.keys(blank()))a[k]+=b[k];return a;};
 const product=g=>g.evaluated?g.payoutTotal/g.evaluated:-Infinity;
@@ -28,7 +28,7 @@ async function main(){
  for(let from='20240101';from<=lastQuarter;from=shift(from,3)){
   const to=shift(from,3),validationFrom=shift(from,-3),validation=slice(validationFrom,from),test=slice(from,to);if(!test.length)continue;activeValidation=validationFrom;
   assert(scaler.fitThrough<validationFrom);const styleBest=[];
-  for(let style=0;style<4;style++){
+  for(let style=0;style<STYLES.length;style++){
    const pool=[];for(const months of [24,36]){const trainFrom=shift(from,-months),train=slice(trainFrom,validationFrom);assert(train.length>=500);const weights=search(train,style);
     for(const w of weights){const limit=Math.min(safeMin(train),safeMin(validation));const candidates=run(validation,w).filter(r=>covers(r.all)&&r.settings.min<=limit&&r.settings.max>r.settings.min);candidates.sort(compare);if(candidates[0])pool.push({...candidates[0],months,style,trainFrom,trainThrough:train.at(-1).date});}
    }

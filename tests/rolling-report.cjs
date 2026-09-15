@@ -1,9 +1,9 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),t=require('../tuning-model.js'),p=require('../strategy-presets.js'),{covers,aggregate,evaluate}=require('../scripts/rolling-search.cjs');
 const r=JSON.parse(fs.readFileSync('rolling-report.json'));assert.equal(r.version,t.VERSION);assert(r.folds.length>=4);assert.equal(r.minimumCoverageRatio,.4);
 let total=0;for(const f of r.folds){assert(r.search.scaleFitThrough<f.validationFrom);assert(f.trainThrough<f.validationFrom);assert(f.validationThrough<f.from);assert(f.through<f.to);assert.equal(f.choice==='venue',f.selection.regional.payoutTotal/f.selection.regional.evaluated>f.selection.common.payoutTotal/f.selection.common.evaluated);for(const key of ['common','regional','selected']){assert(covers(f[key]));assert.equal(f[key].total,f[key].evaluated+f[key].excluded);}assert.deepEqual(f.settings,p.config(f.settings));total+=f.selected.total;}
-assert.equal(r.selected.all.total,total);assert(covers(r.live.retrospective.all));assert.equal(r.live.retrospective.all.total,r.sourceRaces);assert.equal(r.recordComparison.length,4);
+assert.equal(r.selected.all.total,total);assert(covers(r.live.retrospective.all));assert.equal(r.live.retrospective.all.total,r.sourceRaces);assert.equal(r.recordComparison.length,5);
 for(const x of [r.selected,r.common,r.regional,...r.recordComparison]){assert.equal(x.all.hits,x.all.paidHits);assert(Math.abs(x.metrics.product-x.all.payoutTotal/x.all.evaluated)<1e-10);}
 // Reproduce every frozen selected quarter through the site's actual computation.
 const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows);
 for(const f of r.folds){const x=evaluate(rows.filter(x=>x.date>=f.from&&x.date<=f.through),f.settings);assert.equal(x.all.hits,f.selected.hits);assert.equal(x.all.evaluated,f.selected.evaluated);assert(Math.abs(x.all.payoutTotal-f.selected.payoutTotal)<1e-8);}
-console.log('PASS frozen-quarter predictions, chronological isolation, 40% coverage in every fold, full archive live coverage and four record comparisons');
+console.log('PASS frozen-quarter predictions, chronological isolation, 40% coverage in every fold, full archive live coverage and five record comparisons');

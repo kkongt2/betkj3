@@ -39,7 +39,7 @@ int main(int argc,char**argv){
 
  const int minimumEvaluated=int(std::ceil(totalRaces*.4));
  int style=std::stoi(argv[3]),maxLo=std::stoi(argv[4]);std::mt19937 rng(20260915);std::set<W> seen;std::vector<Result> board;int tested=0;
- auto allowed=[&](int j){return j!=10&&j!=13&&j!=14&&j!=15||style==3||j==(style==0?10:style==1?13:14);};
+ auto allowed=[&](int j){return j!=10&&j!=13&&j!=14&&j!=15||style==4||(style==3&&(j==10||j==15))||j==(style==0?10:style==1?13:14);};
  std::vector<int> ids;for(int i=0;i<16;i++)if(allowed(i))ids.push_back(i);
  auto batch=[&](std::vector<W> ws){for(auto w:ws){if(!seen.insert(w).second)continue;tested++;auto scores=evaluate(w);for(auto&r:scores)if(r.n>=minimumEvaluated&&r.lo<=maxLo&&r.hi>r.lo)board.push_back(r);
  std::sort(board.begin(),board.end(),[](const Result&a,const Result&b){if(a.value()!=b.value())return a.value()>b.value();if(a.n!=b.n)return a.n>b.n;if(a.w!=b.w)return a.w<b.w;if(a.mode!=b.mode)return a.mode<b.mode;if(a.lo!=b.lo)return a.lo<b.lo;return a.hi<b.hi;});
