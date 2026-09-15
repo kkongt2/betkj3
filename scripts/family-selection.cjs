@@ -12,4 +12,5 @@ function select(candidates){
  }
  assert.equal(selected.length,15,'Need five distinct qualifying descendants of each base');for(const id of RULES.baseIds)assert.equal(counts.get(id),5);
  return selected.map(c=>({...c,nearestPairDifference:Math.min(...selected.filter(x=>x!==c).map(x=>pairDistance(c.predictions,x.predictions)))}));
+}
 module.exports={RULES,weightMove,select};
