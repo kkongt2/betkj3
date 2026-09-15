@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "seoul",
-  "version": "weighted-seoul-v1",
+  "version": "weighted-seoul-last5-v2",
   "sourceRaces": 5591,
   "targetRaces": 5606,
   "horseStarts": 59850,
@@ -23,11 +23,14 @@
     "opponents": 38395,
     "speed_median": 49576,
     "speed_best": 49576,
-    "speed_consistency": 39452
+    "speed_consistency": 39452,
+    "mean_finish5": 59850
   },
   "tailDownloadErrors": [],
   "marginDefinition": "Previous race time minus winner time, seconds normalized to 1200m; not lengths",
   "speedDefinition": "Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral",
+  "recentDefinition": "Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included",
+  "meanFinishDefinition": "Arithmetic mean of (fieldSize-finish)/(fieldSize-1) over the same previous five starts; nonfinish is clipped to zero",
   "currentResultInputs": false,
   "sameDayResultsInputs": false
 }

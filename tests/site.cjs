@@ -1,5 +1,5 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
-const fixture={date:'20250928',venue:'seoul',race_no:1,start_time:'10:00',horses:Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1),rating:50-i,starts_1y:10,wins_1y:2,seconds_1y:1,thirds_1y:1,weighted_v3_features:Array.from({length:16},(_,j)=>j===0?1-i/7:j===1?i/7:.5)})),official_result:{status:'confirmed',starters:[1,2,3,4,5,6],place:{status:'confirmed',payouts:[{numbers:[1],odds:1.1},{numbers:[3],odds:2}]},pair:{status:'confirmed',payouts:[{numbers:[1,3],odds:3}]}}};
+const fixture={date:'20250928',venue:'seoul',race_no:1,start_time:'10:00',horses:Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1),rating:50-i,starts_1y:10,wins_1y:2,seconds_1y:1,thirds_1y:1,weighted_v3_features:Array.from({length:17},(_,j)=>j===0?1-i/7:j===1?i/7:.5)})),official_result:{status:'confirmed',starters:[1,2,3,4,5,6],place:{status:'confirmed',payouts:[{numbers:[1],odds:1.1},{numbers:[3],odds:2}]},pair:{status:'confirmed',payouts:[{numbers:[1,3],odds:3}]}}};
 const doc={updated_at:'2026-09-14T09:00:00+09:00',scope:'seoul',races:[fixture,{...fixture,venue:'busan'},{...fixture,venue:'jeju'}],calendar:[{date:fixture.date,venues:['seoul','busan']},{date:'20260911',venues:['jeju','busan']}]},odds={schema:1,date:fixture.date,races:{'seoul:1':{place:{quotes:[1.1,1.2,2,3,5,8].map((odds,i)=>({numbers:[i+1],odds}))}}}};
 const nativeModel=require('../model.js'),nativeTuning=require('../tuning-model.js');
 const historyDoc={schema:2,policyVersion:'betkj3-configurable-anchor-v3',generatedAt:doc.updated_at,rows:[nativeTuning.pack(nativeModel.analyze(fixture),odds.races['seoul:1'].place)]};
@@ -38,9 +38,9 @@ vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-mod
  const previous=vm.runInContext('ranked.places[0].prob',sandbox);
  nodes['#weight-0'].value='34';nodes['#weight-0'].oninput();await flush();
  assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
- assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-seoul-v1');
+ assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-seoul-last5-v2');
  assert.notEqual(vm.runInContext('ranked.places[0].prob',sandbox),previous);
- assert(nodes['#qplHistoryStats'].innerHTML.includes('서울 전용 가중치'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('서울 최근 5경주 가중치'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('적중률 × 평균배당'));
  nodes['#weight-0'].value='34.5';nodes['#weight-0'].onchange();assert.equal(nodes['#weight-0'].value,'34');
  nodes['#presetName'].value='테스트 <설정>';nodes['#saveStrategy'].onclick();
@@ -58,8 +58,8 @@ vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-mod
  assert.equal(nodes['#applyRolling'].hidden,false);assert(nodes['#rollingReport'].innerHTML.includes('보정 기록 방식 비교'));nodes['#applyRolling'].onclick();await flush();
  const rolling=JSON.parse(fs.readFileSync('rolling-report.json')).live.settings;assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),rolling.weights.join(','));
  nodes['#weight-15'].value='17';nodes['#weight-15'].oninput();nodes['#presetName'].value='서울 저장';nodes['#saveStrategy'].onclick();nodes['#weight-15'].value='18';nodes['#weight-15'].oninput();nodes['#loadStrategy'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.weights[15]',sandbox),17);
- const beforeAll=vm.runInContext('JSON.stringify(strategySettings())',sandbox);nodes['#saveAllTopPresets'].onclick();assert(nodes['#top5Status'].textContent.includes('10개 프리셋을 모두 저장'));assert.equal(vm.runInContext('JSON.stringify(strategySettings())',sandbox),beforeAll);assert(vm.runInContext('StrategyPresets.read(localStorage).length',sandbox)>=10);
- const top5=JSON.parse(fs.readFileSync('top5-presets.json'));assert(nodes['#top5Presets'].innerHTML.includes('16개 가중치 보기'));for(let i=0;i<10;i++){nodes['#top5Presets'].click({target:{closest:()=>({dataset:{top5:String(i)}})}});await flush();assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),top5.presets[i].settings.weights.join(','));assert.equal(vm.runInContext('partnerRange.min',sandbox),top5.presets[i].settings.min);assert(nodes['#top5Status'].textContent.includes('저장했습니다'));}
+ const beforeAll=vm.runInContext('JSON.stringify(strategySettings())',sandbox);nodes['#saveAllTopPresets'].onclick();assert(nodes['#top5Status'].textContent.includes('15개 프리셋을 모두 저장'));assert.equal(vm.runInContext('JSON.stringify(strategySettings())',sandbox),beforeAll);assert(vm.runInContext('StrategyPresets.read(localStorage).length',sandbox)>=15);
+ const top5=JSON.parse(fs.readFileSync('top5-presets.json'));assert(nodes['#top5Presets'].innerHTML.includes('17개 가중치 보기'));for(let i=0;i<15;i++){nodes['#top5Presets'].click({target:{closest:()=>({dataset:{top5:String(i)}})}});await flush();assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),top5.presets[i].settings.weights.join(','));assert.equal(vm.runInContext('partnerRange.min',sandbox),top5.presets[i].settings.min);assert(nodes['#top5Status'].textContent.includes('저장했습니다'));}
  nodes['#partnerMin'].value='3';nodes['#partnerMax'].value='4';nodes['#partnerMin'].onchange();await flush();
  vm.runInContext('loadedMarketOdds.clear();render()',sandbox);
  assert(nodes['#pairLead'].innerHTML.includes('최종배당 대기'));assert(nodes['#pairLead'].innerHTML.includes('실제 결과'));assert(nodes['#savePrediction'].disabled);

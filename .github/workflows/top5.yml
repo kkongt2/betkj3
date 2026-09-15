@@ -1,7 +1,7 @@
-name: Find ten diverse Seoul presets
+name: Build last-five model and 15 family presets
 on:
   push:
-    branches: ['feature/seoul-top10']
+    branches: ['feature/seoul-last5']
     paths: ['scripts/**', 'tests/**', '.github/workflows/top5.yml']
   workflow_dispatch:
 permissions:
@@ -12,12 +12,37 @@ concurrency:
 jobs:
   search:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: kkongt2/timeline
+          ref: main
+          path: _seed
+          sparse-checkout: |
+            training
+            scripts/model-research
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install requests beautifulsoup4 charset-normalizer
+      - name: Recompute all last-five features
+        run: |
+          python scripts/seoul-only.py
+          python tests/rolling-features.py
+          python tests/last5-features.py
+          python scripts/prepare-weighted-v3.py
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Rebuild history and chronological validation
+        run: |
+          node scripts/build-qpl-history.cjs
+          node tests/seoul.cjs
+          node scripts/refresh-rolling.cjs
+          node tests/seoul-report.cjs
       - name: Search and exactly rank Seoul presets
         run: |
           g++ -O3 -fopenmp -std=c++17 scripts/search-top5.cpp -o /tmp/search-top5
@@ -25,14 +50,16 @@ jobs:
           node tests/top5.cjs
           node tests/diversity.cjs
       - name: Check preset controls
-        run: node tests/site.cjs
+        run: |
+          node tests/site.cjs
+          node tests/archive.cjs
       - name: Preserve verified presets
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add top5-presets.json
+          git add -A top5-presets.json data history qpl-history.json qpl-history-years rolling-report.json
           if ! git diff --cached --quiet; then
-            git commit -m 'Record ten diverse Seoul presets meeting 10 percent hits and 40 percent coverage'
-            git pull --rebase origin feature/seoul-top10
-            git push origin HEAD:feature/seoul-top10
+            git commit -m 'Record 17-feature last-five model and 15 descendants of bases 3, 4 and 9'
+            git pull --rebase origin feature/seoul-last5
+            git push origin HEAD:feature/seoul-last5
           fi
