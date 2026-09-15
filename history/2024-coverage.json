@@ -1,11 +1,1 @@
-{
-  "schema": 1,
-  "year": "2024",
-  "races": 2384,
-  "reports": 294,
-  "from": "20240105",
-  "to": "20241229",
-  "unavailable": [],
-  "download_errors": [],
-  "source": "kkongt2/timeline training/history-v7.jsonl.gz"
-}
+{"schema":1,"scope":"seoul","year":"2024","races":1041,"from":"20240106","to":"20241229"}
