@@ -44,6 +44,9 @@ jobs:
           g++ -O3 -fopenmp -std=c++17 scripts/search-v3.cpp -o /tmp/search-v3
           node scripts/rolling-search.cjs
           node tests/rolling-report.cjs
+          node tests/site.cjs
+          node tests/weighted-model.cjs
+          node tests/archive.cjs
       - name: Preserve reproducible feature snapshots
         run: |
           git config user.name 'github-actions[bot]'

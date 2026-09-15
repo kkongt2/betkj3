@@ -10,8 +10,8 @@ const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,data
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
 const savedData=new Map([['betkj3-tuning',JSON.stringify({modelMode:'existing'})]]);
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('strategy-search.json')?JSON.parse(fs.readFileSync('strategy-search.json')):String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
-vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','strategy-presets.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('rolling-report.json')?JSON.parse(fs.readFileSync('rolling-report.json')):String(url).includes('strategy-search.json')?JSON.parse(fs.readFileSync('strategy-search.json')):String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
+vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','strategy-presets.js','rolling-panel.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await flush();
  assert.equal(vm.runInContext('current.calendar_archive',sandbox),true);
  assert(nodes['#placeLead'].innerHTML.includes('data-result-toggle'));
@@ -37,7 +37,7 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  const previous=vm.runInContext('ranked.places[0].prob',sandbox);
  nodes['#weight-0'].value='34';nodes['#weight-0'].oninput();await flush();
  assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
- assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-v2');
+ assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-v3');
  assert.notEqual(vm.runInContext('ranked.places[0].prob',sandbox),previous);
  assert(nodes['#qplHistoryStats'].innerHTML.includes('수정 지표 가중치'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('적중률 × 평균배당'));
@@ -60,10 +60,17 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  nodes['#applySearchBest'].onclick();await flush();
  const expected=JSON.parse(fs.readFileSync('strategy-search.json')).best.settings;
  assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),expected.weights.join(','));
- assert.equal(vm.runInContext('tuningSettings.modelMode',sandbox),'custom');
+ assert.equal(vm.runInContext('tuningSettings.modelMode',sandbox),'v2');
  assert.equal(vm.runInContext('partnerRange.min',sandbox),expected.min);
+ assert.equal(nodes['#applyRolling'].hidden,false);assert(nodes['#rollingReport'].innerHTML.includes('보정 기록 방식 비교'));nodes['#applyRolling'].onclick();await flush();
+ const rolling=JSON.parse(fs.readFileSync('rolling-report.json')).live.settings;assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),rolling.weights.join(','));
+ nodes['#weightScope'].value='venue';nodes['#weightScope'].onchange();nodes['#weightVenue'].value='seoul';nodes['#weightVenue'].onchange();
+ const busan=vm.runInContext('tuningSettings.venueWeights.busan.join(",")',sandbox);nodes['#weight-15'].value='17';nodes['#weight-15'].oninput();await flush();
+ assert.equal(vm.runInContext('tuningSettings.venueWeights.seoul[15]',sandbox),17);assert.equal(vm.runInContext('tuningSettings.venueWeights.busan.join(",")',sandbox),busan);
+ nodes['#presetName'].value='경마장별 저장';nodes['#saveStrategy'].onclick();nodes['#weight-15'].value='18';nodes['#weight-15'].oninput();nodes['#loadStrategy'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.venueWeights.seoul[15]',sandbox),17);
  vm.runInContext('loadedMarketOdds.clear();render()',sandbox);
  assert(nodes['#pairLead'].innerHTML.includes('최종배당 대기'));assert(nodes['#pairLead'].innerHTML.includes('실제 결과'));assert(nodes['#savePrediction'].disabled);
  assert(nodes['#raceOverview'].innerHTML.includes('최종배당 대기'));assert(!nodes['#raceOverview'].innerHTML.includes('출전정보 확인 필요'));
  console.log('PASS final-odds loading, no QPL expand button, explanatory comparison, mode-independent pair selection, pending state and official results');
 })().catch(e=>{console.error(e);process.exitCode=1});
+
