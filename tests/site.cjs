@@ -68,6 +68,7 @@ vm.createContext(sandbox);for(const p of ['model-v7.js','model.js','qpl-policy.j
  const busan=vm.runInContext('tuningSettings.venueWeights.busan.join(",")',sandbox);nodes['#weight-15'].value='17';nodes['#weight-15'].oninput();await flush();
  assert.equal(vm.runInContext('tuningSettings.venueWeights.seoul[15]',sandbox),17);assert.equal(vm.runInContext('tuningSettings.venueWeights.busan.join(",")',sandbox),busan);
  nodes['#presetName'].value='경마장별 저장';nodes['#saveStrategy'].onclick();nodes['#weight-15'].value='18';nodes['#weight-15'].oninput();nodes['#loadStrategy'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.venueWeights.seoul[15]',sandbox),17);
+ nodes['#partnerMin'].value='3';nodes['#partnerMax'].value='4';nodes['#partnerMin'].onchange();await flush();
  vm.runInContext('loadedMarketOdds.clear();render()',sandbox);
  assert(nodes['#pairLead'].innerHTML.includes('최종배당 대기'));assert(nodes['#pairLead'].innerHTML.includes('실제 결과'));assert(nodes['#savePrediction'].disabled);
  assert(nodes['#raceOverview'].innerHTML.includes('최종배당 대기'));assert(!nodes['#raceOverview'].innerHTML.includes('출전정보 확인 필요'));
