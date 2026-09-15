@@ -6,7 +6,7 @@ const QplHistoryEngine=(()=>{
  function create(rows){
   const entries=rows.map(row=>({row,winning:new Map(row.payouts.map(p=>[key(p.numbers),p.odds]))}));
   function evaluateRow(entry,config){
-   const signature=config.modelMode!=='existing'?config.modelMode+':'+config.weights.join(','):'existing';
+   const signature=config.modelMode!=='existing'?config.modelMode+':'+tuning.weightsFor(config,entry.row.venue).join(','):'existing';
    if(signature!=='existing'&&entry.signature!==signature){
     const analyzed=tuning.apply(tuning.unpack(entry.row),config),prob=new Map(analyzed.places.map(p=>[+p.numbers[0],p.prob]));
     entry.custom={...entry.row,horses:entry.row.horses.filter(h=>prob.has(h[0])).map(h=>[h[0],prob.get(h[0]),...h.slice(2)]),pairs:analyzed.pairs.map(p=>[...p.numbers,p.prob])};entry.signature=signature;
@@ -52,3 +52,4 @@ const QplHistoryEngine=(()=>{
  return {create,metrics,load};
 })();
 if(typeof module!=='undefined')module.exports=QplHistoryEngine;
+
