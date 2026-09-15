@@ -26,16 +26,16 @@ assert.deepEqual(normalizeRange({min:6,max:3}),{min:3,max:6});
 assert.deepEqual(normalizeRange({min:0,max:99}),{min:3,max:4});
 const candidates=[{partner:{rank:2,number:2,prob:.8},pick:{prob:.9},hit:false},{partner:{rank:3,number:3,prob:.7},pick:{prob:.6},hit:true}];
 const rows=[{date:'20250914',venue:'seoul',settled:true,candidates},{date:'20260913',venue:'busan',settled:true,candidates},{date:'20250913',venue:'jeju',settled:true,candidates},{date:'20260914',venue:'jeju',settled:false,candidates},{date:'20260915',venue:'seoul',settled:true,candidates}];
-assert.deepEqual(summarize(rows,{min:3,max:4},'20250914','20260914').all,{total:3,evaluated:2,hits:2,excluded:1,paidHits:0,payoutTotal:0});
+assert.deepEqual(summarize(rows,{min:3,max:4},'20250914','20260914').all,{total:1,evaluated:1,hits:1,excluded:0,paidHits:0,payoutTotal:0});
 assert.equal(summarize(rows,{min:2,max:4},'20250914','20260914').all.hits,0);
 assert.equal(summarize(rows,{min:4,max:6},'20250914','20260914').all.evaluated,0);
 console.log('PASS configurable ranges, field-size clipping, inclusive dates, unavailable results and changing historical hit counts');
 
 // Average only confirmed winning payouts: losses and unknown payouts never count as zero.
-const payoutRows=[2.2,5.4,null].map((payout,i)=>({date:'20260913',venue:i?'busan':'seoul',settled:true,candidates:[{partner:{rank:3,number:3,prob:.7},pick:{prob:.6},hit:true,payout},{partner:{rank:2,number:2,prob:.8},pick:{prob:.9},hit:false,payout:99}]}));
+const payoutRows=[2.2,5.4,null].map((payout,i)=>({date:'20260913',venue:'seoul',settled:true,candidates:[{partner:{rank:3,number:3,prob:.7},pick:{prob:.6},hit:true,payout},{partner:{rank:2,number:2,prob:.8},pick:{prob:.9},hit:false,payout:99}]}));
 const avg=summarize(payoutRows,{min:3,max:4},'20250914','20260914');
 assert.equal(avg.all.hits,3);assert.equal(avg.all.paidHits,2);assert.equal((avg.all.payoutTotal/avg.all.paidHits).toFixed(2),'3.80');
-assert.equal(avg.seoul.payoutTotal,2.2);assert.equal(avg.busan.payoutTotal,5.4);
+assert.equal(avg.seoul.payoutTotal,7.6000000000000005);assert.equal(avg.busan,undefined);
 assert.equal(summarize(payoutRows,{min:2,max:4},'20250914','20260914').all.paidHits,0);
 console.log('PASS average winning payout excludes losses and missing odds, and follows selected range');
 const analysisBase={...base,places:base.places.map(p=>({...p,prob:p.numbers[0]===4?1:p.prob}))};

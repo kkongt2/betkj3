@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-VERSION='weighted-v3'
+VERSION='weighted-seoul-v1'
 FIT_TO='20230930'
 FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency']
 def day(s):return datetime.strptime(s,'%Y%m%d').toordinal()
@@ -24,6 +24,7 @@ def active(r):return [h for h in r['horses'] if not h.get('withdrawn') and (not 
 class History:
     def __init__(self):self.horses=defaultdict(list);self.people=defaultdict(list);self.times=defaultdict(list);self.through=''
     def features(self,r):
+        if r.get('venue')!='seoul':raise ValueError('Seoul race required')
         d=day(r['date']);field=active(r);ratings=[float(h['rating']) for h in field if h.get('rating',0)>0];field_rating=avg(ratings);base=(2 if len(field)<=7 else 3)/max(3,len(field));result={}
         for h in r['horses']:
             hist=[x for x in self.horses[key(r,h)] if x['day']<d];yr=[x for x in hist if x['day']>=d-365];recent=hist[-5:];last=hist[-1] if hist else None
@@ -58,10 +59,11 @@ class History:
             result[str(h['number'])]={'raw':values,'starts':len(yr),'recordStarts':sum(x.get('speed') is not None for x in recent),'marginStarts':sum(x.get('margin') is not None for x in recent),'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None}
         return result
     def add_day(self,rs):
+        rs=[r for r in rs if r.get('venue')=='seoul']
         # Compute all baselines before updating any horse/person/track pool that day.
         pending=[];time_updates=[]
         for r in rs:
-            if not r.get('horses'):continue
+            if r.get('venue')!='seoul' or not r.get('horses'):continue
             d=day(r['date']);n=len(r['horses']);winners=set(r.get('place_winners') or [h['number'] for h in sorted(r['horses'],key=lambda h:h['finish'])[:r.get('place_k',3)]])
             rated=[float(h['rating']) for h in r['horses'] if h.get('rating',0)>0]
             times=[h['race_seconds'] for h in r['horses'] if h.get('race_seconds') and h.get('finish',99)<=n]
@@ -94,7 +96,7 @@ def read_seed():
     source=[json.loads(x) for x in gzip.decompress(p.read_bytes()).splitlines()]
     extra=Path('history/weighted-source.jsonl.gz')
     if extra.exists():source += [json.loads(x) for x in gzip.decompress(extra.read_bytes()).splitlines()]
-    return { (r['date'],r['venue'],r['race_no']):r for r in source}
+    return { (r['date'],r['venue'],r['race_no']):r for r in source if r.get('venue')=='seoul'}
 def read_targets():
     out={}
     for p in sorted(Path('history').glob('[0-9][0-9][0-9][0-9].jsonl.gz')):
@@ -104,14 +106,14 @@ def read_targets():
         for r in json.loads(p.read_text())['races']:out[(r['date'],r['venue'],r['race_no'])]=r
     for r in json.loads(Path('data/latest.json').read_text()).get('races',[]):
         out.setdefault((r['date'],r['venue'],r['race_no']),r)
-    return out
+    return {k:r for k,r in out.items() if r.get('venue')=='seoul'}
 def main():
     source=read_seed();targets=read_targets()
     # Recover only tail dates absent from the maintained seed. No invented outcome data.
     sys.path.insert(0,'_seed/scripts/model-research')
     from collect_v7 import parse_report
     from collect import get
-    meets={'seoul':1,'jeju':2,'busan':3};errors=[];extra=[]
+    meets={'seoul':1};errors=[];extra=[]
     for venue,meet in meets.items():
         last=max((k[0] for k in source if k[1]==venue),default='')
         dates=sorted({r['date'] for r in targets.values() if r['venue']==venue and r['date']>last and r.get('official_result',{}).get('status')=='confirmed'})
@@ -125,7 +127,7 @@ def main():
             except Exception as e:errors.append({'date':date,'venue':venue,'error':str(e)})
     previous=Path('history/weighted-source.jsonl.gz')
     if previous.exists():extra += [json.loads(x) for x in gzip.decompress(previous.read_bytes()).splitlines()]
-    uniq={(r['date'],r['venue'],r['race_no']):r for r in extra}
+    uniq={(r['date'],r['venue'],r['race_no']):r for r in extra if r.get('venue')=='seoul'}
     previous.write_bytes(gzip.compress(''.join(json.dumps(uniq[k],ensure_ascii=False,separators=(',',':'))+'\n' for k in sorted(uniq)).encode(),mtime=0))
     by_source=defaultdict(list);by_target=defaultdict(list)
     for r in source.values():by_source[r['date']].append(r)
@@ -141,7 +143,7 @@ def main():
                         coverage[i]+=1
                         if date<=FIT_TO:raw_train[i].append(v)
         history.add_day(by_source[date])
-    scaler={'version':VERSION,'fitThrough':FIT_TO,'features':FEATURES,'mean':[avg(x,0) for x in raw_train],'std':[max(statistics.pstdev(x),1e-4) if len(x)>1 else 1 for x in raw_train]}
+    scaler={'scope':'seoul','version':VERSION,'fitThrough':FIT_TO,'features':FEATURES,'mean':[avg(x,0) for x in raw_train],'std':[max(statistics.pstdev(x),1e-4) if len(x)>1 else 1 for x in raw_train]}
     for snap in snapshots.values():
         for x in snap['horses'].values():
             x['features']=[round(.5+clip((v-scaler['mean'][i])/scaler['std'][i],-3,3)/6,10) if v is not None else .5 for i,v in enumerate(x.pop('raw'))]
@@ -158,7 +160,7 @@ def main():
         for r in doc.get('races',[]):enrich(r)
         p.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':')))
     Path('data/weighted-v3-scaler.json').write_text(json.dumps(scaler,separators=(',',':')))
-    report={'schema':1,'version':VERSION,'sourceRaces':len(source),'targetRaces':len(snapshots),'horseStarts':horse_count,'historyThrough':history.through,
+    report={'schema':1,'scope':'seoul','version':VERSION,'sourceRaces':len(source),'targetRaces':len(snapshots),'horseStarts':horse_count,'historyThrough':history.through,
             'fitThrough':FIT_TO,'coverage':dict(zip(FEATURES,coverage)),'tailDownloadErrors':errors,
             'marginDefinition':'Previous race time minus winner time, seconds normalized to 1200m; not lengths',
             'speedDefinition':'Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral',

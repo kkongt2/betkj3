@@ -27,3 +27,6 @@ other=race('20220202');other['grade']='국1등급';h.add_day([other]);other['dat
 assert h.horses[m.key(other,other['horses'][0])][-1]['speed'] is None
 assert h.features(later)['1']['raw'][13] is not None
 assert h.features(later)['1']['raw'][14] is not None
+
+# Other venues must never update history or its date boundary.
+h=m.History();other=race('20220201');other['venue']='busan';h.add_day([other]);assert h.through=='' and not h.horses and not h.times

@@ -1,5 +1,5 @@
 'use strict';
-const challengerEngine=typeof module!=='undefined'?require('./model-v7.js'):globalThis.KraV7;
+const challengerEngine=null;
 function setChallengerModel(r){return challengerEngine?.configure(r)||false;}
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),div=(a,b,d=0)=>+b?+a/+b:d;
 function fieldNorm(v,vals,def=.5){let a=vals.filter(Number.isFinite);if(!Number.isFinite(v)||!a.length)return def;let lo=Math.min(...a),hi=Math.max(...a);return hi>lo?(v-lo)/(hi-lo):def}

@@ -1,10 +1,7 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),model=require('../model.js'),policy=require('../qpl-policy.js'),tuning=require('../tuning-model.js'),engine=require('../qpl-history-engine.js');
-model.setTrainedModel(JSON.parse(fs.readFileSync('data/training-report.json')));
-model.setAdvancedModel(JSON.parse(fs.readFileSync('data/model-v6.json')));
-model.setChallengerModel(JSON.parse(fs.readFileSync('data/model-v7.json')));
 const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));assert.equal(manifest.schema,3);assert.equal(manifest.policyVersion,policy.VERSION);
-const history={rows:manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows)};assert.equal(history.rows.length,manifest.races);
-if(fs.existsSync('history/2021.jsonl.gz')){assert(manifest.from.startsWith('2021'));assert(history.rows.length>12000);}
+const history={rows:manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows)};assert.equal(history.rows.length,manifest.races);assert.equal(manifest.scope,'seoul');assert(history.rows.every(r=>r.venue==='seoul'));
+if(fs.existsSync('history/2021.jsonl.gz')){assert(manifest.from.startsWith('2021'));assert(history.rows.length>4000);}
 const index=new Map(history.rows.map((r,i)=>[[r.date,r.venue,r.race].join(':'),i])),evaluator=engine.create(history.rows);
 const settings=[{min:3,max:4},{min:2,max:4,anchorMode:'analysis'},{min:3,max:6,anchorMode:'analysis',modelMode:'custom',weights:tuning.defaults()},{min:2,max:4,modelMode:'custom',weights:[0,0,0,100,0,0,0,0,0,0]},{min:3,max:6,anchorMode:'analysis',modelMode:'custom',weights:[1,1,1,1,1,1,1,1,1,1]}];
 const totals=settings.map(()=>({evaluated:0,hits:0,payoutTotal:0}));let count=0;

@@ -4,7 +4,7 @@ const QplHistoryEngine=(()=>{
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
  function create(rows){
-  const entries=rows.map(row=>({row,winning:new Map(row.payouts.map(p=>[key(p.numbers),p.odds]))}));
+  const entries=rows.filter(r=>r.venue==='seoul').map(row=>({row,winning:new Map(row.payouts.map(p=>[key(p.numbers),p.odds]))}));
   function evaluateRow(entry,config){
    const signature=config.modelMode!=='existing'?config.modelMode+':'+tuning.weightsFor(config,entry.row.venue).join(','):'existing';
    if(signature!=='existing'&&entry.signature!==signature){

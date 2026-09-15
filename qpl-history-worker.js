@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model-v7.js?v=7.0','model.js?v=7.0','tuning-model.js?v=7.0','qpl-policy.js?v=7.0','qpl-history-engine.js?v=7.0');
+importScripts('model.js?v=seoul-1','tuning-model.js?v=seoul-1','qpl-policy.js?v=seoul-1','qpl-history-engine.js?v=seoul-1');
 let ready=null,latest=0;
 async function fetchYear(url){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
