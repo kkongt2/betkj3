@@ -9,9 +9,9 @@ const Betkj3Policy=(()=>{
  const compare=(a,b)=>b.pick.prob-a.pick.prob||b.partner.prob-a.partner.prob||a.partner.number-b.partner.number;
  function choose(candidates,range){const {min,max}=normalizeRange(range);return candidates.filter(c=>c.partner.rank>=min&&c.partner.rank<=max).sort(compare)[0]||null;}
  function summarize(rows,range,from,to){
-  const groups=Object.fromEntries(['all','seoul','busan','jeju'].map(k=>[k,{total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0}]));
+  const groups=Object.fromEntries(['all','seoul'].map(k=>[k,{total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0}]));
   for(const row of rows){
-   if(row.date<from||row.date>to)continue;
+   if(row.venue!=='seoul'||row.date<from||row.date>to)continue;
    const pick=row.settled?choose(row.candidates,range):null;
    for(const key of ['all',row.venue]){
     const g=groups[key];if(!g)continue;g.total++;

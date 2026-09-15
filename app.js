@@ -1,6 +1,6 @@
 'use strict';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const pct=x=>(x*100).toFixed(1)+'%',names={seoul:'서울',busan:'부경',jeju:'제주'},KEY='betkj3-predictions-v1';
+const pct=x=>(x*100).toFixed(1)+'%',names={seoul:'서울'},KEY='betkj3-predictions-v1';
 let races=[],source=null,current=null,ranked=null,venue='seoul',odds={place:{},qpl:{}},manual=false,requestId=0,advancedReport=null;
 const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 let selectionRequest=0;
@@ -33,8 +33,8 @@ async function loadQplHistory(){
  const id=++historyRequest;$('#retryQplHistory').hidden=true;
  if(!qplHistory)$('#qplHistoryStats').textContent='과거 경주를 불러오는 중…';
  try{
-  const doc=await fetchJSON('qpl-history.json?v=7.0'+Date.now());
-  if(![2,3].includes(doc.schema)||doc.policyVersion!==Betkj3Policy.VERSION||(doc.schema===2?!Array.isArray(doc.rows):!Array.isArray(doc.shards)))throw Error('통계 자료 형식 확인 필요');
+  const doc=await fetchJSON('qpl-history.json?v=seoul-1'+Date.now());
+  if(doc.scope!=='seoul'||![2,3].includes(doc.schema)||doc.policyVersion!==Betkj3Policy.VERSION||(doc.schema===2?!Array.isArray(doc.rows):!Array.isArray(doc.shards)))throw Error('통계 자료 형식 확인 필요');
   if(id!==historyRequest)return;qplHistory=doc;setupHistoryEngine();renderQplHistory();
  }catch{
   if(id!==historyRequest)return;
@@ -45,7 +45,7 @@ async function loadQplHistory(){
 function setupHistoryEngine(){
  historyWorker?.terminate();historyWorker=null;historyEngine=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=7.0');
+  historyWorker=new Worker('qpl-history-worker.js?v=seoul-1');
   historyWorker.onmessage=({data})=>{if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
@@ -73,25 +73,19 @@ function showQplHistory(groups){
  const eligibleDates=qplHistory.schema===3?[qplHistory.from,qplHistory.to].filter(Boolean):(qplHistory.rows||[]).filter(r=>r.date<=to).map(r=>r.date).sort();
  const format=d=>d.slice(0,4)+'.'+d.slice(4,6)+'.'+d.slice(6,8);
  $('#qplHistoryStats').setAttribute('aria-busy','false');
- $('#qplHistoryStats').innerHTML='<p class="hint">'+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 · '+TuningModel.label(tuningSettings.modelMode)+(tuningSettings.weightScope==='venue'?' · 경마장별 가중치':' · 전국 공통')+'<br>'+(eligibleDates.length?format(eligibleDates[0])+' ~ '+format(eligibleDates.at(-1)):'기간 내 경주 없음')+'</p><div class="history-totals"><div>적중 횟수<strong>'+g.hits.toLocaleString()+'회</strong></div><div>평가 경주<strong>'+g.evaluated.toLocaleString()+'경주</strong></div><div>과거 적중률<strong>'+(m.rate===null?'—':pct(m.rate))+'</strong></div><div>평균 적중 배당<strong>'+(m.average===null?'—':m.average.toFixed(2)+'배')+'</strong>'+(g.paidHits<g.hits?'<small>배당 확인 '+g.paidHits+' / '+g.hits+'적중</small>':'')+'</div><div class="history-product">적중률 × 평균배당<strong>'+(m.product===null?'—':m.product.toFixed(3)+'배')+'</strong><small>'+(m.product===null?'평가 또는 배당 자료 부족':'세전 환급률 '+pct(m.product))+'</small></div></div><table class="validation-table"><thead><tr><th>경마장</th><th>적중 / 평가</th><th>적중률</th></tr></thead><tbody>'+Object.keys(names).map(v=>{const x=groups[v];return '<tr><td>'+names[v]+'</td><td>'+x.hits+' / '+x.evaluated+'</td><td>'+(x.evaluated?pct(x.hits/x.evaluated):'—')+'</td></tr>';}).join('')+'</tbody></table><p class="hint">전체 '+g.total.toLocaleString()+'경주 중 '+g.excluded.toLocaleString()+'경주 제외 · 자료 갱신 '+esc(new Date(qplHistory.generatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+'</p>';
+ $('#qplHistoryStats').innerHTML='<p class="hint">'+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 · '+TuningModel.label(tuningSettings.modelMode)+' · 서울 경주만'+'<br>'+(eligibleDates.length?format(eligibleDates[0])+' ~ '+format(eligibleDates.at(-1)):'기간 내 경주 없음')+'</p><div class="history-totals"><div>적중 횟수<strong>'+g.hits.toLocaleString()+'회</strong></div><div>평가 경주<strong>'+g.evaluated.toLocaleString()+'경주</strong></div><div>과거 적중률<strong>'+(m.rate===null?'—':pct(m.rate))+'</strong></div><div>평균 적중 배당<strong>'+(m.average===null?'—':m.average.toFixed(2)+'배')+'</strong>'+(g.paidHits<g.hits?'<small>배당 확인 '+g.paidHits+' / '+g.hits+'적중</small>':'')+'</div><div class="history-product">적중률 × 평균배당<strong>'+(m.product===null?'—':m.product.toFixed(3)+'배')+'</strong><small>'+(m.product===null?'평가 또는 배당 자료 부족':'세전 환급률 '+pct(m.product))+'</small></div></div><table class="validation-table"><thead><tr><th>경마장</th><th>적중 / 평가</th><th>적중률</th></tr></thead><tbody>'+Object.keys(names).map(v=>{const x=groups[v];return '<tr><td>'+names[v]+'</td><td>'+x.hits+' / '+x.evaluated+'</td><td>'+(x.evaluated?pct(x.hits/x.evaluated):'—')+'</td></tr>';}).join('')+'</tbody></table><p class="hint">전체 '+g.total.toLocaleString()+'경주 중 '+g.excluded.toLocaleString()+'경주 제외 · 자료 갱신 '+esc(new Date(qplHistory.generatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+'</p>';
 }
 function initTuning(){
  try{tuningSettings=TuningModel.settings(JSON.parse(localStorage.getItem('betkj3-tuning')||'{}'));}catch{}
- const editorVenue=()=>['seoul','busan','jeju'].includes($('#weightVenue').value)?$('#weightVenue').value:'seoul';
- const editing=()=>tuningSettings.weightScope==='venue'?(tuningSettings.venueWeights?.[editorVenue()]||tuningSettings.weights):tuningSettings.weights;
- function modern(){tuningSettings.modelMode='custom';tuningSettings.weights=TuningModel.FEATURES.map((_,i)=>tuningSettings.weights[i]??0);}
- function setWeights(weights){modern();if(tuningSettings.weightScope==='venue'){tuningSettings.venueWeights={...tuningSettings.venueWeights,[editorVenue()]:weights};}else tuningSettings.weights=weights;}
+ const editing=()=>tuningSettings.weights;
+ function setWeights(weights){tuningSettings=TuningModel.settings({...tuningSettings,weights});}
  function sync(){
-  $('#anchorMode').value=tuningSettings.anchorMode;$('#analysisModel').value=tuningSettings.modelMode;
-  $('#weightScope').value=tuningSettings.weightScope==='venue'?'venue':'common';$('#weightVenue').value=editorVenue();$('#weightVenue').disabled=tuningSettings.weightScope!=='venue';
-  const weights=editing();TuningModel.FEATURES.forEach((f,i)=>{$('#weight-'+i).value=String(weights[i]??0);$('#weight-range-'+i).value=String(weights[i]??0);});
-  $('#weightStatus').textContent=TuningModel.label(tuningSettings.modelMode)+' · '+(tuningSettings.weightScope==='venue'?names[editorVenue()]+' 가중치 편집':'전국 공통 가중치 편집')+' · 합계 '+weights.reduce((a,b)=>a+b,0)+'% (계산 시 100% 환산)'+(['legacy','v2'].includes(tuningSettings.modelMode)?' · 값을 조절하면 새로운 16개 지표로 전환됩니다.':'');syncStrategyHelp();
+  $('#anchorMode').value=tuningSettings.anchorMode;
+  TuningModel.FEATURES.forEach((f,i)=>{$('#weight-'+i).value=String(tuningSettings.weights[i]);$('#weight-range-'+i).value=String(tuningSettings.weights[i]);});
+  $('#weightStatus').textContent='서울 전용 가중치 · 합계 '+tuningSettings.weights.reduce((a,b)=>a+b,0)+'% (계산 시 100% 환산)';syncStrategyHelp();
  }
  function update(){try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}sync();renderQplHistory();render();}
  $('#anchorMode').onchange=()=>{tuningSettings.anchorMode=$('#anchorMode').value==='analysis'?'analysis':'odds';update();};
- $('#analysisModel').onchange=()=>{const mode=$('#analysisModel').value;tuningSettings.modelMode=['custom','legacy','v2'].includes(mode)?mode:'existing';if(mode==='custom')modern();else{delete tuningSettings.weightScope;delete tuningSettings.venueWeights;if(mode==='legacy'||mode==='v2')tuningSettings=TuningModel.settings({...tuningSettings,weights:tuningSettings.weights.slice(0,mode==='legacy'?10:13)});}update();};
- $('#weightScope').onchange=()=>{modern();tuningSettings.weightScope=$('#weightScope').value==='venue'?'venue':'common';if(tuningSettings.weightScope==='venue'){tuningSettings.venueWeights={...tuningSettings.venueWeights};for(const v of ['seoul','busan','jeju'])if(!tuningSettings.venueWeights[v])tuningSettings.venueWeights[v]=tuningSettings.weights.slice();}update();};
- $('#weightVenue').onchange=sync;
  TuningModel.FEATURES.forEach((f,i)=>{
   const change=node=>{const value=node.value.trim(),weights=TuningModel.FEATURES.map((_,i)=>editing()[i]??0);weights[i]=value===''?NaN:Number(value);if(!TuningModel.validWeights(weights)){$('#weightStatus').textContent='0~100 사이 정수를 입력하세요. 최소 한 요소는 1% 이상이어야 합니다.';return false;}setWeights(weights);update();return true;};
   for(const id of ['#weight-'+i,'#weight-range-'+i]){const node=$(id);node.oninput=()=>change(node);node.onchange=()=>{if(!change(node))node.value=String(editing()[i]??0);};}
@@ -118,22 +112,8 @@ function initStrategyPresets(){
  $('#saveStrategy').onclick=()=>{try{const name=$('#presetName').value.trim();StrategyPresets.save(localStorage,name,strategySettings());refresh(name);status.textContent='“'+name+'” 설정을 저장했습니다.';}catch(e){error(e);}};
  $('#loadStrategy').onclick=()=>{try{const p=StrategyPresets.read(localStorage).find(p=>p.name===select.value);if(!p)throw Error('불러올 설정을 선택하세요.');const saved=applySavedStrategy(p.settings);$('#presetName').value=p.name;status.textContent='“'+p.name+'” 설정을 불러왔습니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');}catch(e){error(e);}};
  $('#deleteStrategy').onclick=()=>{try{const name=select.value;if(!name)throw Error('삭제할 설정을 선택하세요.');StrategyPresets.remove(localStorage,name);refresh();status.textContent='“'+name+'” 설정을 삭제했습니다.';}catch(e){error(e);}};
- fetchJSON('strategy-search.json?v=7.0').then(doc=>{
-  if(doc.schema!==1||!doc.best?.settings||!Number.isInteger(doc.sourceRaces)||doc.sourceRaces<=0||!(doc.search?.minimumCoverageRatio>=.4)||!(doc.best?.all?.evaluated>=Math.ceil(doc.sourceRaces*.4)))return;
-  const config=StrategyPresets.config(doc.best.settings),g=doc.best.all,m=QplHistoryEngine.metrics(g);
-  $('#strategySearchSummary').innerHTML='<p class="hint">'+esc(doc.from)+' ~ '+esc(doc.to)+' · 가중치 후보 '+doc.search.weightCandidates.toLocaleString()+'개 탐색 · '+(doc.temporal?'2024년 검증으로 선택':'이전 계산식')+'</p><p><strong>'+(config.anchorMode==='analysis'?'분석 1위':'최종배당 1위')+' 축마 · 배당 '+config.min+'~'+config.max+'위</strong></p><p>과거 적중률 '+pct(m.rate)+' × 평균배당 '+m.average.toFixed(2)+'배 = <strong>'+m.product.toFixed(3)+'배</strong><br>적중 '+g.hits.toLocaleString()+' / 평가 '+g.evaluated.toLocaleString()+'경주</p><details><summary>가중치와 연도별 결과</summary><p class="hint">'+TuningModel.FEATURES.slice(0,config.weights.length).map((f,i)=>esc(f.label)+' '+config.weights[i]+'%').join(' · ')+'</p><table class="validation-table"><thead><tr><th>연도</th><th>평가 경주</th><th>적중률 × 평균배당</th></tr></thead><tbody>'+Object.entries(doc.best.years).map(([year,x])=>'<tr><td>'+esc(year)+'</td><td>'+x.evaluated.toLocaleString()+'</td><td>'+QplHistoryEngine.metrics(x).product.toFixed(3)+'배</td></tr>').join('')+'</tbody></table></details>';
-  $('#strategySearchSummary').innerHTML+='<p class="hint">전체 '+doc.sourceRaces.toLocaleString()+'경주의 40% 이상, 최소 '+Math.ceil(doc.sourceRaces*.4).toLocaleString()+'경주를 평가하고 2024년 검증 성적으로 선택한 조합입니다. 실제 평가 비율 '+pct(g.evaluated/doc.sourceRaces)+' · '+g.evaluated.toLocaleString()+'경주.</p>';
-  if(doc.temporal){const rows=['train','validation','test'].map(k=>{const x=doc.temporal[k],m=QplHistoryEngine.metrics(x);return '<tr><td>'+esc(x.label)+'</td><td>'+x.evaluated.toLocaleString()+' / '+x.total.toLocaleString()+'</td><td>'+pct(m.rate)+'</td><td>'+(m.average??0).toFixed(2)+'</td><td>'+m.product.toFixed(3)+'</td></tr>';}).join('');$('#strategySearchSummary').innerHTML+='<h4>시간순 검증</h4><table class="validation-table"><thead><tr><th>기간</th><th>평가 / 전체</th><th>적중률</th><th>평균배당</th><th>곱</th></tr></thead><tbody>'+rows+'</tbody></table><p class="hint">'+esc(doc.temporal.note)+'</p><h4>별도 승률 지표 비교</h4><p class="hint">'+doc.ablation.map(x=>esc(x.label)+' · 2024년 '+QplHistoryEngine.metrics(x.validation).product.toFixed(3)+'배 · 후속 기간 '+QplHistoryEngine.metrics(x.test).product.toFixed(3)+'배').join('<br>')+'</p>';}
-  $('#applySearchBroad').hidden=!doc.broad;
-  if(doc.broad){
-   const b=doc.broad,bm=QplHistoryEngine.metrics(b.all),bc=StrategyPresets.config(b.settings);
-   $('#strategyBroadSummary').innerHTML='<h3>평가 경주 80% 이상 중 최고</h3><p class="hint">배당 자료가 있는 경주의 80% 이상을 평가하는 후보끼리 비교했습니다.</p><p><strong>'+(bc.anchorMode==='analysis'?'분석 1위':'최종배당 1위')+' 축마 · 배당 '+bc.min+'~'+bc.max+'위</strong><br>적중률 '+pct(bm.rate)+' × 평균배당 '+bm.average.toFixed(2)+'배 = <strong>'+bm.product.toFixed(3)+'배</strong><br>적중 '+b.all.hits.toLocaleString()+' / 평가 '+b.all.evaluated.toLocaleString()+'경주</p>';
-   $('#applySearchBroad').onclick=()=>{const saved=applySavedStrategy(bc);$('#presetName').value='평가 경주 80% 이상 최고';status.textContent='평가 경주 80% 이상 최고 조합을 불러왔습니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
-  }
-  $('#strategySearchResult').hidden=false;
-  $('#applySearchBest').onclick=()=>{const saved=applySavedStrategy(config);$('#presetName').value='시간순 검증 선택 조합';status.textContent='시간순 검증 선택 조합 조합을 불러왔습니다. 이름을 정해 현재 설정 저장을 누르면 보관됩니다.'+(saved?'':' 현재 설정 자동 저장에는 실패했습니다.');};
- }).catch(()=>{});
 }
+
 function ensurePolicyOdds(date){
  if(!marketOddsCache.has(date))marketOddsCache.set(date,fetchPublicJSON('data/market-odds/'+date+'.json').then(doc=>{
   if(doc.date!==date||doc.schema!==1)throw Error('배당 날짜 확인 필요');loadedMarketOdds.set(date,doc);return doc;
@@ -178,8 +158,8 @@ function hitHTML(r,type,numbers){return matchingPayout(r.official_result?.[type]
 function breakEvenOdds(p){const odds=1/p;return Number.isFinite(p)&&p>0&&p<=1+1e-9&&Number.isFinite(odds)?Math.max(1,odds).toFixed(2):null;}
 function probabilityHTML(p){const odds=breakEvenOdds(p);return '<span class="probability-values"><span class="probability-rate">'+(odds?pct(p):'—')+'</span><span class="break-even">손익분기배당 '+(odds?'약 '+odds+'배':'—')+'</span></span>';}
 function start(r){const d=String(r.date||'').replaceAll('-','');return /^\d{8}$/.test(d)&&/^\d{2}:\d{2}$/.test(r.start_time||'')?Date.parse(`${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}T${r.start_time}:00+09:00`):NaN;}
-function setVenue(v){venue=v;document.querySelectorAll('[data-venue]').forEach(b=>{b.classList.toggle('active',b.dataset.venue===v);b.setAttribute('aria-pressed',b.dataset.venue===v)});}
-function records(){try{let a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a:[]}catch{return []}}
+function setVenue(v){if(v!=='seoul')return;venue='seoul';document.querySelectorAll('[data-venue]').forEach(b=>{b.classList.toggle('active',b.dataset.venue===v);b.setAttribute('aria-pressed',b.dataset.venue===v)});}
+function records(){try{let a=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(a)?a.filter(x=>x.venue==='seoul'):[]}catch{return []}}
 function put(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true}catch{$('#saveStatus').textContent='기기에 저장하지 못했습니다. 브라우저 저장 공간을 확인하세요.';return false}}
 function timingReasons(r){const why=[];if(String(r.date)<day().replaceAll('-',''))why.push('지난 경주 조회 · '+(r.calendar_archive?'경주일 이전 이력으로':'현재 정보로')+' 재계산한 후보');else if(!Number.isFinite(start(r)))why.push('출발 시각 확인 필요');else if(start(r)<=Date.now())why.push(String(r.date)<day().replaceAll('-','')?'지난 경주 조회 · 현재 정보로 재계산한 후보':'이미 출발한 경주');if(!manual&&(!source?.updated_at||Date.now()-Date.parse(source.updated_at)>30*60000||!Number.isFinite(Date.parse(source.updated_at))))why.push('갱신 후 30분 경과 · 최신 출전정보 확인 필요');return why;}
 function why(r,x,type){return [...candidateReasons(r,x,type),...timingReasons(r),...(manual?['직접 입력 / 데모']:[])];}
@@ -206,7 +186,7 @@ function pickHTML(x,r,type,lead=false){
  return `<div class="status ${selected?'selected':reasons.length?'hold':''}">${status}</div><div class="lead-number">${num}</div>${manual?'':hitHTML(r,type,x.numbers)}<p class="lead-name">${name}</p><div class="prob"><small>추정 ${type==='place'?'입상':'동반입상'}</small>${probabilityHTML(x.prob)}</div><p class="hint">${esc(explanation)}</p>${selectionHTML}${manual?'':officialResultHTML(r,type,x.numbers)}${x.odds?`<p class="hint">${x.odds}배 · 추정 EV ${pct(x.ev)}</p>`:''}`;
 }
 function render(){if(!current)return;ranked=analyzeForSite(current,'accuracy',odds);const r=ranked;$('#analysis').hidden=false;$('#raceTitle').textContent=(names[r.venue]||r.venue_name||'직접 입력')+' '+r.race_no+'R';$('#raceMeta').textContent=[r.date,r.title,manual?'직접 입력 / 데모':''].filter(Boolean).join(' · ');$('#horseCount').textContent=r.horses.length+'두';$('#placeRule').textContent=r.k+'착 이내';$('#modeHelp').textContent='연승은 '+TuningModel.label(tuningSettings.modelMode)+' 추정확률 순입니다. 복연승은 '+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률이 가장 높은 조합입니다.';const warning=timingReasons(r);if(tuningSettings.modelMode==='custom'&&r.horses.some(h=>!h.weighted_v3_features))warning.push('수정 지표 전적 자료가 없는 말은 중립값으로 계산합니다.');$('#raceWarning').hidden=!warning.length;$('#raceWarning').textContent=warning.join(' · ');$('#placeLead').innerHTML=pickHTML(r.places[0],r,'place',true);$('#pairLead').innerHTML=pickHTML(r.pairs[0],r,'pair',true);$('#placeList').innerHTML=r.places.slice(1,5).map(x=>pickHTML(x,r,'place')).join('');$('#pairList').innerHTML='<p class="hint">복연승은 새 기준을 통과한 한 조합만 표시합니다.</p>';$('#horses').innerHTML=r.horses.map(h=>`<div class="horse"><strong>${h.number} ${esc(h.name)} · ${probabilityHTML(h.prob)}</strong><p class="hint">${h.reasons.map(esc).join(' · ')}</p><p class="hint">레이팅 ${esc(h.rating??'—')} · 부담 ${esc(h.burden??'—')}kg · 마체중 ${esc(h.horse_weight??'미발표')} · 데이터 ${Math.round(h.quality*100)}%</p></div>`).join('');$('#savePrediction').disabled=!r.pairs.length||manual||!Number.isFinite(start(r))||start(r)<=Date.now()||warning.length>0;renderOverview();}
-function select(r,isManual=false){current=r;manual=isManual;odds={place:{},qpl:{}};$('#placeOdds').value='';$('#pairOdds').value='';if(names[r.venue])setVenue(r.venue);const d=String(r.date||'');if(/^\d{8}$/.test(d))$('#date').value=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);if(r.race_no)$('#raceNo').value=r.race_no;$('#saveStatus').textContent='경주·추천 기준별 최초 기록을 보존합니다.';renderSelectors();render();if(!isManual){const requested=current;ensurePolicyOdds(d).then(()=>{if(current===requested)render();});}}
+function select(r,isManual=false){if(r.venue!=='seoul')throw Error('서울 경주만 분석할 수 있습니다.');current=r;manual=isManual;odds={place:{},qpl:{}};$('#placeOdds').value='';$('#pairOdds').value='';if(names[r.venue])setVenue(r.venue);const d=String(r.date||'');if(/^\d{8}$/.test(d))$('#date').value=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);if(r.race_no)$('#raceNo').value=r.race_no;$('#saveStatus').textContent='경주·추천 기준별 최초 기록을 보존합니다.';renderSelectors();render();if(!isManual){const requested=current;ensurePolicyOdds(d).then(()=>{if(current===requested)render();});}}
 async function fetchJSON(url,timeoutMs=8000){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
  try{const res=await fetch(url,{cache:'no-store',signal:controller.signal});if(!res.ok)throw Error('HTTP '+res.status);return await res.json();}finally{clearTimeout(timer);}
@@ -219,7 +199,7 @@ async function fetchLiveDocument(){
  if(legacy)return legacy;
  throw last;
 }
-async function load(){const id=++requestId;$('#dataStatus').textContent='경주 정보를 확인하는 중…';try{const doc=await fetchLiveDocument();if(id!==requestId)return false;source=doc;races=doc.races;$('#dataStatus').textContent=`갱신 ${doc.updated_at?.replace('T',' ').slice(0,16)||'시각 미확인'} · ${races.length}개 경주`;return true}catch(e){if(id===requestId)$('#dataStatus').textContent='불러오기 실패 · 새로고침을 눌러 다시 시도하세요.';return false}}
+async function load(){const id=++requestId;$('#dataStatus').textContent='경주 정보를 확인하는 중…';try{const doc=await fetchLiveDocument();if(id!==requestId)return false;source={...doc,calendar:(doc.calendar||[]).filter(d=>d.venues?.includes('seoul')).map(d=>({...d,venues:['seoul']}))};races=doc.races.filter(r=>r.venue==='seoul');$('#dataStatus').textContent=`갱신 ${doc.updated_at?.replace('T',' ').slice(0,16)||'시각 미확인'} · ${races.length}개 경주`;return true}catch(e){if(id===requestId)$('#dataStatus').textContent='불러오기 실패 · 새로고침을 눌러 다시 시도하세요.';return false}}
 function parseOdds(text,pair){const out={};if(!text.trim())return out;for(const cell of text.split(',')){const m=cell.trim().match(pair?/^(\d+)-(\d+)\s*=\s*(\d+(?:\.\d+)?)$/:/^(\d+)\s*=\s*(\d+(?:\.\d+)?)$/);if(!m)throw Error('배당 형식을 확인하세요. 예: '+(pair?'2-7=3.4':'2=1.5'));const nums=pair?[+m[1],+m[2]]:[+m[1]],v=+(pair?m[3]:m[2]);if(v<1||!Number.isFinite(v)||new Set(nums).size!==nums.length||nums.some(n=>!ranked.horses.some(h=>+h.number===n)))throw Error('출전 마번과 1배 이상 배당을 입력하세요.');out[nums.sort((a,b)=>a-b).join('-')]=v;}return out;}
 function save(){render();if($('#savePrediction').disabled)return;const r=ranked,key=[r.date,r.venue,r.race_no,r.mode].join(':');let all=records();if(all.some(x=>x.id===key)){$('#saveStatus').textContent='이미 기록한 경주입니다. 최초 추천을 유지합니다.';return}const copy=(x,t)=>({numbers:x.numbers,prob:x.prob,held:(r.mode==='value'?why(r,x,t):timingReasons(r)).length>0,selected:isSelected(r,t),selected_pick:isSelected(r,t)?{numbers:r.selectivePicks[t].numbers,prob:r.selectivePicks[t].prob,model:advancedReport.model}:null,model:r.models[t],...(t==='pair'?{range:{...partnerRange},settings:strategySettings()}:{}),selectionVersion:isSelected(r,t)?advancedReport?.dataset_sha256:null});all.push({id:key,date:r.date,venue:r.venue,race:r.race_no,mode:r.mode,model:r.model,historyThrough:r.history_through||null,saved:new Date().toISOString(),start:start(r),k:r.k,field:r.horses.map(h=>+h.number),place:copy(r.places[0],'place'),pair:copy(r.pairs[0],'pair'),result:null});if(put(all)){$('#saveStatus').textContent='기록했습니다. 경주 후 공식 결과를 입력하세요.';renderHistory();}}
 function stat(all,type,mode,selectedOnly=false){const eligible=all.filter(x=>x.mode===mode&&!x[type].held&&(!selectedOnly||x[type].selected===true)),done=eligible.filter(x=>x.result),hit=done.filter(x=>selectedOnly&&x[type].selected_pick?x[type].selected_pick.numbers.every(n=>(type==='place'?x.result.placeWinners:x.result.finish).includes(n)):x.result[type+'Hit']).length,paid=done.filter(x=>!x.result[type+'Hit']||x.result[type+'Odds']!=null),returns=paid.reduce((s,x)=>s+(x.result[type+'Hit']?x.result[type+'Odds']:0),0);return `<div class="stat">${type==='place'?'연승':'복연승'} · ${mode==='accuracy'?(selectedOnly?'선별 후보':'전체 후보'):'수익성'}<b>${done.length?pct(hit/done.length):'—'}</b>${hit}/${done.length} 적중 · 대기 ${eligible.length-done.length}${selectedOnly?'':`<br>환수율 ${paid.length?pct(returns/paid.length):'—'} (${paid.length}건)`}</div>`;}
@@ -240,7 +220,7 @@ function renderOverview(){
   }catch{return '<p class="hint">'+Number(card.race_no)+'R · 출전정보 확인 필요</p>'}
  }).join('');
  const enabled=['place','pair'].some(k=>advancedReport?.policies?.[k]?.approved);
- $('#overviewStatus').textContent='전체 '+list.length+'경주 · 선별 '+selected+'경주'+(enabled?' · 최신 정보가 확인된 출발 전 경주만 선별 표시':' · 검증을 통과한 선별 기준이 아직 없어 일반 후보만 표시');
+ $('#overviewStatus').textContent='서울 '+list.length+'경주 · 현재 가중치로 계산한 후보와 실제 결과';
 }
 $('#analysis').addEventListener('click',toggleResults);
 $('#raceOverview').addEventListener('click',e=>{if(toggleResults(e))return;if(e.target.closest('.non-winning-odds'))return;const b=e.target.closest('[data-overview-race]');if(!b)return;const r=dateRaces($('#date').value.replaceAll('-','')).find(x=>+x.race_no===+b.dataset.overviewRace);if(r)select(r);});
@@ -253,7 +233,7 @@ function renderSelectors(){
   const key=d.slice(0,6),heading=month!==key?'<div class="calendar-month">'+d.slice(0,4)+'년 '+Number(d.slice(4,6))+'월</div>':'';month=key;
   const weekday=new Intl.DateTimeFormat('ko-KR',{weekday:'short',timeZone:'Asia/Seoul'}).format(new Date(d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8)+'T12:00:00+09:00'));
   return heading+'<button type="button" data-date="'+d+'" aria-pressed="'+(d===selected)+'" aria-label="'+d.slice(0,4)+'년 '+Number(d.slice(4,6))+'월 '+Number(d.slice(6,8))+'일 '+weekday+'요일" class="date-choice '+(d===selected?'active':'')+'"><span>'+weekday+'</span><strong>'+Number(d.slice(6,8))+'</strong></button>';
- }).join(''):'<p class="hint">이 지역에 공개된 경주일이 없습니다.</p>';
+ }).join(''):'<p class="hint">서울에 공개된 경주일이 없습니다.</p>';
  const list=dateRaces(selected);$('#raceButtons').innerHTML=list.length?list.map(r=>'<button type="button" data-race="'+Number(r.race_no)+'" aria-pressed="'+(+r.race_no===+$('#raceNo').value)+'" class="race-choice '+(+r.race_no===+$('#raceNo').value?'active':'')+'">'+Number(r.race_no)+'R</button>').join(''):'<p class="hint">선택 가능한 경주가 없습니다.</p>';
 }
 async function chooseAvailable(){
@@ -268,7 +248,7 @@ async function chooseAvailable(){
    const doc=await fetchPublicJSON('data/calendar/'+d+'.json');
    if(request!==selectionRequest)return;
    if(doc.date!==d||!Array.isArray(doc.races)||doc.races.some(r=>r.date!==d)||!doc.races.some(r=>r.venue===requestedVenue))throw Error('날짜별 경주 확인 필요');
-   races=races.filter(r=>r.date!==d).concat(doc.races.map(r=>({...r,archiveLoaded:true})));
+   races=races.filter(r=>r.date!==d).concat(doc.races.filter(r=>r.venue==='seoul').map(r=>({...r,archiveLoaded:true})));
    $('#dataStatus').textContent=d+' · '+dateRaces(d).length+'개 경주';
   }catch{if(request===selectionRequest)$('#dataStatus').textContent='지난 경주를 불러오지 못했습니다. 날짜를 다시 누르거나 새로고침해 주세요.';return;}
  }
@@ -281,52 +261,17 @@ document.querySelectorAll('[data-venue]').forEach(b=>b.onclick=()=>{setVenue(b.d
 function showSelected(){chooseAvailable();}
 $('#dateCalendar').addEventListener('click',e=>{const b=e.target.closest('button[data-date]');if(!b||!venueDates().includes(b.dataset.date))return;const d=b.dataset.date;$('#date').value=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);$('#raceNo').value='1';chooseAvailable();});
 $('#raceButtons').addEventListener('click',e=>{const b=e.target.closest('button[data-race]');if(!b)return;const r=dateRaces($('#date').value.replaceAll('-','')).find(x=>+x.race_no===+b.dataset.race);if(r)select(r);});
-$('#loadBtn').onclick=async()=>{if(await load())chooseAvailable();await Promise.all([loadProspective(),loadQplHistory()])};$('#nextBtn').onclick=async()=>{if(!await load())return;const future=races.filter(x=>x.venue===venue&&start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else{chooseAvailable();$('#dataStatus').textContent='선택 경마장의 예정 경주가 없습니다.';}};
+$('#loadBtn').onclick=async()=>{if(await load())chooseAvailable();await loadQplHistory()};$('#nextBtn').onclick=async()=>{if(!await load())return;const future=races.filter(x=>x.venue===venue&&start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else{chooseAvailable();$('#dataStatus').textContent='서울의 예정 경주가 없습니다.';}};
 $('#applyOdds').onclick=()=>{try{const next={place:parseOdds($('#placeOdds').value,false),qpl:parseOdds($('#pairOdds').value,true)};odds=next;render()}catch(e){alert(e.message)}};$('#savePrediction').onclick=save;$('#manualBtn').onclick=()=>{try{const r=JSON.parse($('#manualJson').value);analyze(r);select(r,true)}catch(e){alert('출전마 JSON을 확인하세요. '+e.message)}};
 $('#demoBtn').onclick=()=>select({venue,date:day().replaceAll('-',''),race_no:1,title:'데모 · 실제 경주 아님',horses:Array.from({length:8},(_,i)=>({number:i+1,name:'샘플 '+(i+1),rating:50-i*2,burden:54,starts_1y:10,wins_1y:i<2?2:0,seconds_1y:2,thirds_1y:1,distance_starts:5,distance_top3:i<3?3:1,recent_finishes:[i+1,3,5],jockey_stats_1y:{place_rate:.3},trainer_stats_1y:{place_rate:.25},horse_weight:480}))},true);
 $('#lockBtn').onclick=()=>{$('#lockScreen').hidden=false;$('#pinInput').focus()};$('#unlockBtn').onclick=()=>{if($('#pinInput').value==='1234'){$('#lockScreen').hidden=true;$('#pinInput').value='';$('#lockError').textContent=''}else $('#lockError').textContent='PIN이 다릅니다.';};
-async function loadTraining(){
- try{
-  const res=await fetch('data/training-report.json',{cache:'no-store'});if(!res.ok)throw Error();const r=await res.json();setTrainedModel(r);
-  if(!r.counts||!r.baseline||!r.candidate)throw Error();
-  const c=r.counts,format=x=>(x*100).toFixed(1)+'%';
-  $('#trainingStatus').innerHTML='<p><b>'+c.collected_races.toLocaleString()+'개 경주 · '+c.horse_starts.toLocaleString()+'회 출전</b><br>'+esc(r.period.from)+' ~ '+esc(r.period.to)+'</p><p>학습 '+c.training_races.toLocaleString()+' / 조정 '+c.validation_races.toLocaleString()+' / 최종 평가 '+c.test_races.toLocaleString()+'<br>이전 전적 구성 '+(c.collected_races-c.training_races-c.validation_races-c.test_races).toLocaleString()+'개 경주</p><p>평가 기간 '+esc(r.period.test)+'</p><p>연승 1순위: 기존 '+format(r.baseline.place_hit_rate)+' → 학습 '+format(r.candidate.place_hit_rate)+'<br>복연승 1순위: 기존 '+format(r.baseline.pair_hit_rate)+' → 학습 '+format(r.candidate.pair_hit_rate)+'</p><p>'+(r.approved?'학습 모델 적용: '+r.approved_venues.map(v=>esc(names[v]||v)).join(', '):'개선이 충분히 확인되지 않아 기본 모델 유지')+'</p><p>과거 재현 평가입니다. 앞으로의 적중률을 보장하지 않으며, 보류 조건을 적용하기 전 전체 평가 경주 기준입니다. 배당·당일 착순은 학습 입력에서 제외했습니다.</p>';
- }catch{$('#trainingStatus').textContent='대량 학습의 검증 성적이 아직 없습니다. 현재는 기본 모델을 사용합니다.';}
-}
-async function loadAdvanced(){
- try{const res=await fetch('data/model-v6.json',{cache:'no-store'});if(!res.ok)return;const r=await res.json();if(setAdvancedModel(r))advancedReport=r;}
- catch{advancedReport=null;setAdvancedModel(null);}
-}
-function renderAdvancedReport(){
- const r=advancedReport;if(!r)return;
- const c=r.counts,rate=x=>Number.isFinite(x)?pct(x):'—',metric=s=>s?.races?rate(s.hit_rate)+' ('+s.hits+'/'+s.races+')':'표본 없음';
- const kinds=['place','pair'];
- const table='<table class="validation-table"><thead><tr><th>승식</th><th>전체 후보</th><th>선별 후보</th><th>선별 비율</th></tr></thead><tbody>'+kinds.map(k=>{const p=r.policies[k],on=p.approved;return '<tr><th>'+(k==='place'?'연승':'복연승')+'</th><td>'+metric(r.deployment[k].approved?p.audit_all:r.deployment[k].incumbent)+'</td><td>'+(on?metric(p.audit_selected):'검증 대기')+'</td><td>'+(on?rate(p.audit_coverage):'—')+'</td></tr>'}).join('')+'</tbody></table>';
- $('#trainingStatus').innerHTML='<p><b>'+c.collected_races.toLocaleString()+'개 경주 · '+c.horse_starts.toLocaleString()+'회 출전</b><br>'+esc(r.period.from)+' ~ '+esc(r.period.to)+'</p><p>첫해 전적 구성 '+c.warmup_races.toLocaleString()+'경주 · 추가 품질 검사 제외 '+c.excluded_races+'경주</p><p>'+kinds.map(k=>(k==='place'?'연승':'복연승')+' 학습 '+c.training_races[k].toLocaleString()+'경주').join(' · ')+'<br>확률 보정 '+c.calibration_races+' · 선별 기준 설정 '+c.selection_races+' · 별도 확인 '+c.confirmation_races+'경주</p><p>'+kinds.map(k=>{const d=r.deployment[k];return (k==='place'?'연승':'복연승')+': '+(d.approved?'조건별 학습 모델 적용':'기존 모델 유지 · 신규 모델 교체 기준 미달')}).join('<br>')+'</p><p><b>과거 재평가</b> · '+esc(r.period.audit)+'</p>'+table+'<p>전체 후보와 선별 후보는 별도 모델을 사용하며 추천마가 다를 수 있습니다. 이 기간은 이전 모델 평가에도 사용했습니다. 새로운 독립 검증 또는 실전 성적이 아닙니다.</p><details><summary>선별 기준과 별도 확인 성적</summary>'+kinds.map(k=>{const p=r.policies[k],t=p.criteria,d=r.deployment[k];return '<p><b>'+(k==='place'?'연승':'복연승')+'</b> · '+(p.approved?'선별 표시 사용':'선별 표시 대기')+'<br>확인 기간 '+esc(r.period.confirmation)+'<br>전체 '+metric(p.all)+' → 선별 '+metric(p.selected)+' · 비율 '+rate(p.coverage)+(t?'<br>확률 '+rate(t.min_probability)+' 이상 · 다음 후보와 '+rate(t.min_gap)+' 이상 차이'+(t.min_starts?' · 과거 출전 '+t.min_starts+'회 이상':''):'')+'<br>대상 지역 '+(p.approved_venues.map(v=>names[v]||v).join(', ')||'없음')+'</p>'}).join('')+'</details><details><summary>학습 방식 비교</summary>'+kinds.map(k=>'<p><b>'+(k==='place'?'연승':'복연승')+'</b> · '+esc(r.comparison[k].chosen)+' 선택</p><table class="validation-table"><thead><tr><th>방식</th><th>기간 이동 평가 적중률</th></tr></thead><tbody>'+r.comparison[k].candidates.map(x=>'<tr><td>'+esc(({linear_all:'전체 기간 · 선형',tree_1y:'최근 1년',tree_3y:'최근 3년',tree_all:'전체 기간 · 조건별',tree_recent:'최근 기록 가중'})[x.config.name]||x.config.name)+'</td><td>'+rate(x.hit_rate)+'</td></tr>').join('')+'</tbody></table>').join('')+'</details><details><summary>예측 확률과 실제 적중률</summary>'+kinds.map(k=>'<p><b>'+(k==='place'?'연승':'복연승')+'</b> · 신규 후보 모델 과거 재평가</p><table class="validation-table"><thead><tr><th>예측 평균</th><th>실제 적중</th><th>경주 수</th></tr></thead><tbody>'+r.policies[k].audit_reliability.filter(x=>x.races).map(x=>'<tr><td>'+rate(x.predicted)+'</td><td>'+rate(x.actual)+'</td><td>'+x.races+'</td></tr>').join('')+'</tbody></table>').join('')+'</details><p>배당·당일 결과·당일 마체중은 학습 입력에서 제외했습니다. 선별은 추천 횟수를 줄이는 방식이며 수익성을 뜻하지 않습니다. 실제 기록 성적은 아래에서 따로 확인합니다.</p>';
-}
 async function fetchPublicJSON(path){
  for(const url of ['https://raw.githubusercontent.com/kkongt2/betkj3/main/'+path,path]){
   try{return await fetchJSON(url+'?t='+Date.now());}catch{}
  }
  throw Error('불러오기 실패');
 }
-async function loadChallenger(){
- try{
-  const r=await fetchPublicJSON('data/model-v7.json');if(!setChallengerModel(r))return;
-  const metric=x=>x?.races?pct(x.hit_rate)+' ('+x.hits+'/'+x.races+')':'—';
-  $('#challengerStatus').innerHTML='<p><b>과거 성적·경주 전개 개선 모델</b><br>'+r.counts.races.toLocaleString()+'개 경주 · 실제 연승 입상·거리·등급 지표와 구간 기록을 추가한 모델 비교</p><p>과거 재평가 '+esc(r.periods.audit)+' · 앞선 연구에도 사용한 기간입니다.</p>'+['place','pair'].map(k=>'<p><b>'+(k==='place'?'연승':'복연승')+'</b> · 기존 '+metric(r.deployment[k].incumbent)+' → 새 모델 '+metric(r.deployment[k].candidate)+'<br>'+(r.deployment[k].approved?'교체 기준 통과 · 일반 추천에 적용':'교체 기준 미달 · 기존 추천 유지, 새 모델은 사전 비교 기록')+'</p>').join('')+'<p>구간 기록이 없는 말은 누락 상태를 반영합니다. 과거 말 식별은 이름·출생 연도 추정·성별을 함께 사용하며, 개명 이력은 연결되지 않을 수 있습니다.</p>';
- }catch{$('#challengerStatus').textContent='개선 모델의 검증 결과를 불러오지 못했습니다.';}
-}
-async function loadProspective(){
- try{
-  const s=await fetchPublicJSON('data/prediction-summary.json');if(s.schema!==1||!Array.isArray(s.groups))throw Error();
-  const label={general:'일반 추천',challenger:'새 모델 비교',selective:'선별 추천',incumbent:'기존 모델 비교'};
-  $('#autoStats').innerHTML='<p>경주 전 자동 기록 <b>'+s.recorded_races+'경주</b> · 지난 경주의 재계산 후보는 포함하지 않습니다.</p>'+(s.groups.length?'<table class="validation-table"><thead><tr><th>모델·승식</th><th>실제 적중</th><th>대기</th></tr></thead><tbody>'+s.groups.map(g=>'<tr><td>'+label[g.track]+' · '+(g.kind==='place'?'연승':'복연승')+'<br><small>'+esc(g.model)+' · '+esc(g.bundle_hash.slice(0,6))+'</small></td><td>'+(g.settled?pct(g.hit_rate)+'<br>'+g.hits+'/'+g.settled:'표본 없음')+'</td><td>'+g.pending+(g.void?'<br>환불·제외 '+g.void:'')+'</td></tr>').join('')+'</tbody></table>':'<p>다음 경주부터 사전 기록이 쌓입니다.</p>');
-  if(s.paired?.length)$('#autoStats').innerHTML+='<p><b>같은 경주에서 비교</b><br>'+s.paired.map(p=>(p.kind==='place'?'연승':'복연승')+' '+p.races+'경주 · 기존 '+p.baseline_hits+'적중 → 새 모델 '+p.challenger_hits+'적중').join('<br>')+'</p>';
-  $('#autoHistory').innerHTML=s.recent.slice(0,20).map(r=>'<div class="auto-record"><b>'+esc(r.date)+' '+esc(names[r.venue])+' '+r.race_no+'R</b><p class="hint">기록 '+new Date(r.saved_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})+'</p>'+Object.entries(r.tracks).map(([track,t])=>'<p>'+label[track]+'<br>'+['place','pair'].filter(k=>t[k]).map(k=>{const x=t[k];return (k==='place'?'연승 ':'복연승 ')+x.numbers.join('–')+' · '+pct(x.prob)+' · '+(x.status==='settled'?(x.hit?'적중 '+x.odds.toFixed(1)+'배':'미적중'):x.status==='void'?'환불·제외':'결과 대기');}).join('<br>')+'</p>').join('')+'</div>').join('')||'<p class="hint">아직 자동 사전 기록이 없습니다.</p>';
- }catch{$('#autoStats').textContent='자동 사전 기록을 불러오지 못했습니다.';}
-}
-initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);loadQplHistory();renderHistory();Promise.all([load(),loadTraining(),loadAdvanced(),loadChallenger(),loadProspective()]).then(([ok])=>{renderAdvancedReport();if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});
