@@ -4,7 +4,8 @@ const StrategyPresets=(()=>{
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
  const KEY='betkj3-strategy-presets-v1';
  function config(value){
-  if(!value||!tuning.validWeights(value.weights)||!['odds','analysis'].includes(value.anchorMode)||!['existing','custom','legacy'].includes(value.modelMode)||![value.min,value.max].every(n=>Number.isInteger(n)&&n>=2&&n<=20)||value.min>value.max)throw Error('설정 자료를 확인해 주세요.');
+  if(!value||!tuning.validWeights(value.weights)||!['odds','analysis'].includes(value.anchorMode)||!['existing','custom','legacy','v2'].includes(value.modelMode)||![value.min,value.max].every(n=>Number.isInteger(n)&&n>=2&&n<=20)||value.min>value.max)throw Error('설정 자료를 확인해 주세요.');
+  if(value.weightScope==='venue'&&(!value.venueWeights||Object.keys(value.venueWeights).some(v=>!['seoul','busan','jeju'].includes(v)||!tuning.validWeights(value.venueWeights[v])||value.venueWeights[v].length!==16)))throw Error('경마장별 가중치를 확인해 주세요.');
   return {...tuning.settings(value),...policy.normalizeRange(value)};
  }
  function read(storage){
@@ -22,3 +23,4 @@ const StrategyPresets=(()=>{
  return {KEY,config,read,save,remove};
 })();
 if(typeof module!=='undefined')module.exports=StrategyPresets;
+

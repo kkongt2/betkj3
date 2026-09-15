@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model-v7.js?v=6.0','model.js?v=6.0','tuning-model.js?v=6.0','qpl-policy.js?v=6.0','qpl-history-engine.js?v=6.0');
+importScripts('model-v7.js?v=7.0','model.js?v=7.0','tuning-model.js?v=7.0','qpl-policy.js?v=7.0','qpl-history-engine.js?v=7.0');
 let ready=null,latest=0;
 async function fetchYear(url){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
@@ -16,3 +16,4 @@ onmessage=async({data})=>{
   if(groups&&latest===data.id)postMessage({id:data.id,groups});
  }catch(error){if(latest===data.id)postMessage({id:data.id,error:String(error.message||error)});}
 };
+

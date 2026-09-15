@@ -15,6 +15,12 @@ function inputs(){
   entry.race.weighted_version=x.version;entry.race.weighted_history_through=x.historyThrough;
   for(const h of entry.race.horses){const f=x.horses[String(h.number)];if(f){h.weighted_features=f.features;h.weighted_support={...f};delete h.weighted_support.features;}}
  }
+ if(fs.existsSync('history/weighted-v3.jsonl.gz'))for(const line of zlib.gunzipSync(fs.readFileSync('history/weighted-v3.jsonl.gz')).toString().trim().split('\n').filter(Boolean)){
+  const x=JSON.parse(line),entry=rows.get([x.date,x.venue,x.race].join(':'));if(!entry)continue;
+  entry.race.weighted_v3_version=x.version;entry.race.weighted_v3_history_through=x.historyThrough;
+  for(const h of entry.race.horses){const f=x.horses[String(h.number)];if(f){h.weighted_v3_features=f.features;h.weighted_v3_support={...f};delete h.weighted_v3_support.features;}}
+ }
  return [...rows.values()].sort((a,b)=>a.race.date.localeCompare(b.race.date)||a.race.venue.localeCompare(b.race.venue)||a.race.race_no-b.race.race_no);
 }
 module.exports=inputs;
+
