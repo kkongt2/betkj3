@@ -1,0 +1,37 @@
+name: Find top five Seoul presets
+on:
+  push:
+    branches: ['feature/seoul-top5']
+    paths: ['scripts/**', 'tests/**', '.github/workflows/top5.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: seoul-top5
+  cancel-in-progress: true
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Search and exactly rank Seoul presets
+        run: |
+          g++ -O3 -fopenmp -std=c++17 scripts/search-top5.cpp -o /tmp/search-top5
+          node scripts/top5-presets.cjs
+          node tests/top5.cjs
+      - name: Check preset controls
+        run: node tests/site.cjs
+      - name: Preserve verified presets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add top5-presets.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record five exact Seoul presets meeting 40 percent coverage'
+            git pull --rebase origin feature/seoul-top5
+            git push origin HEAD:feature/seoul-top5
+          fi

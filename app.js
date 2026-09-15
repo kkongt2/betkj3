@@ -271,7 +271,7 @@ async function fetchPublicJSON(path){
  }
  throw Error('불러오기 실패');
 }
-initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy);loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});

@@ -2,7 +2,7 @@ name: Sync race data and publish betkj3
 on:
   push:
     branches: [main]
-    paths-ignore: ['data/**', 'qpl-history.json', 'qpl-history-years/**', 'history/**', 'rolling-report.json']
+    paths-ignore: ['data/**', 'qpl-history.json', 'qpl-history-years/**', 'history/**', 'rolling-report.json', 'top5-presets.json']
   workflow_call:
   workflow_dispatch:
   schedule:
@@ -79,7 +79,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp index.html style.css app.js model.js qpl-policy.js tuning-model.js qpl-history-engine.js qpl-history-worker.js qpl-history.json strategy-presets.js rolling-panel.js rolling-report.json _site/
+          cp index.html style.css app.js model.js qpl-policy.js tuning-model.js qpl-history-engine.js qpl-history-worker.js qpl-history.json strategy-presets.js rolling-panel.js rolling-report.json top5-panel.js top5-presets.json _site/
           cp -R data _site/data
           cp -R qpl-history-years _site/qpl-history-years
           touch _site/.nojekyll
@@ -101,6 +101,7 @@ jobs:
             const [html,model,history]=await Promise.all([read('index.html'),read('tuning-model.js'),read('qpl-history.json')]);
             assert(html.includes('weight-15'));assert(html.includes('평균 적중 배당'));assert(model.includes('user-weighted-seoul-v1'));
             const manifest=JSON.parse(history);assert.equal(manifest.scope,'seoul');assert(manifest.races>4000);const live=JSON.parse(await read('data/latest.json'));assert.equal(live.scope,'seoul');assert(live.races.every(r=>r.venue==='seoul'));assert(live.calendar.every(d=>d.venues.every(v=>v==='seoul')));assert(!/부경|제주|전국|weightVenue/.test(html));for(const shard of manifest.shards){const d=JSON.parse(await read(shard.url));assert(d.rows.every(r=>r.venue==='seoul'));}const rolling=JSON.parse(await read('rolling-report.json'));assert.equal(rolling.scope,'seoul');assert(rolling.folds.length>=4);assert(rolling.selected.all.evaluated>=Math.ceil(rolling.selected.all.total*.4));
+            const top5=JSON.parse(await read('top5-presets.json'));assert.equal(top5.scope,'seoul');assert.equal(top5.presets.length,5);assert(html.includes('top5Presets'));assert(top5.presets.every(p=>p.all.evaluated>=Math.ceil(top5.sourceRaces*.4)));
             console.log('PASS published Seoul-only controls, model, live calendar, every historical shard and quarterly report',base);
           })().catch(e=>{console.error(e);process.exitCode=1});
           NODE

@@ -49,4 +49,4 @@ async function main(){
  fs.writeFileSync('rolling-report.json',JSON.stringify(report,null,2));console.log(JSON.stringify({selected:report.selected,live:report.live,recordComparison:report.recordComparison},null,2));fs.rmSync(tmp,{recursive:true,force:true});
 }
 if(require.main===module)main().catch(e=>{console.error(e);process.exitCode=1});
-module.exports={shift,quarter,normalize,blend,evaluate,aggregate,covers,drawdown,safeMin};
+module.exports={shift,quarter,normalize,blend,evaluate,aggregate,covers,drawdown,safeMin,exportTrain};

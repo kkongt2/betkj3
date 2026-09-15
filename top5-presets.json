@@ -1,0 +1,503 @@
+{
+  "schema": 1,
+  "scope": "seoul",
+  "version": "user-weighted-seoul-v1",
+  "generatedAt": "2026-09-15T11:33:00.985Z",
+  "from": "20210108",
+  "to": "20260913",
+  "sourceRaces": 5606,
+  "minimumCoverageRatio": 0.4,
+  "minimumEvaluated": 2243,
+  "search": {
+    "nativeWeightCandidates": 4251,
+    "exactWeightCandidates": 76,
+    "exactSettings": 28880,
+    "anchors": [
+      "odds",
+      "analysis"
+    ],
+    "ranks": [
+      2,
+      20
+    ],
+    "weightStep": 1,
+    "weightTotal": 100,
+    "deduplicate": "identical historical selected pairs"
+  },
+  "presets": [
+    {
+      "rank": 1,
+      "name": "서울 과거 최고 1위",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          1,
+          10,
+          0,
+          24,
+          12,
+          8,
+          10,
+          2,
+          0,
+          13,
+          2,
+          4,
+          14
+        ],
+        "min": 11,
+        "max": 13
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 3295,
+        "hits": 57,
+        "excluded": 2311,
+        "paidHits": 57,
+        "payoutTotal": 3787.2000000000016
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 586,
+          "hits": 9,
+          "excluded": 200,
+          "paidHits": 9,
+          "payoutTotal": 1303.4
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 599,
+          "hits": 11,
+          "excluded": 369,
+          "paidHits": 11,
+          "payoutTotal": 1046.3000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 604,
+          "hits": 13,
+          "excluded": 436,
+          "paidHits": 13,
+          "payoutTotal": 501.00000000000006
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 508,
+          "hits": 11,
+          "excluded": 533,
+          "paidHits": 11,
+          "payoutTotal": 382.9
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 590,
+          "hits": 10,
+          "excluded": 443,
+          "paidHits": 10,
+          "payoutTotal": 452.8999999999999
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 408,
+          "hits": 3,
+          "excluded": 330,
+          "paidHits": 3,
+          "payoutTotal": 100.7
+        }
+      },
+      "metrics": {
+        "rate": 0.017298937784522003,
+        "average": 66.44210526315793,
+        "product": 1.149377845220031
+      },
+      "coverage": 0.5877631109525508,
+      "predictionHash": "452a171d377703590c95f7e7967ada9808fe0d22bf0b2cc386f8965d9266a08e"
+    },
+    {
+      "rank": 2,
+      "name": "서울 과거 최고 2위",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          1,
+          10,
+          0,
+          24,
+          13,
+          8,
+          10,
+          2,
+          0,
+          13,
+          2,
+          3,
+          14
+        ],
+        "min": 11,
+        "max": 13
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 3293,
+        "hits": 56,
+        "excluded": 2313,
+        "paidHits": 56,
+        "payoutTotal": 3766.3000000000015
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 586,
+          "hits": 9,
+          "excluded": 200,
+          "paidHits": 9,
+          "payoutTotal": 1303.4
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 599,
+          "hits": 11,
+          "excluded": 369,
+          "paidHits": 11,
+          "payoutTotal": 1046.3000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 603,
+          "hits": 13,
+          "excluded": 437,
+          "paidHits": 13,
+          "payoutTotal": 501.00000000000006
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 507,
+          "hits": 11,
+          "excluded": 534,
+          "paidHits": 11,
+          "payoutTotal": 382.9
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 590,
+          "hits": 9,
+          "excluded": 443,
+          "paidHits": 9,
+          "payoutTotal": 431.99999999999994
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 408,
+          "hits": 3,
+          "excluded": 330,
+          "paidHits": 3,
+          "payoutTotal": 100.7
+        }
+      },
+      "metrics": {
+        "rate": 0.01700576981475858,
+        "average": 67.25535714285716,
+        "product": 1.1437291223808081
+      },
+      "coverage": 0.5874063503389226,
+      "predictionHash": "b6a90894a846efb9e770c4df5a0cfc7bad85910af51e469bc6129454c76c6215"
+    },
+    {
+      "rank": 3,
+      "name": "서울 과거 최고 3위",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          1,
+          10,
+          0,
+          24,
+          12,
+          8,
+          10,
+          2,
+          0,
+          13,
+          2,
+          4,
+          14
+        ],
+        "min": 11,
+        "max": 14
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 3295,
+        "hits": 56,
+        "excluded": 2311,
+        "paidHits": 56,
+        "payoutTotal": 3741.500000000002
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 586,
+          "hits": 9,
+          "excluded": 200,
+          "paidHits": 9,
+          "payoutTotal": 1303.4
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 599,
+          "hits": 11,
+          "excluded": 369,
+          "paidHits": 11,
+          "payoutTotal": 1046.3000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 604,
+          "hits": 13,
+          "excluded": 436,
+          "paidHits": 13,
+          "payoutTotal": 501.00000000000006
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 508,
+          "hits": 11,
+          "excluded": 533,
+          "paidHits": 11,
+          "payoutTotal": 382.9
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 590,
+          "hits": 9,
+          "excluded": 443,
+          "paidHits": 9,
+          "payoutTotal": 407.2
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 408,
+          "hits": 3,
+          "excluded": 330,
+          "paidHits": 3,
+          "payoutTotal": 100.7
+        }
+      },
+      "metrics": {
+        "rate": 0.016995447647951443,
+        "average": 66.81250000000003,
+        "product": 1.1355083459787563
+      },
+      "coverage": 0.5877631109525508,
+      "predictionHash": "9282d47ab0c4819aa37113351fb2eadde1bde986e6b6e873d895bdb0caca14f3"
+    },
+    {
+      "rank": 4,
+      "name": "서울 과거 최고 4위",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          1,
+          10,
+          0,
+          24,
+          12,
+          8,
+          10,
+          2,
+          0,
+          13,
+          2,
+          4,
+          14
+        ],
+        "min": 11,
+        "max": 15
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 3295,
+        "hits": 56,
+        "excluded": 2311,
+        "paidHits": 56,
+        "payoutTotal": 3741.500000000002
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 586,
+          "hits": 9,
+          "excluded": 200,
+          "paidHits": 9,
+          "payoutTotal": 1303.4
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 599,
+          "hits": 11,
+          "excluded": 369,
+          "paidHits": 11,
+          "payoutTotal": 1046.3000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 604,
+          "hits": 13,
+          "excluded": 436,
+          "paidHits": 13,
+          "payoutTotal": 501.00000000000006
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 508,
+          "hits": 11,
+          "excluded": 533,
+          "paidHits": 11,
+          "payoutTotal": 382.9
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 590,
+          "hits": 9,
+          "excluded": 443,
+          "paidHits": 9,
+          "payoutTotal": 407.2
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 408,
+          "hits": 3,
+          "excluded": 330,
+          "paidHits": 3,
+          "payoutTotal": 100.7
+        }
+      },
+      "metrics": {
+        "rate": 0.016995447647951443,
+        "average": 66.81250000000003,
+        "product": 1.1355083459787563
+      },
+      "coverage": 0.5877631109525508,
+      "predictionHash": "7292d417991de05b8798d8a547f330f57d4146e9ea8a408d5218afd1c75ce486"
+    },
+    {
+      "rank": 5,
+      "name": "서울 과거 최고 5위",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          0,
+          0,
+          0,
+          1,
+          10,
+          0,
+          24,
+          13,
+          8,
+          10,
+          2,
+          0,
+          13,
+          2,
+          3,
+          14
+        ],
+        "min": 11,
+        "max": 14
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 3293,
+        "hits": 55,
+        "excluded": 2313,
+        "paidHits": 55,
+        "payoutTotal": 3720.6000000000017
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 586,
+          "hits": 9,
+          "excluded": 200,
+          "paidHits": 9,
+          "payoutTotal": 1303.4
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 599,
+          "hits": 11,
+          "excluded": 369,
+          "paidHits": 11,
+          "payoutTotal": 1046.3000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 603,
+          "hits": 13,
+          "excluded": 437,
+          "paidHits": 13,
+          "payoutTotal": 501.00000000000006
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 507,
+          "hits": 11,
+          "excluded": 534,
+          "paidHits": 11,
+          "payoutTotal": 382.9
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 590,
+          "hits": 8,
+          "excluded": 443,
+          "paidHits": 8,
+          "payoutTotal": 386.3
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 408,
+          "hits": 3,
+          "excluded": 330,
+          "paidHits": 3,
+          "payoutTotal": 100.7
+        }
+      },
+      "metrics": {
+        "rate": 0.016702095353780748,
+        "average": 67.64727272727276,
+        "product": 1.1298511995141216
+      },
+      "coverage": 0.5874063503389226,
+      "predictionHash": "58c58146418fab6881844a9fedcd8a8b2ab0944f118c9c853f3721e9347f8a77"
+    }
+  ],
+  "sourceSha256": {
+    "qpl-history-years/2021.json": "4a98b822e4d2aab6d3c9abe89029adc1934193108bdac20cc530e2d216dc519b",
+    "qpl-history-years/2022.json": "c10f61f85a41c937e5e462b911c643bbff1b52b6343031127d7564a381a4d5f7",
+    "qpl-history-years/2023.json": "776a784a7a4be26cb38b801ce5300bebe7d9ecae672a746ee401ee50d646bad8",
+    "qpl-history-years/2024.json": "95577a5ffe90d3fe80ea5d637659f4fe3969ce97dcb97b3a277233486d27fdca",
+    "qpl-history-years/2025.json": "c512164a082ee41337bd91d7db7c348ac789ef2041386059380627621a077862",
+    "qpl-history-years/2026.json": "9c06557720667d97663a5f7490a5f2ba7d8447fb403ea362139f49943a32033b"
+  },
+  "note": "전체 서울 과거 자료에서 적중률×평균배당이 높았던 탐색 후보 5개입니다. 최소 전체 경주 40% 이상 조건을 적용하고, 과거 선택 조합이 완전히 같은 설정은 하나로 합쳤습니다. 같은 과거 자료로 탐색하고 평가한 사후 성적이며 미래 성적 또는 독립 검증이 아닙니다. 모든 가중치의 전역 최댓값을 보장하지 않습니다. 분기별 시간순 검증과 구분해서 보세요."
+}
