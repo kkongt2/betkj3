@@ -5,5 +5,5 @@ assert.equal(r.selected.all.total,total);assert(covers(r.live.retrospective.all)
 for(const x of [r.selected,r.common,r.regional,...r.recordComparison]){assert.equal(x.all.hits,x.all.paidHits);assert(Math.abs(x.metrics.product-x.all.payoutTotal/x.all.evaluated)<1e-10);}
 // Reproduce every frozen selected quarter through the site's actual computation.
 const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows);
-for(const f of r.folds){const x=evaluate(rows.filter(x=>x.date>=f.from&&x.date<f.to),f.settings);assert.equal(x.all.hits,f.selected.hits);assert.equal(x.all.evaluated,f.selected.evaluated);assert(Math.abs(x.all.payoutTotal-f.selected.payoutTotal)<1e-8);}
+for(const f of r.folds){const x=evaluate(rows.filter(x=>x.date>=f.from&&x.date<=f.through),f.settings);assert.equal(x.all.hits,f.selected.hits);assert.equal(x.all.evaluated,f.selected.evaluated);assert(Math.abs(x.all.payoutTotal-f.selected.payoutTotal)<1e-8);}
 console.log('PASS frozen-quarter predictions, chronological isolation, 40% coverage in every fold, full archive live coverage and four record comparisons');
