@@ -41,9 +41,17 @@ int main(int argc,char**argv){
  int style=std::stoi(argv[3]),maxLo=std::stoi(argv[4]);std::mt19937 rng(20260915);std::set<W> seen;std::vector<Result> board;int tested=0;
  auto allowed=[&](int j){return j!=10&&j!=13&&j!=14&&j!=15||style==4||(style==3&&(j==10||j==15))||(style<3&&j==(style==0?10:style==1?13:14));};
  std::vector<int> ids;for(int i=0;i<16;i++)if(allowed(i))ids.push_back(i);
- auto batch=[&](std::vector<W> ws){for(auto w:ws){if(!seen.insert(w).second)continue;tested++;auto scores=evaluate(w);for(auto&r:scores)if(r.n>=minimumEvaluated)board.push_back(r);
+ auto batch=[&](std::vector<W> ws){for(auto w:ws){if(!seen.insert(w).second)continue;tested++;auto scores=evaluate(w);for(auto&r:scores)if(r.n>=minimumEvaluated&&r.hits*10>=r.n)board.push_back(r);
  std::sort(board.begin(),board.end(),[](const Result&a,const Result&b){if(a.value()!=b.value())return a.value()>b.value();if(a.n!=b.n)return a.n>b.n;if(a.w!=b.w)return a.w<b.w;if(a.mode!=b.mode)return a.mode<b.mode;if(a.lo!=b.lo)return a.lo<b.lo;return a.hi<b.hi;});
- std::set<W> keep;board.erase(std::remove_if(board.begin(),board.end(),[&](auto&r){return !keep.insert(r.w).second;}),board.end());if(board.size()>64)board.resize(64);}};
+ auto distance=[](const W&a,const W&b){int n=0;for(int i=0;i<16;i++)n+=std::abs(a[i]-b[i]);return n;};
+ std::vector<Result> keep;std::vector<W> global;std::vector<W> buckets[2][4][4];
+ for(const auto&r:board){bool take=false;
+  if(global.size()<32&&std::all_of(global.begin(),global.end(),[&](const W&w){return distance(w,r.w)>=16;})){global.push_back(r.w);take=true;}
+  int band=r.lo<=4?0:r.lo<=7?1:r.lo<=10?2:3,hit=r.hits*100/r.n,bin=hit<15?0:hit<20?1:hit<30?2:3;
+  auto& group=buckets[r.mode][band][bin];if(group.size()<2&&std::all_of(group.begin(),group.end(),[&](const W&w){return distance(w,r.w)>=16;})){group.push_back(r.w);take=true;}
+  if(take)keep.push_back(r);
+ }board.swap(keep);
+ }};
  std::vector<W> initial;for(int i:ids){W w={};w[i]=100;initial.push_back(w);}
  for(int t=0;t<1200;t++){W w={};double a[16]={},total=0;for(int i:ids){a[i]=std::pow(-std::log((rng()+1.0)/(rng.max()+2.0)),t%3+1);total+=a[i];}int used=0;for(int i:ids){w[i]=int(a[i]*100/total);used+=w[i];}while(used++<100)w[ids[rng()%ids.size()]]++;initial.push_back(w);}
  if(argc>5){std::ifstream seed(argv[5]);W w;while(seed>>w[0]){for(int i=1;i<16;i++)seed>>w[i];if(seed)initial.push_back(w);}}
