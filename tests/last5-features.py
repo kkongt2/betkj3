@@ -22,3 +22,11 @@ for n in (7,10):
 assert abs(values[0]-2/3)<1e-12 and abs(values[1]-7/9)<1e-12 and values[1]>values[0]
 assert h.features(race('20220201',distance=2000))['1']['raw'][2]==3/5
 print('PASS exact last-five rates, distance subset, sixth-race exclusion, old-start inclusion and field-adjusted equal-weight mean rank')
+
+empty=m.History().features(race('20220101'))['1']
+assert len(empty['available'])==17 and not any(empty['available'][i] for i in (0,1,2,4,10,13,14,15,16))
+assert empty['raw'][0] is not None and empty['available'][0] is False
+assert all(f['available'][i] for i in (0,1,2,4,16))
+far=h.features(race('20220201',distance=2000))['1'];assert far['available'][2] is False and far['raw'][2]==far['raw'][0]
+assert old.features(future)['1']['available'][0] is True
+print('PASS explicit availability flags distinguish genuine observations from populated defaults and distance fallback')

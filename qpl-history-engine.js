@@ -2,9 +2,22 @@
 const QplHistoryEngine=(()=>{
  const tuning=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
+ const PERIOD={from:'20220101',comparisonFrom:'20230101'};
+ const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
+ function sumYears(years,from){const g=blank();for(const [year,x] of Object.entries(years||{}))if(year>=from.slice(0,4))for(const k of Object.keys(g))g[k]+=x[k]||0;return g;}
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
  function create(rows){
   const entries=rows.filter(r=>r.venue==='seoul').map(row=>({row,winning:new Map(row.payouts.map(p=>[key(p.numbers),p.odds]))}));
+  const coverageCache=new Map();
+  function coverage(from,to){
+   const key=from+':'+to;if(coverageCache.has(key))return coverageCache.get(key);
+   const c={horses:0,supportKnown:0,fullFive:0,noHistory:0,features:Array.from({length:17},()=>({available:0,fallback:0,unknown:0}))};
+   for(const {row} of entries){if(row.date<from||row.date>to)continue;for(const horse of row.horses){c.horses++;const s=horse[7];if(Number.isInteger(s?.starts)){c.supportKnown++;c.fullFive+=s.starts>=5;c.noHistory+=s.starts===0;}
+    let flags=Array.isArray(s?.available)&&s.available.length===17?s.available:Array(17).fill(null);
+    if(!s?.available&&s){flags=flags.slice();for(const i of [0,1,4,16])if(Number.isInteger(s.starts))flags[i]=s.starts>0;if(Number.isInteger(s.distanceStarts))flags[2]=s.distanceStarts>0;for(const i of [10,13,14])if(Number.isInteger(s.recordStarts))flags[i]=s.recordStarts>0;if(Number.isInteger(s.recordStarts))flags[15]=s.recordStarts>=3;if(Number.isInteger(s.marginStarts))flags[11]=s.marginStarts>0;}
+    flags.forEach((v,i)=>c.features[i][v===true?'available':v===false?'fallback':'unknown']++);
+   }}coverageCache.set(key,c);return c;
+  }
   function evaluateRow(entry,config){
    const signature=config.modelMode!=='existing'?config.modelMode+':'+tuning.weightsFor(config,entry.row.venue).join(','):'existing';
    if(signature!=='existing'&&entry.signature!==signature){
@@ -23,7 +36,10 @@ const QplHistoryEngine=(()=>{
     const entry=entries[i];if(entry.row.date>=from&&entry.row.date<=to)results.push(evaluateRow(entry,config));
     if(i%80===79){onProgress(Math.round((i+1)/entries.length*100));await new Promise(resolve=>setTimeout(resolve,0));}
    }
-   return isCurrent()?policy.summarize(results,config,from,to):null;
+   if(!isCurrent())return null;
+   const groups=policy.summarize(results,config,from,to),comparisonFrom=from>PERIOD.comparisonFrom?from:PERIOD.comparisonFrom;
+   const comparison=policy.summarize(results,config,comparisonFrom,to);
+   return {...groups,from,to,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to)};
   }
   return {evaluate,evaluateRow:(i,options)=>evaluateRow(entries[i],{...tuning.settings(options),...policy.normalizeRange(options)})};
  }
@@ -49,7 +65,7 @@ const QplHistoryEngine=(()=>{
   if(rows.length!==manifest.races||new Set(rows.map(r=>[r.date,r.venue,r.race].join(':'))).size!==rows.length)throw Error('전체 통계 경주 수 확인 필요');
   return rows;
  }
- return {create,metrics,load};
+ return {create,metrics,load,PERIOD,sumYears};
 })();
 if(typeof module!=='undefined')module.exports=QplHistoryEngine;
 

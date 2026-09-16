@@ -11,7 +11,7 @@ for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))no
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
 const savedData=new Map([['betkj3-tuning',JSON.stringify({modelMode:'existing'})]]);
 const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{getElementById:id=>nodes['#'+id]||null,querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('top5-presets.json')?JSON.parse(fs.readFileSync('top5-presets.json')):String(url).includes('rolling-report.json')?JSON.parse(fs.readFileSync('rolling-report.json')):String(url).includes('strategy-search.json')?JSON.parse(fs.readFileSync('strategy-search.json')):String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
-vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','weight-search-engine.js','weight-search.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','weight-search-engine.js','weight-search.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await flush();
  assert.equal(vm.runInContext('races.every(r=>r.venue==="seoul")',sandbox),true);assert(!vm.runInContext('venueDates().includes("20260911")',sandbox));assert(!/부경|제주|전국|weightVenue|analysisModel/.test(fs.readFileSync('index.html','utf8')));
  assert.equal(vm.runInContext('current.calendar_archive',sandbox),true);
@@ -20,8 +20,8 @@ vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-mod
  assert(!nodes['#raceOverview'].innerHTML.includes('data-result-type="pair"'));
  assert(nodes['#pairLead'].innerHTML.includes('동반입상확률 비교'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('100.0%'));
- assert(nodes['#qplHistoryStats'].innerHTML.includes('2021.01.08'));
- assert(nodes['#qplHistoryStats'].innerHTML.includes('2경주'));
+ assert(!nodes['#qplHistoryStats'].innerHTML.includes('2021.01.08'));assert(nodes['#qplHistoryStats'].innerHTML.includes('2023년 이후 비교'));assert(nodes['#qplHistoryStats'].innerHTML.includes('실제 전적 확보'));assert(nodes['#qplHistoryStats'].innerHTML.includes('미확인'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('1경주'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('평균 적중 배당<strong>3.00배')); 
  assert(!fs.readFileSync('index.html','utf8').includes('수익성 검토'));
  nodes['#partnerMin'].value='2';nodes['#partnerMin'].onchange();await flush();
@@ -59,6 +59,7 @@ vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-mod
  assert.equal(nodes['#applyRolling'].hidden,false);assert(nodes['#rollingReport'].innerHTML.includes('보정 기록 방식 비교'));nodes['#applyRolling'].onclick();await flush();
  const rolling=JSON.parse(fs.readFileSync('rolling-report.json')).live.settings;assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),rolling.weights.join(','));
  nodes['#weight-15'].value='17';nodes['#weight-15'].oninput();nodes['#presetName'].value='서울 저장';nodes['#saveStrategy'].onclick();nodes['#weight-15'].value='18';nodes['#weight-15'].oninput();nodes['#loadStrategy'].onclick();await flush();assert.equal(vm.runInContext('tuningSettings.weights[15]',sandbox),17);
+ assert(nodes['#top5Presets'].innerHTML.includes('20220101'));assert(nodes['#top5Presets'].innerHTML.includes('2023년 이후 비교'));
  const beforeAll=vm.runInContext('JSON.stringify(strategySettings())',sandbox);nodes['#saveAllTopPresets'].onclick();assert(nodes['#top5Status'].textContent.includes('15개 프리셋을 모두 저장'));assert.equal(vm.runInContext('JSON.stringify(strategySettings())',sandbox),beforeAll);assert(vm.runInContext('StrategyPresets.read(localStorage).length',sandbox)>=15);
  const top5=JSON.parse(fs.readFileSync('top5-presets.json'));assert(nodes['#top5Presets'].innerHTML.includes('17개 가중치 보기'));for(let i=0;i<15;i++){nodes['#top5Presets'].click({target:{closest:()=>({dataset:{top5:String(i)}})}});await flush();assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),top5.presets[i].settings.weights.join(','));assert.equal(vm.runInContext('partnerRange.min',sandbox),top5.presets[i].settings.min);assert(nodes['#top5Status'].textContent.includes('저장했습니다'));}
  nodes['#partnerMin'].value='3';nodes['#partnerMax'].value='4';nodes['#partnerMin'].onchange();await flush();

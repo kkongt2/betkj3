@@ -23,8 +23,8 @@ const WeightCurves=(()=>{
   async function pump(){
    if(paused||!details.open||active||!api.dataKey())return;
    const s=api.settings(),i=[...visible].sort((a,b)=>a-b).find(i=>cache.get(i)?.key!==key(i,s));if(i===undefined)return;
-   const job={i,key:key(i,s)};active=job;placeholder(i,'전체 서울 경주를 계산하는 중…');
-   try{const result=await api.calculate(s,i,percent=>{if(active===job)placeholder(i,'전체 서울 경주 계산 중… '+percent+'%');});if(active!==job)return;if(result&&job.key===key(i,api.settings())){cache.set(i,{key:job.key,result});show(i);}else visible.delete(i);}
+   const job={i,key:key(i,s)};active=job;placeholder(i,'2022년 이후 서울 경주를 계산하는 중…');
+   try{const result=await api.calculate(s,i,percent=>{if(active===job)placeholder(i,'2022년 이후 서울 경주 계산 중… '+percent+'%');});if(active!==job)return;if(result&&job.key===key(i,api.settings())){cache.set(i,{key:job.key,result});show(i);}else visible.delete(i);}
    catch{if(active===job){roots[i].setAttribute('aria-busy','false');roots[i].innerHTML='<p class="curve-empty">그래프 계산에 실패했습니다.</p><button type="button" data-curve-retry>다시 계산</button>';visible.delete(i);}}
    finally{if(active===job){active=null;schedule();}}
   }

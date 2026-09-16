@@ -48,8 +48,8 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=search-1');
-  historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
+  historyWorker=new Worker('qpl-history-worker.js?v=period-1');
+  historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2022년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
  }catch{historyWorker=null;}
@@ -60,7 +60,7 @@ function renderQplHistory(){
  weightSearch?.refresh();
  if(!qplHistory)return;
  weightCurves?.refresh();
- const id=++historyEvaluation,config=strategySettings(),from='00000000',to=day().replaceAll('-','');
+ const id=++historyEvaluation,config=strategySettings(),from=QplHistoryEngine.PERIOD.from,to=day().replaceAll('-','');
  clearTimeout(historyTimer);
  $('#qplHistoryStats').textContent='현재 설정으로 과거 경주를 다시 계산하는 중…';
  $('#qplHistoryStats').setAttribute('aria-busy','true');
@@ -81,30 +81,30 @@ async function getHistoryEngines(){
  return historyReady;
 }
 async function calculateWeightCurve(settings,index,progress){
- const id=++curveRequest,from='00000000',to=day().replaceAll('-','');
+ const id=++curveRequest,from=QplHistoryEngine.PERIOD.from,to=day().replaceAll('-','');
  if(historyWorker)return new Promise((resolve,reject)=>{curvePending={id,resolve,reject,progress};historyWorker.postMessage({type:'curve',curveId:id,settings,index,from,to});});
  await getHistoryEngines();if(id!==curveRequest)return null;
  return curveEngine.curve(settings,index,from,to,()=>id===curveRequest,progress);
 }
-function initWeightCurves(){weightCurves=WeightCurves.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,day()]):'',calculate:calculateWeightCurve,cancel:cancelWeightCurve,apply:(i,value)=>{const input=$('#weight-'+i);input.value=String(value);input.onchange();}});}
+function initWeightCurves(){weightCurves=WeightCurves.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,QplHistoryEngine.PERIOD.from,QplHistoryEngine.PERIOD.comparisonFrom,day()]):'',calculate:calculateWeightCurve,cancel:cancelWeightCurve,apply:(i,value)=>{const input=$('#weight-'+i);input.value=String(value);input.onchange();}});}
 
 function abortWeightSearch(){searchRequest++;searchStopped=true;if(searchPending){searchPending.resolve(null);searchPending=null;}historyWorker?.postMessage({type:'abort-search',searchId:searchRequest});}
 function stopWeightSearch(){searchStopped=true;historyWorker?.postMessage({type:'stop-search',searchId:searchRequest});}
 async function runWeightSearch(options,progress){
- const id=++searchRequest;searchStopped=false;const config={...options,from:'00000000',to:day().replaceAll('-','')};
+ const id=++searchRequest;searchStopped=false;const config={...options,from:QplHistoryEngine.PERIOD.from,to:day().replaceAll('-','')};
  try{config.seeds=StrategyPresets.read(localStorage).map(p=>p.settings.weights);}catch{config.seeds=[];}
  if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress};historyWorker.postMessage({type:'search',searchId:id,options:config});});
  await getHistoryEngines();if(id!==searchRequest)return null;
  return WeightSearchEngine.run(config,curveEngine.evaluate,historyEngine.evaluate,{current:()=>id===searchRequest,stopped:()=>searchStopped,progress});
 }
-function initWeightSearch(){weightSearch=WeightSearch.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,day()]):'',run:runWeightSearch,abort:abortWeightSearch,stop:stopWeightSearch,pause:value=>weightCurves?.pause(value),apply:applySavedStrategy,save:(name,settings)=>{StrategyPresets.save(localStorage,name,settings);refreshPresetOptions(name);}});}
+function initWeightSearch(){weightSearch=WeightSearch.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,QplHistoryEngine.PERIOD.from,QplHistoryEngine.PERIOD.comparisonFrom,day()]):'',run:runWeightSearch,abort:abortWeightSearch,stop:stopWeightSearch,pause:value=>weightCurves?.pause(value),apply:applySavedStrategy,save:(name,settings)=>{StrategyPresets.save(localStorage,name,settings);refreshPresetOptions(name);}});}
 
 function showQplHistory(groups){
- const from='00000000',to=day().replaceAll('-',''),g=groups.all,m=QplHistoryEngine.metrics(g);
- const eligibleDates=qplHistory.schema===3?[qplHistory.from,qplHistory.to].filter(Boolean):(qplHistory.rows||[]).filter(r=>r.date<=to).map(r=>r.date).sort();
+ const from=QplHistoryEngine.PERIOD.from,to=day().replaceAll('-',''),g=groups.all,m=QplHistoryEngine.metrics(g);
+ const eligibleDates=qplHistory.schema===3?qplHistory.shards.filter(s=>s.to>=from&&s.from<=to).flatMap(s=>[s.from<from?from:s.from,s.to>to?to:s.to]).sort():(qplHistory.rows||[]).filter(r=>r.date>=from&&r.date<=to).map(r=>r.date).sort();
  const format=d=>d.slice(0,4)+'.'+d.slice(4,6)+'.'+d.slice(6,8);
  $('#qplHistoryStats').setAttribute('aria-busy','false');
- $('#qplHistoryStats').innerHTML='<p class="hint">'+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 · '+TuningModel.label(tuningSettings.modelMode)+' · 서울 경주만'+'<br>'+(eligibleDates.length?format(eligibleDates[0])+' ~ '+format(eligibleDates.at(-1)):'기간 내 경주 없음')+'</p><div class="history-totals"><div>적중 횟수<strong>'+g.hits.toLocaleString()+'회</strong></div><div>평가 경주<strong>'+g.evaluated.toLocaleString()+'경주</strong></div><div>과거 적중률<strong>'+(m.rate===null?'—':pct(m.rate))+'</strong></div><div>평균 적중 배당<strong>'+(m.average===null?'—':m.average.toFixed(2)+'배')+'</strong>'+(g.paidHits<g.hits?'<small>배당 확인 '+g.paidHits+' / '+g.hits+'적중</small>':'')+'</div><div class="history-product">적중률 × 평균배당<strong>'+(m.product===null?'—':m.product.toFixed(3)+'배')+'</strong><small>'+(m.product===null?'평가 또는 배당 자료 부족':'세전 환급률 '+pct(m.product))+'</small></div></div><table class="validation-table"><thead><tr><th>경마장</th><th>적중 / 평가</th><th>적중률</th></tr></thead><tbody>'+Object.keys(names).map(v=>{const x=groups[v];return '<tr><td>'+names[v]+'</td><td>'+x.hits+' / '+x.evaluated+'</td><td>'+(x.evaluated?pct(x.hits/x.evaluated):'—')+'</td></tr>';}).join('')+'</tbody></table><p class="hint">전체 '+g.total.toLocaleString()+'경주 중 '+g.excluded.toLocaleString()+'경주 제외 · 자료 갱신 '+esc(new Date(qplHistory.generatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+'</p>';
+ $('#qplHistoryStats').innerHTML='<p class="hint">'+anchorLabel()+' + 배당 '+partnerRange.min+'~'+partnerRange.max+'위 · '+TuningModel.label(tuningSettings.modelMode)+' · 서울 경주만'+'<br>'+(eligibleDates.length?format(eligibleDates[0])+' ~ '+format(eligibleDates.at(-1)):'기간 내 경주 없음')+'</p><div class="history-totals"><div>적중 횟수<strong>'+g.hits.toLocaleString()+'회</strong></div><div>평가 경주<strong>'+g.evaluated.toLocaleString()+'경주</strong></div><div>과거 적중률<strong>'+(m.rate===null?'—':pct(m.rate))+'</strong></div><div>평균 적중 배당<strong>'+(m.average===null?'—':m.average.toFixed(2)+'배')+'</strong>'+(g.paidHits<g.hits?'<small>배당 확인 '+g.paidHits+' / '+g.hits+'적중</small>':'')+'</div><div class="history-product">적중률 × 평균배당<strong>'+(m.product===null?'—':m.product.toFixed(3)+'배')+'</strong><small>'+(m.product===null?'평가 또는 배당 자료 부족':'세전 환급률 '+pct(m.product))+'</small></div></div><table class="validation-table"><thead><tr><th>경마장</th><th>적중 / 평가</th><th>적중률</th></tr></thead><tbody>'+Object.keys(names).map(v=>{const x=groups[v];return '<tr><td>'+names[v]+'</td><td>'+x.hits+' / '+x.evaluated+'</td><td>'+(x.evaluated?pct(x.hits/x.evaluated):'—')+'</td></tr>';}).join('')+'</tbody></table><p class="hint">전체 '+g.total.toLocaleString()+'경주 중 '+g.excluded.toLocaleString()+'경주 제외 · 자료 갱신 '+esc(new Date(qplHistory.generatedAt).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+'</p>'+HistorySummary.comparison(groups.comparison)+HistorySummary.coverage(groups.coverage);
 }
 function initTuning(){
  try{tuningSettings=TuningModel.settings(JSON.parse(localStorage.getItem('betkj3-tuning')||'{}'));}catch{}

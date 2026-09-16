@@ -36,7 +36,7 @@ const WeightSearchEngine=(()=>{
   if(best){report('verifying');const groups=await verify(best.settings,options.from,options.to,current);if(!current()||!groups)return null;
    const metrics=history.metrics(groups.all);for(const k of ['total','evaluated','hits','paidHits'])if(groups.all[k]!==best.all[k])throw Error('탐색·검산 통계가 일치하지 않습니다. 결과를 적용하지 않았습니다.');
    if(Math.abs(groups.all.payoutTotal-best.all.payoutTotal)>1e-7||!eligible(groups.all))throw Error('최고 후보 검산에 실패했습니다.');
-   best={settings:best.settings,all:groups.all,metrics};
+   best={settings:best.settings,all:groups.all,metrics,comparison:groups.comparison};
   }
   return {best,count,elapsed,stopped:wasStopped,objective,balanced};
  }
