@@ -11,7 +11,7 @@ assert.equal(t.apply(base,{weights:a}).places[0].numbers[0],8);assert.equal(t.ap
 assert.throws(()=>t.apply({...base,venue:'busan'},old),/서울/);
 const row=t.pack(base,quotes),mixed=[row,{...row,venue:'busan'},{...row,venue:'jeju'}];
 const evaluator=e.create(mixed),x=evaluator.evaluateRow(0,{...old,weights:a,weightScope:undefined}),y=evaluator.evaluateRow(0,old);assert.notEqual(x.candidates[0].partner.number,y.candidates[0].partner.number);
-(async()=>{const g=await evaluator.evaluate({...old,min:2,max:8},'00000000','99999999');assert.equal(g.all.total,1);assert.deepEqual(Object.keys(g),['all','seoul']);
+(async()=>{const g=await evaluator.evaluate({...old,min:2,max:8},'00000000','99999999');assert.equal(g.all.total,1);assert.deepEqual(Object.keys(g),['all','seoul','from','to','comparison','coverage']);assert.deepEqual(g.seoul,g.all);assert.equal(g.comparison.all.total,1);assert.equal(g.coverage.horses,8);assert.equal(g.coverage.features.length,17);
  const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));assert.equal(manifest.scope,'seoul');let n=0;for(const s of manifest.shards)for(const r of JSON.parse(fs.readFileSync(s.url)).rows){assert.equal(r.venue,'seoul');for(const h of r.horses){assert.equal(h[6]?.length,17);assert(h[6].every(v=>v>=0&&v<=1));if(h[7]?.through)assert(h[7].through<r.date);}n++;}assert.equal(n,manifest.races);assert(n>4000);
  const latest=JSON.parse(fs.readFileSync('data/latest.json'));assert.equal(latest.scope,'seoul');assert(latest.races.every(r=>r.venue==='seoul'));assert(latest.calendar.every(d=>d.venues.length===1&&d.venues[0]==='seoul'));
  for(const f of fs.readdirSync('data/calendar')){const d=JSON.parse(fs.readFileSync('data/calendar/'+f));assert(d.races.length>0&&d.races.every(r=>r.venue==='seoul'));}

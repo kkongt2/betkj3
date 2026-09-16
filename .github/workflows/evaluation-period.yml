@@ -19,6 +19,7 @@ jobs:
           node --check app.js
           node tests/qpl-policy.cjs
           node tests/site.cjs
+          node tests/seoul.cjs
           python tests/last5-features.py
           python tests/rolling-features.py
           node tests/evaluation-period.cjs --archive
