@@ -1,5 +1,149 @@
 {
-  "schema": 3,
+  "schema": 4,
+  "weightBalance": {
+    "minimum": 3,
+    "maximum": 20,
+    "total": 100,
+    "groups": [
+      {
+        "id": "form",
+        "label": "최근 성적·착순",
+        "indices": [
+          0,
+          1,
+          2,
+          4,
+          16
+        ],
+        "min": 20,
+        "max": 40
+      },
+      {
+        "id": "ability",
+        "label": "레이팅·상대 수준",
+        "indices": [
+          3,
+          12
+        ],
+        "min": 6,
+        "max": 25
+      },
+      {
+        "id": "people",
+        "label": "기수·조교사",
+        "indices": [
+          5,
+          6
+        ],
+        "min": 6,
+        "max": 20
+      },
+      {
+        "id": "condition",
+        "label": "중량·마체중·출전 간격",
+        "indices": [
+          7,
+          8,
+          9
+        ],
+        "min": 9,
+        "max": 20
+      },
+      {
+        "id": "records",
+        "label": "기록·시간차",
+        "indices": [
+          10,
+          11,
+          13,
+          14,
+          15
+        ],
+        "min": 15,
+        "max": 35
+      }
+    ]
+  },
+  "comparison": {
+    "previousName": "서울 5경주 기준3 파생 1번",
+    "previousSettings": {
+      "anchorMode": "analysis",
+      "modelMode": "custom",
+      "weights": [
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        3,
+        0,
+        49,
+        25,
+        1,
+        0,
+        6,
+        5,
+        1,
+        9,
+        0
+      ],
+      "min": 2,
+      "max": 5
+    },
+    "previousSummary": {
+      "minimum": 0,
+      "maximum": 49,
+      "effectiveFeatures": 3.1446540880503147,
+      "groups": [
+        {
+          "id": "form",
+          "label": "최근 성적·착순",
+          "weight": 1,
+          "min": 20,
+          "max": 40
+        },
+        {
+          "id": "ability",
+          "label": "레이팅·상대 수준",
+          "weight": 6,
+          "min": 6,
+          "max": 25
+        },
+        {
+          "id": "people",
+          "label": "기수·조교사",
+          "weight": 3,
+          "min": 6,
+          "max": 20
+        },
+        {
+          "id": "condition",
+          "label": "중량·마체중·출전 간격",
+          "weight": 74,
+          "min": 9,
+          "max": 20
+        },
+        {
+          "id": "records",
+          "label": "기록·시간차",
+          "weight": 16,
+          "min": 15,
+          "max": 35
+        }
+      ]
+    },
+    "previousMetrics": {
+      "rate": 0.1529965598406663,
+      "average": 6.416568047337273,
+      "product": 0.9817128372261443
+    },
+    "newMetrics": {
+      "rate": 0.18250950570342206,
+      "average": 4.829464285714289,
+      "product": 0.8814231395980452
+    }
+  },
   "selectionRules": {
     "count": 15,
     "baseIds": [
@@ -12,7 +156,70 @@
     "minimumCoverageRatio": 0.4,
     "minimumPairDifference": 0.1,
     "maxSameFamilyRange": 2,
-    "maxWeightReallocation": 30,
+    "weightBalance": {
+      "minimum": 3,
+      "maximum": 20,
+      "total": 100,
+      "groups": [
+        {
+          "id": "form",
+          "label": "최근 성적·착순",
+          "indices": [
+            0,
+            1,
+            2,
+            4,
+            16
+          ],
+          "min": 20,
+          "max": 40
+        },
+        {
+          "id": "ability",
+          "label": "레이팅·상대 수준",
+          "indices": [
+            3,
+            12
+          ],
+          "min": 6,
+          "max": 25
+        },
+        {
+          "id": "people",
+          "label": "기수·조교사",
+          "indices": [
+            5,
+            6
+          ],
+          "min": 6,
+          "max": 20
+        },
+        {
+          "id": "condition",
+          "label": "중량·마체중·출전 간격",
+          "indices": [
+            7,
+            8,
+            9
+          ],
+          "min": 9,
+          "max": 20
+        },
+        {
+          "id": "records",
+          "label": "기록·시간차",
+          "indices": [
+            10,
+            11,
+            13,
+            14,
+            15
+          ],
+          "min": 15,
+          "max": 35
+        }
+      ]
+    },
     "maxRankChange": 3,
     "objective": "product-first"
   },
@@ -1756,19 +1963,19 @@
     }
   ],
   "baseSource": "f03ddccaf004761ebd562a8130afa84c63a4e5d3",
-  "bestEligibleProduct": 0.9817128372261443,
+  "bestEligibleProduct": 0.8814231395980452,
   "scope": "seoul",
   "version": "user-weighted-seoul-last5-v2",
-  "generatedAt": "2026-09-15T13:11:13.488Z",
+  "generatedAt": "2026-09-16T11:30:32.133Z",
   "from": "20210108",
   "to": "20260913",
   "sourceRaces": 5606,
   "minimumCoverageRatio": 0.4,
   "minimumEvaluated": 2243,
   "search": {
-    "nativeWeightCandidates": 12671,
-    "exactWeightCandidates": 74,
-    "exactSettings": 28120,
+    "nativeWeightCandidates": 16339,
+    "exactWeightCandidates": 110,
+    "exactSettings": 3231,
     "anchors": [
       "odds",
       "analysis"
@@ -1780,570 +1987,85 @@
     "weightStep": 1,
     "weightTotal": 100,
     "deduplicate": "identical historical selected pairs",
-    "eligibleDistinct": 673
+    "eligibleDistinct": 1864
   },
   "presets": [
     {
       "rank": 1,
-      "name": "서울 5경주 기준3 파생 1번",
+      "name": "서울 균형 기준3 파생 1번",
       "settings": {
         "anchorMode": "analysis",
         "modelMode": "custom",
         "weights": [
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
           3,
-          0,
-          49,
-          25,
-          1,
-          0,
-          6,
-          5,
-          1,
+          3,
+          3,
+          3,
+          11,
           9,
-          0
-        ],
-        "min": 2,
-        "max": 5
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 845,
-        "excluded": 83,
-        "paidHits": 845,
-        "payoutTotal": 5421.999999999995
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 104,
-          "excluded": 82,
-          "paidHits": 104,
-          "payoutTotal": 916.8
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 155,
-          "excluded": 0,
-          "paidHits": 155,
-          "payoutTotal": 899.0999999999998
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 158,
-          "excluded": 1,
-          "paidHits": 158,
-          "payoutTotal": 1137.1999999999998
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 144,
-          "excluded": 0,
-          "paidHits": 144,
-          "payoutTotal": 932.1999999999999
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 176,
-          "excluded": 0,
-          "paidHits": 176,
-          "payoutTotal": 971.9000000000003
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 108,
-          "excluded": 0,
-          "paidHits": 108,
-          "payoutTotal": 564.8000000000001
-        }
-      },
-      "metrics": {
-        "rate": 0.1529965598406663,
-        "average": 6.416568047337273,
-        "product": 0.9817128372261443
-      },
-      "baseId": 3,
-      "weightReallocation": 7,
-      "predictionHash": "1c7dce1210d9e92fbdabbcd530507c7c6fe4a085c68b009d871c507f5f85e1e6",
-      "nearestPairDifference": 0.14303820387470578,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 2,
-      "name": "서울 5경주 기준3 파생 2번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          2,
-          0,
-          49,
-          24,
-          6,
-          0,
-          6,
-          5,
-          0,
-          7,
-          0
-        ],
-        "min": 2,
-        "max": 6
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 836,
-        "excluded": 83,
-        "paidHits": 836,
-        "payoutTotal": 5415.6999999999925
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 120,
-          "excluded": 82,
-          "paidHits": 120,
-          "payoutTotal": 1067.1999999999998
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 162,
-          "excluded": 0,
-          "paidHits": 162,
-          "payoutTotal": 940.3999999999999
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 153,
-          "excluded": 1,
-          "paidHits": 153,
-          "payoutTotal": 1155.3000000000002
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 145,
-          "excluded": 0,
-          "paidHits": 145,
-          "payoutTotal": 828.5
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 154,
-          "excluded": 0,
-          "paidHits": 154,
-          "payoutTotal": 824.4000000000001
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 102,
-          "excluded": 0,
-          "paidHits": 102,
-          "payoutTotal": 599.9000000000001
-        }
-      },
-      "metrics": {
-        "rate": 0.15136701068260003,
-        "average": 6.478110047846881,
-        "product": 0.9805721528154975
-      },
-      "baseId": 3,
-      "weightReallocation": 10,
-      "predictionHash": "96f7f650820707b9319cb402ab2a31c7bfc3be7dcd4c34f5fe6491e6673cc41c",
-      "nearestPairDifference": 0.2925946043816766,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 3,
-      "name": "서울 5경주 기준3 파생 3번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
-          1,
-          0,
-          0,
-          0,
-          1,
-          2,
-          1,
-          48,
-          23,
-          1,
-          0,
-          6,
-          6,
-          1,
-          10,
-          0
-        ],
-        "min": 2,
-        "max": 5
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 875,
-        "excluded": 83,
-        "paidHits": 875,
-        "payoutTotal": 5404.199999999997
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 120,
-          "excluded": 82,
-          "paidHits": 120,
-          "payoutTotal": 1005.6000000000005
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 157,
-          "excluded": 0,
-          "paidHits": 157,
-          "payoutTotal": 829.8000000000002
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 159,
-          "excluded": 1,
-          "paidHits": 159,
-          "payoutTotal": 1105.6
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 147,
-          "excluded": 0,
-          "paidHits": 147,
-          "payoutTotal": 866.0999999999998
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 184,
-          "excluded": 0,
-          "paidHits": 184,
-          "payoutTotal": 1027.4000000000003
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 108,
-          "excluded": 0,
-          "paidHits": 108,
-          "payoutTotal": 569.7000000000004
-        }
-      },
-      "metrics": {
-        "rate": 0.15842839036755388,
-        "average": 6.1762285714285685,
-        "product": 0.9784899511135249
-      },
-      "baseId": 3,
-      "weightReallocation": 6,
-      "predictionHash": "ae44981fa7de7c1588fededb8574340337f82a8d6d12b5598c0612a68dce7074",
-      "nearestPairDifference": 0.14303820387470578,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 4,
-      "name": "서울 5경주 기준3 파생 4번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
+          11,
           4,
-          0,
-          0,
-          0,
-          0,
-          3,
-          0,
-          49,
-          20,
-          2,
-          1,
-          1,
-          7,
-          1,
-          12,
-          0
-        ],
-        "min": 2,
-        "max": 6
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 893,
-        "excluded": 83,
-        "paidHits": 893,
-        "payoutTotal": 5360.4999999999945
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 134,
-          "excluded": 82,
-          "paidHits": 134,
-          "payoutTotal": 809.3999999999995
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 161,
-          "excluded": 0,
-          "paidHits": 161,
-          "payoutTotal": 953.2000000000002
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 152,
-          "excluded": 1,
-          "paidHits": 152,
-          "payoutTotal": 1071.6000000000004
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 151,
-          "excluded": 0,
-          "paidHits": 151,
-          "payoutTotal": 936.8999999999999
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 177,
-          "excluded": 0,
-          "paidHits": 177,
-          "payoutTotal": 914.4000000000004
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 118,
-          "excluded": 0,
-          "paidHits": 118,
-          "payoutTotal": 675.0000000000001
-        }
-      },
-      "metrics": {
-        "rate": 0.1616874886836864,
-        "average": 6.002799552071663,
-        "product": 0.9705775846460247
-      },
-      "baseId": 3,
-      "weightReallocation": 8,
-      "predictionHash": "88d04a97fcbe6222693f52230dd2e188fc8695afa668d2be27f6a49d07568cc5",
-      "nearestPairDifference": 0.2925946043816766,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 5,
-      "name": "서울 5경주 기준3 파생 5번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
-          1,
-          0,
-          0,
-          0,
-          0,
-          2,
-          0,
-          49,
-          29,
-          1,
-          0,
-          6,
+          11,
+          4,
           5,
-          0,
-          7,
-          0
-        ],
-        "min": 2,
-        "max": 4
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 855,
-        "excluded": 83,
-        "paidHits": 855,
-        "payoutTotal": 5217.000000000001
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 102,
-          "excluded": 82,
-          "paidHits": 102,
-          "payoutTotal": 916.0999999999999
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 170,
-          "excluded": 0,
-          "paidHits": 170,
-          "payoutTotal": 875.4000000000001
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 154,
-          "excluded": 1,
-          "paidHits": 154,
-          "payoutTotal": 910.1000000000003
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 146,
-          "excluded": 0,
-          "paidHits": 146,
-          "payoutTotal": 980.4999999999998
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 174,
-          "excluded": 0,
-          "paidHits": 174,
-          "payoutTotal": 951.4000000000002
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 109,
-          "excluded": 0,
-          "paidHits": 109,
-          "payoutTotal": 583.5000000000002
-        }
-      },
-      "metrics": {
-        "rate": 0.1548071700162955,
-        "average": 6.101754385964913,
-        "product": 0.9445953286257469
-      },
-      "baseId": 3,
-      "weightReallocation": 10,
-      "predictionHash": "089a9c46be27f3da37a620af9ad7d1153b9261ec665ac98d6c4ed7063322cbbc",
-      "nearestPairDifference": 0.31685678073510776,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 6,
-      "name": "서울 5경주 기준4 파생 6번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          2,
-          0,
-          0,
-          87,
-          0,
           3,
-          0,
-          5,
-          2,
-          0
+          4,
+          4,
+          4,
+          15,
+          3
         ],
-        "min": 2,
-        "max": 12
+        "min": 3,
+        "max": 8
       },
       "all": {
         "total": 5606,
         "evaluated": 5523,
-        "hits": 952,
+        "hits": 1008,
         "excluded": 83,
-        "paidHits": 952,
-        "payoutTotal": 5147.199999999996
+        "paidHits": 1008,
+        "payoutTotal": 4868.100000000004
       },
       "years": {
         "2021": {
           "total": 786,
           "evaluated": 704,
-          "hits": 86,
+          "hits": 144,
           "excluded": 82,
-          "paidHits": 86,
-          "payoutTotal": 921.2000000000002
+          "paidHits": 144,
+          "payoutTotal": 724.2999999999998
         },
         "2022": {
           "total": 968,
           "evaluated": 968,
-          "hits": 182,
+          "hits": 166,
           "excluded": 0,
-          "paidHits": 182,
-          "payoutTotal": 1117.0000000000005
+          "paidHits": 166,
+          "payoutTotal": 853.9000000000002
         },
         "2023": {
           "total": 1040,
           "evaluated": 1039,
-          "hits": 152,
+          "hits": 168,
           "excluded": 1,
-          "paidHits": 152,
-          "payoutTotal": 746.9999999999999
+          "paidHits": 168,
+          "payoutTotal": 825.0999999999998
         },
         "2024": {
           "total": 1041,
           "evaluated": 1041,
-          "hits": 198,
-          "excluded": 0,
-          "paidHits": 198,
-          "payoutTotal": 1018.7000000000002
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
           "hits": 193,
           "excluded": 0,
           "paidHits": 193,
-          "payoutTotal": 861.4999999999997
+          "payoutTotal": 917.1999999999997
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 196,
+          "excluded": 0,
+          "paidHits": 196,
+          "payoutTotal": 914.8000000000003
         },
         "2026": {
           "total": 738,
@@ -2351,185 +2073,130 @@
           "hits": 141,
           "excluded": 0,
           "paidHits": 141,
-          "payoutTotal": 481.8000000000003
+          "payoutTotal": 632.7999999999997
         }
       },
       "metrics": {
-        "rate": 0.17237008871989862,
-        "average": 5.406722689075626,
-        "product": 0.9319572695998545
+        "rate": 0.18250950570342206,
+        "average": 4.829464285714289,
+        "product": 0.8814231395980452
       },
-      "baseId": 4,
-      "weightReallocation": 11,
-      "predictionHash": "5166765bf6a9e0f4697f3467578e148c994ff0c03c89569c17f159ac4dbeced5",
-      "nearestPairDifference": 0.1229404309252218,
+      "baseId": 3,
+      "weightReallocation": 61,
+      "predictionHash": "9287582271c54392d60c51f0739d86a48113ace939c3e54b38300bd2a4d4dbf6",
+      "nearestPairDifference": 0.10773130544993663,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 15,
+        "effectiveFeatures": 12.077294685990339,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 23,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 7,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 20,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 19,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 31,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
       "coverage": 0.9851944345344275
     },
     {
-      "rank": 7,
-      "name": "서울 5경주 기준4 파생 7번",
+      "rank": 2,
+      "name": "서울 균형 기준3 파생 2번",
       "settings": {
         "anchorMode": "analysis",
         "modelMode": "custom",
         "weights": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          6,
-          92,
-          0,
-          0,
-          1,
-          1,
-          0,
-          0
-        ],
-        "min": 2,
-        "max": 12
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 975,
-        "excluded": 83,
-        "paidHits": 975,
-        "payoutTotal": 5146.199999999996
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 85,
-          "excluded": 82,
-          "paidHits": 85,
-          "payoutTotal": 792.5000000000001
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 193,
-          "excluded": 0,
-          "paidHits": 193,
-          "payoutTotal": 1221.5000000000002
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 157,
-          "excluded": 1,
-          "paidHits": 157,
-          "payoutTotal": 762.5000000000001
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 195,
-          "excluded": 0,
-          "paidHits": 195,
-          "payoutTotal": 1012.1000000000001
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 195,
-          "excluded": 0,
-          "paidHits": 195,
-          "payoutTotal": 849.2999999999997
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 150,
-          "excluded": 0,
-          "paidHits": 150,
-          "payoutTotal": 508.3000000000003
-        }
-      },
-      "metrics": {
-        "rate": 0.17653449212384573,
-        "average": 5.278153846153843,
-        "product": 0.9317762085822916
-      },
-      "baseId": 4,
-      "weightReallocation": 8,
-      "predictionHash": "7f12f60a80687490c274e84e24fb67d79e9be0bdc9a9b23354bd7cdd8254d9cc",
-      "nearestPairDifference": 0.17001629549158065,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 8,
-      "name": "서울 5경주 기준4 파생 8번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          93,
-          0,
-          1,
-          1,
-          0,
+          3,
+          3,
+          3,
+          3,
+          11,
+          9,
+          11,
+          3,
+          11,
+          3,
+          5,
           4,
-          0
+          7,
+          5,
+          4,
+          12,
+          3
         ],
-        "min": 2,
-        "max": 13
+        "min": 3,
+        "max": 8
       },
       "all": {
         "total": 5606,
         "evaluated": 5523,
-        "hits": 955,
+        "hits": 1025,
         "excluded": 83,
-        "paidHits": 955,
-        "payoutTotal": 5131.999999999995
+        "paidHits": 1025,
+        "payoutTotal": 4862.799999999998
       },
       "years": {
         "2021": {
           "total": 786,
           "evaluated": 704,
-          "hits": 85,
+          "hits": 146,
           "excluded": 82,
-          "paidHits": 85,
-          "payoutTotal": 929.2000000000003
+          "paidHits": 146,
+          "payoutTotal": 709
         },
         "2022": {
           "total": 968,
           "evaluated": 968,
-          "hits": 183,
+          "hits": 175,
           "excluded": 0,
-          "paidHits": 183,
-          "payoutTotal": 1091.5000000000005
+          "paidHits": 175,
+          "payoutTotal": 896.5000000000005
         },
         "2023": {
           "total": 1040,
           "evaluated": 1039,
-          "hits": 151,
+          "hits": 174,
           "excluded": 1,
-          "paidHits": 151,
-          "payoutTotal": 736.9999999999998
+          "paidHits": 174,
+          "payoutTotal": 858.8999999999997
         },
         "2024": {
           "total": 1041,
           "evaluated": 1041,
-          "hits": 199,
+          "hits": 198,
           "excluded": 0,
-          "paidHits": 199,
-          "payoutTotal": 1034.1000000000004
+          "paidHits": 198,
+          "payoutTotal": 890.2
         },
         "2025": {
           "total": 1033,
@@ -2537,451 +2204,105 @@
           "hits": 194,
           "excluded": 0,
           "paidHits": 194,
-          "payoutTotal": 861.4999999999997
+          "payoutTotal": 911.7000000000004
         },
         "2026": {
           "total": 738,
           "evaluated": 738,
-          "hits": 143,
+          "hits": 138,
           "excluded": 0,
-          "paidHits": 143,
-          "payoutTotal": 478.7000000000002
+          "paidHits": 138,
+          "payoutTotal": 596.4999999999998
         }
       },
       "metrics": {
-        "rate": 0.17291327177258736,
-        "average": 5.373821989528791,
-        "product": 0.929205142132898
+        "rate": 0.18558754300199168,
+        "average": 4.7441951219512175,
+        "product": 0.8804635162049608
       },
-      "baseId": 4,
-      "weightReallocation": 3,
-      "predictionHash": "407b9fba8f4f999b7c4de11a2643d8d2042cf47821ac95e614062814a73128a9",
-      "nearestPairDifference": 0.10519645120405577,
+      "baseId": 3,
+      "weightReallocation": 59,
+      "predictionHash": "ad0d4247d057b988ab91e6c8301cf9e1d8ccc09ff18f56e21e6f442e4147b56b",
+      "nearestPairDifference": 0.10773130544993663,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 12,
+        "effectiveFeatures": 12.787723785166241,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 23,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 10,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 20,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 17,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 30,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
       "coverage": 0.9851944345344275
     },
     {
-      "rank": 9,
-      "name": "서울 5경주 기준4 파생 9번",
+      "rank": 3,
+      "name": "서울 균형 기준4 파생 3번",
       "settings": {
         "anchorMode": "analysis",
         "modelMode": "custom",
         "weights": [
-          0,
-          0,
-          0,
-          1,
-          0,
-          0,
-          0,
-          2,
-          0,
-          0,
-          90,
-          0,
-          0,
-          6,
-          0,
-          1,
-          0
-        ],
-        "min": 2,
-        "max": 13
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 957,
-        "excluded": 83,
-        "paidHits": 957,
-        "payoutTotal": 5112.599999999998
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 89,
-          "excluded": 82,
-          "paidHits": 89,
-          "payoutTotal": 942.7000000000004
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 183,
-          "excluded": 0,
-          "paidHits": 183,
-          "payoutTotal": 1135.5000000000005
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 151,
-          "excluded": 1,
-          "paidHits": 151,
-          "payoutTotal": 703.2
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 199,
-          "excluded": 0,
-          "paidHits": 199,
-          "payoutTotal": 1046.3000000000002
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 191,
-          "excluded": 0,
-          "paidHits": 191,
-          "payoutTotal": 826.6999999999996
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 144,
-          "excluded": 0,
-          "paidHits": 144,
-          "payoutTotal": 458.2000000000003
-        }
-      },
-      "metrics": {
-        "rate": 0.1732753938077132,
-        "average": 5.342319749216299,
-        "product": 0.9256925583921778
-      },
-      "baseId": 4,
-      "weightReallocation": 9,
-      "predictionHash": "88bf747c8c3e4494ceed90c7f542605e3ae9103dee6bc7cb784531aaaedaa6e7",
-      "nearestPairDifference": 0.11931921057396343,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 10,
-      "name": "서울 5경주 기준4 파생 10번",
-      "settings": {
-        "anchorMode": "analysis",
-        "modelMode": "custom",
-        "weights": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          94,
-          0,
-          0,
-          0,
-          0,
-          6,
-          0
-        ],
-        "min": 2,
-        "max": 14
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 944,
-        "excluded": 83,
-        "paidHits": 944,
-        "payoutTotal": 5111.999999999994
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 87,
-          "excluded": 82,
-          "paidHits": 87,
-          "payoutTotal": 911.1000000000004
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 183,
-          "excluded": 0,
-          "paidHits": 183,
-          "payoutTotal": 1183.1000000000004
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 145,
-          "excluded": 1,
-          "paidHits": 145,
-          "payoutTotal": 671.9
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 196,
-          "excluded": 0,
-          "paidHits": 196,
-          "payoutTotal": 975.5000000000001
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 190,
-          "excluded": 0,
-          "paidHits": 190,
-          "payoutTotal": 885.9999999999995
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 143,
-          "excluded": 0,
-          "paidHits": 143,
-          "payoutTotal": 484.40000000000026
-        }
-      },
-      "metrics": {
-        "rate": 0.17092160057939526,
-        "average": 5.415254237288129,
-        "product": 0.9255839217816393
-      },
-      "baseId": 4,
-      "weightReallocation": 0,
-      "predictionHash": "93750f02b52285ea669cf2ecd25e30b3a9131412ee0d53bd18f356f8b702b1dc",
-      "nearestPairDifference": 0.10519645120405577,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 11,
-      "name": "서울 5경주 기준9 파생 11번",
-      "settings": {
-        "anchorMode": "odds",
-        "modelMode": "custom",
-        "weights": [
-          1,
           3,
-          0,
-          0,
-          1,
-          2,
-          11,
-          2,
-          1,
-          1,
-          1,
-          0,
-          38,
-          4,
-          9,
-          24,
-          2
-        ],
-        "min": 3,
-        "max": 12
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 998,
-        "excluded": 83,
-        "paidHits": 998,
-        "payoutTotal": 5105.900000000003
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 114,
-          "excluded": 82,
-          "paidHits": 114,
-          "payoutTotal": 807.3
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 169,
-          "excluded": 0,
-          "paidHits": 169,
-          "payoutTotal": 795
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 187,
-          "excluded": 1,
-          "paidHits": 187,
-          "payoutTotal": 931.1999999999998
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 208,
-          "excluded": 0,
-          "paidHits": 208,
-          "payoutTotal": 964.6000000000006
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 185,
-          "excluded": 0,
-          "paidHits": 185,
-          "payoutTotal": 1004.5000000000007
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 135,
-          "excluded": 0,
-          "paidHits": 135,
-          "payoutTotal": 603.3000000000002
-        }
-      },
-      "metrics": {
-        "rate": 0.18069889552779286,
-        "average": 5.116132264529061,
-        "product": 0.9244794495745071
-      },
-      "baseId": 9,
-      "weightReallocation": 16,
-      "predictionHash": "3a13355a9c2408c62e74b37d77f2feee030fc633f6de947b68186a7b41877e87",
-      "nearestPairDifference": 0.12728589534673185,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 12,
-      "name": "서울 5경주 기준9 파생 12번",
-      "settings": {
-        "anchorMode": "odds",
-        "modelMode": "custom",
-        "weights": [
-          0,
           3,
-          0,
-          0,
-          0,
-          2,
-          11,
-          2,
-          6,
-          0,
-          1,
-          0,
-          38,
-          6,
-          4,
-          25,
-          2
-        ],
-        "min": 3,
-        "max": 12
-      },
-      "all": {
-        "total": 5606,
-        "evaluated": 5523,
-        "hits": 957,
-        "excluded": 83,
-        "paidHits": 957,
-        "payoutTotal": 5105.600000000001
-      },
-      "years": {
-        "2021": {
-          "total": 786,
-          "evaluated": 704,
-          "hits": 107,
-          "excluded": 82,
-          "paidHits": 107,
-          "payoutTotal": 782.5999999999999
-        },
-        "2022": {
-          "total": 968,
-          "evaluated": 968,
-          "hits": 162,
-          "excluded": 0,
-          "paidHits": 162,
-          "payoutTotal": 811.5
-        },
-        "2023": {
-          "total": 1040,
-          "evaluated": 1039,
-          "hits": 165,
-          "excluded": 1,
-          "paidHits": 165,
-          "payoutTotal": 847.2
-        },
-        "2024": {
-          "total": 1041,
-          "evaluated": 1041,
-          "hits": 209,
-          "excluded": 0,
-          "paidHits": 209,
-          "payoutTotal": 1015.3000000000006
-        },
-        "2025": {
-          "total": 1033,
-          "evaluated": 1033,
-          "hits": 189,
-          "excluded": 0,
-          "paidHits": 189,
-          "payoutTotal": 1082.6000000000004
-        },
-        "2026": {
-          "total": 738,
-          "evaluated": 738,
-          "hits": 125,
-          "excluded": 0,
-          "paidHits": 125,
-          "payoutTotal": 566.4000000000001
-        }
-      },
-      "metrics": {
-        "rate": 0.1732753938077132,
-        "average": 5.3350052246603985,
-        "product": 0.924425131269238
-      },
-      "baseId": 9,
-      "weightReallocation": 18,
-      "predictionHash": "4907bd58d4ea72ece0c67b0acf854e362ea63199c469c3bdc26bb7afcfe798ae",
-      "nearestPairDifference": 0.14684048524352708,
-      "coverage": 0.9851944345344275
-    },
-    {
-      "rank": 13,
-      "name": "서울 5경주 기준9 파생 13번",
-      "settings": {
-        "anchorMode": "odds",
-        "modelMode": "custom",
-        "weights": [
-          1,
-          2,
-          0,
-          0,
-          1,
-          4,
+          3,
+          3,
           9,
-          4,
-          0,
-          1,
-          2,
-          1,
-          37,
-          2,
           10,
-          26,
-          0
+          10,
+          3,
+          10,
+          4,
+          7,
+          6,
+          9,
+          3,
+          3,
+          9,
+          5
         ],
-        "min": 2,
-        "max": 11
+        "min": 3,
+        "max": 10
       },
       "all": {
         "total": 5606,
         "evaluated": 5523,
-        "hits": 1258,
+        "hits": 1016,
         "excluded": 83,
-        "paidHits": 1258,
-        "payoutTotal": 5086.900000000007
+        "paidHits": 1016,
+        "payoutTotal": 4860.5
       },
       "years": {
         "2021": {
@@ -2990,112 +2311,293 @@
           "hits": 140,
           "excluded": 82,
           "paidHits": 140,
-          "payoutTotal": 791.6000000000003
+          "payoutTotal": 615
         },
         "2022": {
           "total": 968,
           "evaluated": 968,
-          "hits": 199,
+          "hits": 176,
           "excluded": 0,
-          "paidHits": 199,
-          "payoutTotal": 801.5999999999999
+          "paidHits": 176,
+          "payoutTotal": 890.9000000000001
         },
         "2023": {
           "total": 1040,
           "evaluated": 1039,
-          "hits": 251,
+          "hits": 171,
           "excluded": 1,
-          "paidHits": 251,
-          "payoutTotal": 955.7999999999995
+          "paidHits": 171,
+          "payoutTotal": 873.5999999999997
         },
         "2024": {
           "total": 1041,
           "evaluated": 1041,
-          "hits": 248,
+          "hits": 196,
           "excluded": 0,
-          "paidHits": 248,
-          "payoutTotal": 912.7000000000006
+          "paidHits": 196,
+          "payoutTotal": 953.4999999999998
         },
         "2025": {
           "total": 1033,
           "evaluated": 1033,
-          "hits": 255,
+          "hits": 192,
           "excluded": 0,
-          "paidHits": 255,
-          "payoutTotal": 1042.6000000000001
+          "paidHits": 192,
+          "payoutTotal": 916.6000000000003
         },
         "2026": {
           "total": 738,
           "evaluated": 738,
-          "hits": 165,
+          "hits": 141,
           "excluded": 0,
-          "paidHits": 165,
-          "payoutTotal": 582.6
+          "paidHits": 141,
+          "payoutTotal": 610.8999999999999
         }
       },
       "metrics": {
-        "rate": 0.22777476009415173,
-        "average": 4.043640699523058,
-        "product": 0.9210392902408124
+        "rate": 0.18395799384392542,
+        "average": 4.783956692913386,
+        "product": 0.8800470758645664
       },
-      "baseId": 9,
-      "weightReallocation": 12,
-      "predictionHash": "70927be4f1fb33cd1c8bee37bd08eb2152adfc6ecd296c3209645920f55077ab",
-      "nearestPairDifference": 0.22324823465507876,
+      "baseId": 4,
+      "weightReallocation": 87,
+      "predictionHash": "e02aa1f20b25464cddfad15b04de7e5bc2285e7721533905ced6967875812b8d",
+      "nearestPairDifference": 0.12312149194278472,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 10,
+        "effectiveFeatures": 13.66120218579235,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 23,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 12,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 20,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 17,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 28,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
       "coverage": 0.9851944345344275
     },
     {
-      "rank": 14,
-      "name": "서울 5경주 기준9 파생 14번",
+      "rank": 4,
+      "name": "서울 균형 기준3 파생 4번",
       "settings": {
-        "anchorMode": "odds",
+        "anchorMode": "analysis",
         "modelMode": "custom",
         "weights": [
-          1,
-          2,
-          0,
-          0,
-          1,
-          4,
+          3,
+          3,
+          3,
+          3,
+          11,
           9,
+          11,
           4,
-          0,
-          1,
-          2,
-          1,
-          37,
-          2,
-          10,
-          26,
-          0
+          8,
+          4,
+          5,
+          3,
+          8,
+          4,
+          4,
+          14,
+          3
         ],
         "min": 3,
-        "max": 13
+        "max": 9
       },
       "all": {
         "total": 5606,
         "evaluated": 5523,
-        "hits": 1002,
+        "hits": 1006,
         "excluded": 83,
-        "paidHits": 1002,
-        "payoutTotal": 5074.300000000004
+        "paidHits": 1006,
+        "payoutTotal": 4838.2
       },
       "years": {
         "2021": {
           "total": 786,
           "evaluated": 704,
-          "hits": 113,
+          "hits": 137,
           "excluded": 82,
-          "paidHits": 113,
-          "payoutTotal": 811.1
+          "paidHits": 137,
+          "payoutTotal": 652.4
         },
         "2022": {
           "total": 968,
           "evaluated": 968,
-          "hits": 160,
+          "hits": 184,
           "excluded": 0,
-          "paidHits": 160,
-          "payoutTotal": 780.5999999999999
+          "paidHits": 184,
+          "payoutTotal": 941.6000000000003
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 166,
+          "excluded": 1,
+          "paidHits": 166,
+          "payoutTotal": 871.2999999999998
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 184,
+          "excluded": 0,
+          "paidHits": 184,
+          "payoutTotal": 855.4
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 196,
+          "excluded": 0,
+          "paidHits": 196,
+          "payoutTotal": 910.4000000000004
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 139,
+          "excluded": 0,
+          "paidHits": 139,
+          "payoutTotal": 607.0999999999997
+        }
+      },
+      "metrics": {
+        "rate": 0.18214738366829622,
+        "average": 4.809343936381709,
+        "product": 0.8760094151729132
+      },
+      "baseId": 3,
+      "weightReallocation": 62,
+      "predictionHash": "b3ef3e97ca0524aec30a8307d902afc1daaa9d56740f869edae65d4ffdd6bfbc",
+      "nearestPairDifference": 0.12819120043454643,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 14,
+        "effectiveFeatures": 12.658227848101266,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 23,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 11,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 20,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 16,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 30,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 5,
+      "name": "서울 균형 기준3 파생 5번",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          3,
+          3,
+          3,
+          3,
+          11,
+          9,
+          10,
+          4,
+          9,
+          6,
+          5,
+          3,
+          5,
+          7,
+          4,
+          12,
+          3
+        ],
+        "min": 3,
+        "max": 7
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1068,
+        "excluded": 83,
+        "paidHits": 1068,
+        "payoutTotal": 4835.600000000001
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 148,
+          "excluded": 82,
+          "paidHits": 148,
+          "payoutTotal": 638.8000000000001
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 193,
+          "excluded": 0,
+          "paidHits": 193,
+          "payoutTotal": 919.4
         },
         "2023": {
           "total": 1040,
@@ -3103,139 +2605,1474 @@
           "hits": 187,
           "excluded": 1,
           "paidHits": 187,
-          "payoutTotal": 919.7999999999995
+          "payoutTotal": 868.6999999999996
         },
         "2024": {
           "total": 1041,
           "evaluated": 1041,
-          "hits": 214,
+          "hits": 202,
           "excluded": 0,
-          "paidHits": 214,
-          "payoutTotal": 968.6000000000005
+          "paidHits": 202,
+          "payoutTotal": 889.6999999999998
         },
         "2025": {
           "total": 1033,
           "evaluated": 1033,
-          "hits": 190,
+          "hits": 194,
           "excluded": 0,
-          "paidHits": 190,
-          "payoutTotal": 996.2000000000005
+          "paidHits": 194,
+          "payoutTotal": 881.6000000000003
         },
         "2026": {
           "total": 738,
           "evaluated": 738,
-          "hits": 138,
+          "hits": 144,
           "excluded": 0,
-          "paidHits": 138,
-          "payoutTotal": 598.0000000000001
+          "paidHits": 144,
+          "payoutTotal": 637.3999999999997
         }
       },
       "metrics": {
-        "rate": 0.18142313959804454,
-        "average": 5.06417165668663,
-        "product": 0.9187579214195191
+        "rate": 0.19337316675719718,
+        "average": 4.5277153558052445,
+        "product": 0.8755386565272499
       },
-      "baseId": 9,
-      "weightReallocation": 12,
-      "predictionHash": "0f50607b72af136e7fe0f52c8f269e2bed78a0ca8eccf8d92bf7497be6bd77fb",
-      "nearestPairDifference": 0.12728589534673185,
+      "baseId": 3,
+      "weightReallocation": 57,
+      "predictionHash": "40e8e4dc0584a59b0390c94cce02de6e128b197afa4f13489c1e842ba352eb1c",
+      "nearestPairDifference": 0.1712837226145211,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 12,
+        "effectiveFeatures": 13.368983957219251,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 23,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 8,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 19,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 19,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 31,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
       "coverage": 0.9851944345344275
     },
     {
-      "rank": 15,
-      "name": "서울 5경주 기준9 파생 15번",
+      "rank": 6,
+      "name": "서울 균형 기준4 파생 6번",
       "settings": {
-        "anchorMode": "odds",
+        "anchorMode": "analysis",
         "modelMode": "custom",
         "weights": [
-          1,
+          3,
+          3,
+          3,
+          9,
           4,
-          1,
-          0,
-          1,
+          8,
+          12,
           3,
-          15,
-          3,
-          0,
-          0,
-          1,
-          1,
-          37,
-          2,
+          12,
           5,
-          26,
-          0
+          3,
+          3,
+          13,
+          3,
+          3,
+          5,
+          8
         ],
         "min": 3,
-        "max": 13
+        "max": 9
       },
       "all": {
         "total": 5606,
         "evaluated": 5523,
-        "hits": 954,
+        "hits": 941,
         "excluded": 83,
-        "paidHits": 954,
-        "payoutTotal": 5073.900000000003
+        "paidHits": 941,
+        "payoutTotal": 4831.7
       },
       "years": {
         "2021": {
           "total": 786,
           "evaluated": 704,
-          "hits": 113,
+          "hits": 126,
           "excluded": 82,
-          "paidHits": 113,
-          "payoutTotal": 840.0999999999999
+          "paidHits": 126,
+          "payoutTotal": 641.1999999999999
         },
         "2022": {
           "total": 968,
           "evaluated": 968,
-          "hits": 157,
+          "hits": 168,
           "excluded": 0,
-          "paidHits": 157,
-          "payoutTotal": 778.5000000000002
+          "paidHits": 168,
+          "payoutTotal": 894.7000000000004
         },
         "2023": {
           "total": 1040,
           "evaluated": 1039,
-          "hits": 168,
+          "hits": 156,
           "excluded": 1,
-          "paidHits": 168,
-          "payoutTotal": 846.6999999999999
+          "paidHits": 156,
+          "payoutTotal": 866.3000000000001
         },
         "2024": {
           "total": 1041,
           "evaluated": 1041,
-          "hits": 208,
+          "hits": 194,
           "excluded": 0,
-          "paidHits": 208,
-          "payoutTotal": 988.9000000000004
+          "paidHits": 194,
+          "payoutTotal": 964.3000000000001
         },
         "2025": {
           "total": 1033,
           "evaluated": 1033,
-          "hits": 180,
+          "hits": 183,
           "excluded": 0,
-          "paidHits": 180,
-          "payoutTotal": 1019.2000000000005
+          "paidHits": 183,
+          "payoutTotal": 937.6000000000004
         },
         "2026": {
           "total": 738,
           "evaluated": 738,
-          "hits": 128,
+          "hits": 114,
           "excluded": 0,
-          "paidHits": 128,
-          "payoutTotal": 600.5000000000002
+          "paidHits": 114,
+          "payoutTotal": 527.5999999999999
         }
       },
       "metrics": {
-        "rate": 0.17273221075502446,
-        "average": 5.3185534591195,
-        "product": 0.9186854970124939
+        "rate": 0.1703784175267065,
+        "average": 5.134643995749203,
+        "product": 0.8748325185587542
+      },
+      "baseId": 4,
+      "weightReallocation": 92,
+      "predictionHash": "4d967a5a14f4b74857bc959e5f2d375e8927dcc03eb1a535186bb2c785375816",
+      "nearestPairDifference": 0.3409378960709759,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 13,
+        "effectiveFeatures": 12.437810945273633,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 21,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 22,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 20,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 20,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 17,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 7,
+      "name": "서울 균형 기준3 파생 7번",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          3,
+          3,
+          3,
+          3,
+          11,
+          9,
+          11,
+          3,
+          10,
+          3,
+          7,
+          4,
+          9,
+          5,
+          4,
+          9,
+          3
+        ],
+        "min": 3,
+        "max": 9
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1019,
+        "excluded": 83,
+        "paidHits": 1019,
+        "payoutTotal": 4827.8
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 137,
+          "excluded": 82,
+          "paidHits": 137,
+          "payoutTotal": 622.9000000000001
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 176,
+          "excluded": 0,
+          "paidHits": 176,
+          "payoutTotal": 896.7
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 176,
+          "excluded": 1,
+          "paidHits": 176,
+          "payoutTotal": 876.6999999999998
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 196,
+          "excluded": 0,
+          "paidHits": 196,
+          "payoutTotal": 910.7
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 197,
+          "excluded": 0,
+          "paidHits": 197,
+          "payoutTotal": 919.1000000000004
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 137,
+          "excluded": 0,
+          "paidHits": 137,
+          "payoutTotal": 601.6999999999999
+        }
+      },
+      "metrics": {
+        "rate": 0.18450117689661416,
+        "average": 4.737782139352307,
+        "product": 0.874126380590259
+      },
+      "baseId": 3,
+      "weightReallocation": 62,
+      "predictionHash": "5d15465e497358e9f75007e7616c89f3a2599756c266cd2f7de0a853fa5b017f",
+      "nearestPairDifference": 0.12312149194278472,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 11,
+        "effectiveFeatures": 13.26259946949602,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 23,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 12,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 20,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 16,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 29,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 8,
+      "name": "서울 균형 기준4 파생 8번",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          6,
+          6,
+          4,
+          7,
+          6,
+          3,
+          5,
+          5,
+          5,
+          5,
+          10,
+          4,
+          5,
+          3,
+          3,
+          15,
+          8
+        ],
+        "min": 3,
+        "max": 9
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1012,
+        "excluded": 83,
+        "paidHits": 1012,
+        "payoutTotal": 4805.3
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 146,
+          "excluded": 82,
+          "paidHits": 146,
+          "payoutTotal": 673.4999999999999
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 160,
+          "excluded": 0,
+          "paidHits": 160,
+          "payoutTotal": 780.0000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 186,
+          "excluded": 1,
+          "paidHits": 186,
+          "payoutTotal": 980
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 187,
+          "excluded": 0,
+          "paidHits": 187,
+          "payoutTotal": 888.1000000000001
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 186,
+          "excluded": 0,
+          "paidHits": 186,
+          "payoutTotal": 820.8000000000001
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 147,
+          "excluded": 0,
+          "paidHits": 147,
+          "payoutTotal": 662.8999999999997
+        }
+      },
+      "metrics": {
+        "rate": 0.18323374977367374,
+        "average": 4.748320158102767,
+        "product": 0.8700525076950933
+      },
+      "baseId": 4,
+      "weightReallocation": 84,
+      "predictionHash": "c79e33219c5bf2e8b9209c2c2d711e6cc2c0fad75df2e3fd016c6cb5de0d36d3",
+      "nearestPairDifference": 0.39706681151548073,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 15,
+        "effectiveFeatures": 13.698630136986301,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 30,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 12,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 8,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 15,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 35,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 9,
+      "name": "서울 균형 기준4 파생 9번",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          4,
+          3,
+          3,
+          4,
+          6,
+          10,
+          8,
+          3,
+          11,
+          3,
+          10,
+          6,
+          7,
+          3,
+          3,
+          8,
+          8
+        ],
+        "min": 3,
+        "max": 10
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1025,
+        "excluded": 83,
+        "paidHits": 1025,
+        "payoutTotal": 4777.199999999999
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 143,
+          "excluded": 82,
+          "paidHits": 143,
+          "payoutTotal": 639.3000000000001
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 178,
+          "excluded": 0,
+          "paidHits": 178,
+          "payoutTotal": 894.9000000000001
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 177,
+          "excluded": 1,
+          "paidHits": 177,
+          "payoutTotal": 880.9999999999995
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 197,
+          "excluded": 0,
+          "paidHits": 197,
+          "payoutTotal": 884.4
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 193,
+          "excluded": 0,
+          "paidHits": 193,
+          "payoutTotal": 879.8
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 137,
+          "excluded": 0,
+          "paidHits": 137,
+          "payoutTotal": 597.7999999999997
+        }
+      },
+      "metrics": {
+        "rate": 0.18558754300199168,
+        "average": 4.660682926829267,
+        "product": 0.8649646931015751
+      },
+      "baseId": 4,
+      "weightReallocation": 84,
+      "predictionHash": "9eff2f5a76a5caed5abe9118c6695ab3d6b78ea3da049a4e2d83ec3c22172eed",
+      "nearestPairDifference": 0.16042006156074598,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 11,
+        "effectiveFeatures": 13.88888888888889,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 24,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 11,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 18,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 17,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 30,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 10,
+      "name": "서울 균형 기준9 파생 10번",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          4,
+          5,
+          4,
+          17,
+          4,
+          4,
+          9,
+          7,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5,
+          4,
+          13,
+          4
+        ],
+        "min": 3,
+        "max": 9
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1247,
+        "excluded": 83,
+        "paidHits": 1247,
+        "payoutTotal": 4705.499999999997
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 164,
+          "excluded": 82,
+          "paidHits": 164,
+          "payoutTotal": 653.7999999999998
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 216,
+          "excluded": 0,
+          "paidHits": 216,
+          "payoutTotal": 803.8000000000001
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 222,
+          "excluded": 1,
+          "paidHits": 222,
+          "payoutTotal": 854.0000000000002
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 255,
+          "excluded": 0,
+          "paidHits": 255,
+          "payoutTotal": 987
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 212,
+          "excluded": 0,
+          "paidHits": 212,
+          "payoutTotal": 763.5000000000006
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 178,
+          "excluded": 0,
+          "paidHits": 178,
+          "payoutTotal": 643.3999999999996
+        }
+      },
+      "metrics": {
+        "rate": 0.22578308890095963,
+        "average": 3.7734562951082578,
+        "product": 0.8519826181423136
       },
       "baseId": 9,
-      "weightReallocation": 12,
-      "predictionHash": "56332fa3b5a41448c69aec27398e240e84de87a2a0ad8bd6103bb27847e04753",
-      "nearestPairDifference": 0.17454282093065362,
+      "weightReallocation": 54,
+      "predictionHash": "2f786f3d4bb94231848e7e3f2e3a00999d4ffa71e0b0dd2d97d111463ac53be4",
+      "nearestPairDifference": 0.12275936990765889,
+      "weightSummary": {
+        "minimum": 4,
+        "maximum": 17,
+        "effectiveFeatures": 12.285012285012286,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 21,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 21,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 13,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 15,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 30,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 11,
+      "name": "서울 균형 기준4 파생 11번",
+      "settings": {
+        "anchorMode": "analysis",
+        "modelMode": "custom",
+        "weights": [
+          6,
+          3,
+          3,
+          4,
+          7,
+          8,
+          11,
+          3,
+          4,
+          11,
+          5,
+          10,
+          3,
+          3,
+          5,
+          9,
+          5
+        ],
+        "min": 3,
+        "max": 11
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 997,
+        "excluded": 83,
+        "paidHits": 997,
+        "payoutTotal": 4696.099999999999
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 135,
+          "excluded": 82,
+          "paidHits": 135,
+          "payoutTotal": 595.5000000000002
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 160,
+          "excluded": 0,
+          "paidHits": 160,
+          "payoutTotal": 809
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 180,
+          "excluded": 1,
+          "paidHits": 180,
+          "payoutTotal": 972.1999999999998
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 187,
+          "excluded": 0,
+          "paidHits": 187,
+          "payoutTotal": 830.6
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 186,
+          "excluded": 0,
+          "paidHits": 186,
+          "payoutTotal": 858.9000000000003
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 149,
+          "excluded": 0,
+          "paidHits": 149,
+          "payoutTotal": 629.8999999999997
+        }
+      },
+      "metrics": {
+        "rate": 0.18051783451022996,
+        "average": 4.7102306920762285,
+        "product": 0.8502806445772225
+      },
+      "baseId": 4,
+      "weightReallocation": 89,
+      "predictionHash": "44278d5139df90e62808bf29ef9dbfa43df9d6a3c230da86a20971226c2f753d",
+      "nearestPairDifference": 0.2989317399963788,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 11,
+        "effectiveFeatures": 13.812154696132596,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 24,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 7,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 19,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 18,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 32,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 12,
+      "name": "서울 균형 기준9 파생 12번",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          4,
+          5,
+          4,
+          19,
+          4,
+          4,
+          5,
+          7,
+          3,
+          4,
+          4,
+          4,
+          3,
+          5,
+          8,
+          13,
+          4
+        ],
+        "min": 3,
+        "max": 9
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1251,
+        "excluded": 83,
+        "paidHits": 1251,
+        "payoutTotal": 4670.899999999993
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 169,
+          "excluded": 82,
+          "paidHits": 169,
+          "payoutTotal": 671.2
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 212,
+          "excluded": 0,
+          "paidHits": 212,
+          "payoutTotal": 751
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 228,
+          "excluded": 1,
+          "paidHits": 228,
+          "payoutTotal": 875.4000000000003
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 248,
+          "excluded": 0,
+          "paidHits": 248,
+          "payoutTotal": 947.4000000000003
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 218,
+          "excluded": 0,
+          "paidHits": 218,
+          "payoutTotal": 798.8000000000006
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 176,
+          "excluded": 0,
+          "paidHits": 176,
+          "payoutTotal": 627.0999999999998
+        }
+      },
+      "metrics": {
+        "rate": 0.2265073329712113,
+        "average": 3.733733013589123,
+        "product": 0.8457179069346358
+      },
+      "baseId": 9,
+      "weightReallocation": 59,
+      "predictionHash": "be27b12658364c76b89894c9dc23ed09a681a7990fc76920e4a3dee45d26a7bb",
+      "nearestPairDifference": 0.12855332246967227,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 19,
+        "effectiveFeatures": 11.574074074074074,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 21,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 22,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 9,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 14,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 34,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 13,
+      "name": "서울 균형 기준9 파생 13번",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          4,
+          5,
+          4,
+          17,
+          4,
+          4,
+          9,
+          7,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5,
+          4,
+          13,
+          4
+        ],
+        "min": 4,
+        "max": 9
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 957,
+        "excluded": 83,
+        "paidHits": 957,
+        "payoutTotal": 4628.199999999996
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 135,
+          "excluded": 82,
+          "paidHits": 135,
+          "payoutTotal": 673.4
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 172,
+          "excluded": 0,
+          "paidHits": 172,
+          "payoutTotal": 838.4999999999999
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 175,
+          "excluded": 1,
+          "paidHits": 175,
+          "payoutTotal": 872.2000000000006
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 192,
+          "excluded": 0,
+          "paidHits": 192,
+          "payoutTotal": 958.5000000000003
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 161,
+          "excluded": 0,
+          "paidHits": 161,
+          "payoutTotal": 724.0000000000006
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 122,
+          "excluded": 0,
+          "paidHits": 122,
+          "payoutTotal": 561.6
+        }
+      },
+      "metrics": {
+        "rate": 0.1732753938077132,
+        "average": 4.8361546499477495,
+        "product": 0.8379866014846997
+      },
+      "baseId": 9,
+      "weightReallocation": 54,
+      "predictionHash": "1d23f1a6d3c7bd715624ee5de46e88ee0ad298f68747436575aa37e1faa5b438",
+      "nearestPairDifference": 0.3753394894079305,
+      "weightSummary": {
+        "minimum": 4,
+        "maximum": 17,
+        "effectiveFeatures": 12.285012285012286,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 21,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 21,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 13,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 15,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 30,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 14,
+      "name": "서울 균형 기준9 파생 14번",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          5,
+          5,
+          5,
+          16,
+          6,
+          5,
+          7,
+          6,
+          4,
+          4,
+          4,
+          4,
+          3,
+          5,
+          4,
+          13,
+          4
+        ],
+        "min": 3,
+        "max": 11
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1242,
+        "excluded": 83,
+        "paidHits": 1242,
+        "payoutTotal": 4614.599999999995
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 162,
+          "excluded": 82,
+          "paidHits": 162,
+          "payoutTotal": 644.9999999999999
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 207,
+          "excluded": 0,
+          "paidHits": 207,
+          "payoutTotal": 744.9000000000002
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 224,
+          "excluded": 1,
+          "paidHits": 224,
+          "payoutTotal": 860.0000000000002
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 249,
+          "excluded": 0,
+          "paidHits": 249,
+          "payoutTotal": 934.3000000000002
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 223,
+          "excluded": 0,
+          "paidHits": 223,
+          "payoutTotal": 802.1000000000005
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 177,
+          "excluded": 0,
+          "paidHits": 177,
+          "payoutTotal": 628.2999999999997
+        }
+      },
+      "metrics": {
+        "rate": 0.22487778381314502,
+        "average": 3.7154589371980635,
+        "product": 0.8355241716458437
+      },
+      "baseId": 9,
+      "weightReallocation": 58,
+      "predictionHash": "15bf5e705e8e23368ae68eb7dab2ba41b0cbcea67c133325b4ee66c87ff5b706",
+      "nearestPairDifference": 0.12275936990765889,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 16,
+        "effectiveFeatures": 12.88659793814433,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 25,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 19,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 12,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 14,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 30,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
+      "coverage": 0.9851944345344275
+    },
+    {
+      "rank": 15,
+      "name": "서울 균형 기준9 파생 15번",
+      "settings": {
+        "anchorMode": "odds",
+        "modelMode": "custom",
+        "weights": [
+          4,
+          5,
+          3,
+          16,
+          4,
+          3,
+          5,
+          11,
+          3,
+          4,
+          7,
+          5,
+          6,
+          3,
+          8,
+          9,
+          4
+        ],
+        "min": 3,
+        "max": 10
+      },
+      "all": {
+        "total": 5606,
+        "evaluated": 5523,
+        "hits": 1229,
+        "excluded": 83,
+        "paidHits": 1229,
+        "payoutTotal": 4608.399999999993
+      },
+      "years": {
+        "2021": {
+          "total": 786,
+          "evaluated": 704,
+          "hits": 166,
+          "excluded": 82,
+          "paidHits": 166,
+          "payoutTotal": 684.0000000000001
+        },
+        "2022": {
+          "total": 968,
+          "evaluated": 968,
+          "hits": 212,
+          "excluded": 0,
+          "paidHits": 212,
+          "payoutTotal": 755.1
+        },
+        "2023": {
+          "total": 1040,
+          "evaluated": 1039,
+          "hits": 223,
+          "excluded": 1,
+          "paidHits": 223,
+          "payoutTotal": 868.0000000000003
+        },
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 238,
+          "excluded": 0,
+          "paidHits": 238,
+          "payoutTotal": 895.4000000000004
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 220,
+          "excluded": 0,
+          "paidHits": 220,
+          "payoutTotal": 797.7000000000004
+        },
+        "2026": {
+          "total": 738,
+          "evaluated": 738,
+          "hits": 170,
+          "excluded": 0,
+          "paidHits": 170,
+          "payoutTotal": 608.1999999999997
+        }
+      },
+      "metrics": {
+        "rate": 0.22252399058482708,
+        "average": 3.749715215622452,
+        "product": 0.8344015933369534
+      },
+      "baseId": 9,
+      "weightReallocation": 58,
+      "predictionHash": "562c13721ece40f0d60b38a98a5731e5c123daf53977fdaac5d0ee6f7cbeff8e",
+      "nearestPairDifference": 0.12855332246967227,
+      "weightSummary": {
+        "minimum": 3,
+        "maximum": 16,
+        "effectiveFeatures": 12.787723785166241,
+        "groups": [
+          {
+            "id": "form",
+            "label": "최근 성적·착순",
+            "weight": 20,
+            "min": 20,
+            "max": 40
+          },
+          {
+            "id": "ability",
+            "label": "레이팅·상대 수준",
+            "weight": 22,
+            "min": 6,
+            "max": 25
+          },
+          {
+            "id": "people",
+            "label": "기수·조교사",
+            "weight": 8,
+            "min": 6,
+            "max": 20
+          },
+          {
+            "id": "condition",
+            "label": "중량·마체중·출전 간격",
+            "weight": 18,
+            "min": 9,
+            "max": 20
+          },
+          {
+            "id": "records",
+            "label": "기록·시간차",
+            "weight": 32,
+            "min": 15,
+            "max": 35
+          }
+        ]
+      },
       "coverage": 0.9851944345344275
     }
   ],
@@ -3247,5 +4084,5 @@
     "qpl-history-years/2025.json": "7f19db9ed5a53d4913ca116fdeb4935af6869dbb91262676d9300204d994fe0e",
     "qpl-history-years/2026.json": "3d10fbfbe255edd64e05d5a4929ee06be6c016a1331be6e3033a21aac1f5041d"
   },
-  "note": "기존 프리셋 3·4·9번을 새 최근 5경주 지표로 다시 계산하고 각 계열에서 5개씩 총 15개를 선별했습니다. 축마 방식은 기준과 같게 유지하며 순위 양 끝은 각각 ±3위, 가중치는 총 30%p 이내에서 재배분했습니다. 적중률 15% 이상과 전체 서울 경주 40% 이상 조건을 지키고 곱이 높은 후보부터 선택합니다. 실제 선택 조합 차이는 최소 10%, 같은 계열·순위 범위는 최대 2개입니다. 같은 과거 자료로 탐색·평가한 사후 성적이며 미래 성적이나 독립 검증이 아닙니다."
+  "note": "기존 프리셋 3·4·9번을 새 최근 5경주 지표로 다시 계산하고 각 계열에서 5개씩 총 15개를 균형 선별했습니다. 축마 방식은 기준과 같게 유지하며 순위 양 끝은 각각 ±3위, 기존 30%p 이동 제한을 해제하고 가중치는 각각 3~20%, 합계 100%로 재탐색했습니다. 최근 성적·착순 합계 20~40%, 기록·시간차 최대 35%, 중량·마체중·출전 간격 최대 20%로 제한합니다. 적중률 15% 이상과 전체 서울 경주 40% 이상 조건을 지키고 곱이 높은 후보부터 선택합니다. 실제 선택 조합 차이는 최소 10%, 같은 계열·순위 범위는 최대 2개입니다. 같은 과거 자료로 탐색·평가한 사후 성적이며 미래 성적이나 독립 검증이 아닙니다. 가중치 분산은 특정 지표 의존도를 줄이는 제약이며 성적 향상을 보장하지 않습니다."
 }

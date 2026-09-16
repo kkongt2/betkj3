@@ -1,8 +1,9 @@
 const assert=require('node:assert/strict'),{pairDistance}=require('./preset-diversity.cjs');
-const RULES={count:15,baseIds:[3,4,9],perBase:5,minimumHitRate:.15,minimumCoverageRatio:.40,minimumPairDifference:.10,maxSameFamilyRange:2,maxWeightReallocation:30,maxRankChange:3,objective:'product-first'};
+const balance=require('./weight-balance.cjs');
+const RULES={count:15,baseIds:[3,4,9],perBase:5,minimumHitRate:.15,minimumCoverageRatio:.40,minimumPairDifference:.10,maxSameFamilyRange:2,weightBalance:balance.RULES,maxRankChange:3,objective:'product-first'};
 const weightMove=(a,b)=>a.reduce((s,x,i)=>s+Math.abs(x-b[i]),0)/2;
 function select(candidates){
- const board=candidates.filter(c=>c.all.hits*20>=c.all.evaluated*3&&c.all.evaluated>=Math.ceil(c.all.total*.4));
+ const board=candidates.filter(c=>balance.valid(c.settings.weights)&&c.all.hits*20>=c.all.evaluated*3&&c.all.evaluated>=Math.ceil(c.all.total*.4));
  board.sort((a,b)=>b.metrics.product-a.metrics.product||b.all.evaluated-a.all.evaluated||a.baseId-b.baseId||JSON.stringify(a.settings).localeCompare(JSON.stringify(b.settings)));
  const selected=[],counts=new Map(),ranges=new Map();
  for(const c of board){
