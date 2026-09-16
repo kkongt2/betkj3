@@ -10,8 +10,8 @@ const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,data
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
 const savedData=new Map([['betkj3-tuning',JSON.stringify({modelMode:'existing'})]]);
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('top5-presets.json')?JSON.parse(fs.readFileSync('top5-presets.json')):String(url).includes('rolling-report.json')?JSON.parse(fs.readFileSync('rolling-report.json')):String(url).includes('strategy-search.json')?JSON.parse(fs.readFileSync('strategy-search.json')):String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
-vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,document:{getElementById:id=>nodes['#'+id]||null,querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},fetch:async url=>({ok:true,json:async()=>String(url).includes('top5-presets.json')?JSON.parse(fs.readFileSync('top5-presets.json')):String(url).includes('rolling-report.json')?JSON.parse(fs.readFileSync('rolling-report.json')):String(url).includes('strategy-search.json')?JSON.parse(fs.readFileSync('strategy-search.json')):String(url).includes('qpl-history.json')?historyManifest:String(url).includes('qpl-history-years/')?{...historyDoc,rows:[historicalRows[String(url).includes('2021.json')?0:1]]}:String(url).includes('market-odds/')?odds:String(url).includes('calendar/')?{...doc,date:fixture.date,races:[{...fixture,calendar_archive:true}]}:doc}),alert:msg=>{throw Error(msg)}};
+vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','weight-search-engine.js','weight-search.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 (async()=>{await flush();
  assert.equal(vm.runInContext('races.every(r=>r.venue==="seoul")',sandbox),true);assert(!vm.runInContext('venueDates().includes("20260911")',sandbox));assert(!/부경|제주|전국|weightVenue|analysisModel/.test(fs.readFileSync('index.html','utf8')));
  assert.equal(vm.runInContext('current.calendar_archive',sandbox),true);
@@ -35,6 +35,7 @@ vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-mod
  assert.equal(vm.runInContext('ranked.mode',sandbox),'accuracy');
  nodes['#anchorMode'].value='analysis';nodes['#anchorMode'].onchange();await flush();
  assert(nodes['#pairLead'].innerHTML.includes('분석 1위'));
+ nodes['#anchorRank'].value='2';nodes['#anchorRank'].onchange();await flush();assert(nodes['#pairLead'].innerHTML.includes('분석 2위'));assert.equal(vm.runInContext('tuningSettings.anchorRank',sandbox),2);
  const previous=vm.runInContext('ranked.places[0].prob',sandbox);
  nodes['#weight-0'].value='34';nodes['#weight-0'].oninput();await flush();
  assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
@@ -51,7 +52,7 @@ vm.createContext(sandbox);for(const p of ['model.js','qpl-policy.js','tuning-mod
  nodes['#loadStrategy'].onclick();await flush();
  assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
  assert.equal(vm.runInContext('partnerRange.min',sandbox),3);
- assert.equal(nodes['#anchorMode'].value,'analysis');
+ assert.equal(nodes['#anchorMode'].value,'analysis');assert.equal(nodes['#anchorRank'].value,'2');
  assert.equal(nodes['#partnerMin'].value,'3');
  assert(nodes['#presetStatus'].textContent.includes('불러왔습니다'));
  nodes['#deleteStrategy'].onclick();assert(nodes['#presetStatus'].textContent.includes('삭제했습니다'));

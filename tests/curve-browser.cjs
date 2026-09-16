@@ -18,6 +18,23 @@ try{for(const fallback of [false,true]){const context=await browser.newContext({
  const best=await page.locator('#weight-curve-0 [data-curve-best]').getAttribute('data-curve-best');await page.locator('#weight-curve-0 [data-curve-best]').click();assert.equal(await page.locator('#weight-0').inputValue(),best);
  await page.evaluate(()=>{const node=document.querySelector('#anchorMode');node.value='analysis';node.dispatchEvent(new Event('change'));});await page.waitForTimeout(250);await page.locator('#weight-curve-0 svg').waitFor();
  await page.locator('#weight-curve-0 svg').press('End');assert.equal(await page.locator('#weight-0').inputValue(),'100');
+ await page.selectOption('#anchorMode','odds');await page.selectOption('#anchorRank','3');await page.selectOption('#partnerMin','2');await page.selectOption('#partnerMax','6');
+ await page.waitForFunction(()=>document.querySelector('#qplHistoryStats').innerText.includes('최종배당 3위'));
+ await page.locator('#weightSearchSeconds').fill('1');await page.locator('#weightSearchSeconds').blur();
+ for(const goal of ['rate','average','product']){
+  await page.selectOption('#weightSearchGoal',goal);await page.locator('#startWeightSearch').click();
+  await page.waitForFunction(()=>!document.querySelector('#startWeightSearch').disabled,{},{timeout:20000});
+  assert((await page.locator('#weightSearchStatus').innerText()).includes('검산 완료'));assert(!(await page.locator('#applyWeightSearch').isDisabled()));assert((await page.locator('#weightSearchResult').innerText()).includes('최종배당 3위'));
+ }
+ await page.locator('#saveWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('저장했습니다'));
+ await page.locator('#applyWeightSearch').click();assert.equal(await page.locator('#anchorRank').inputValue(),'3');
+ assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('betkj3-tuning')).anchorRank),3);
+ assert(await page.evaluate(()=>JSON.parse(localStorage.getItem('betkj3-strategy-presets-v1')).entries.some(p=>p.name.startsWith('자동탐색')&&p.settings.anchorRank===3)));
+ await page.locator('#weightSearchSeconds').fill('10');await page.locator('#weightSearchSeconds').blur();await page.locator('#startWeightSearch').click();await page.waitForTimeout(250);await page.locator('#stopWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#startWeightSearch').disabled);assert((await page.locator('#weightSearchStatus').innerText()).includes('중지 완료'));
+ await page.locator('#startWeightSearch').click();await page.selectOption('#anchorRank','2');await page.waitForTimeout(200);assert(!(await page.locator('#startWeightSearch').isDisabled()));assert(await page.locator('#applyWeightSearch').isDisabled());assert((await page.locator('#weightSearchStatus').innerText()).includes('바뀌었습니다'));
+ await page.selectOption('#anchorRank','1');await page.locator('#weightSearchBalanced').uncheck();await page.locator('#weightSearchSeconds').fill('1');await page.locator('#weightSearchSeconds').blur();await page.locator('#startWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#startWeightSearch').disabled);assert((await page.locator('#weightSearchStatus').innerText()).includes('검산 완료'));
+ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('#weightSearchTitle').scrollIntoViewIfNeeded();await page.screenshot({path:'/tmp/weight-search-'+(fallback?'fallback':'worker')+'.png'});
+ console.log('PASS mobile anchor ranks, all search goals, verified apply/save, early stop, setting-change abort and unbalanced search');
  await page.locator('#weight-curve-0').scrollIntoViewIfNeeded();await page.screenshot({path:'/tmp/weight-curves-'+(fallback?'fallback':'worker')+'.png'});
  console.log('PASS mobile',fallback?'fallback':'worker','curve rendering, immediate cached marker, rapid edits, stats agreement, best apply, anchor refresh, keyboard and no horizontal overflow');await context.close();}
  assert.deepEqual(errors,[]);

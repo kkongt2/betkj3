@@ -45,3 +45,13 @@ assert.deepEqual(analysis.pairs[0].numbers,[3,4]);
 assert.equal(apply(analysisBase,{quotes},{min:4,max:4,anchorMode:'analysis'}).pairs.length,0);
 assert.equal(apply({...analysisBase,official_result:{starters:[1,2,3,5,6]}},{quotes},{min:2,max:4,anchorMode:'analysis'}).qplPolicy.anchor.number,1);
 console.log('PASS analysis anchor, anchor exclusion from partner range and withdrawn anchor');
+
+for(const anchorRank of [1,2,3]){
+ const a=apply(base,{quotes},{min:2,max:6,anchorMode:'odds',anchorRank});assert.equal(a.qplPolicy.anchor.number,anchorRank);assert(a.qplPolicy.candidates.every(c=>c.partner.number!==anchorRank));
+ const b=apply(analysisBase,{quotes},{min:2,max:6,anchorMode:'analysis',anchorRank});assert.equal(b.qplPolicy.anchor.number,[4,1,2][anchorRank-1]);
+}
+assert.equal(apply({...base,official_result:{starters:[2,3,4,5,6]}},{quotes},{min:2,max:6,anchorRank:2}).qplPolicy.anchor.number,3);
+assert.equal(apply(base,{quotes},{min:2,max:2,anchorRank:2}).pairs.length,0);
+assert.equal(apply({...base,official_result:{starters:[1,2]}},{quotes},{min:2,max:3,anchorRank:3}).pairs.length,0);
+assert.equal(apply(base,{quotes},{anchorRank:99}).qplPolicy.anchor.number,1);
+console.log('PASS anchor ranks 1/2/3 in odds and analysis, withdrawals, no self pair and insufficient starters');

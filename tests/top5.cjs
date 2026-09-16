@@ -6,7 +6,7 @@ assert.equal(report.scope,'seoul');assert.equal(report.version,t.VERSION);assert
 const rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows).filter(r=>r.date>=report.from&&r.date<=report.to);assert.equal(rows.length,report.sourceRaces);assert(rows.every(r=>r.venue==='seoul'));assert.equal(report.minimumEvaluated,Math.ceil(rows.length*.4));
 const counts=new Map(),ranges=new Map(),vectors=[];let previous=Infinity;
 for(const preset of report.presets){
- const base=report.bases.find(b=>b.id===preset.baseId);assert(base);assert.deepEqual(p.config(preset.settings),preset.settings);assert.equal(preset.settings.weights.length,17);assert.equal(preset.settings.weights.reduce((a,b)=>a+b,0),100);
+ const base=report.bases.find(b=>b.id===preset.baseId);assert(base);assert.deepEqual(p.config(preset.settings),{anchorRank:1,...preset.settings});assert.equal(preset.settings.weights.length,17);assert.equal(preset.settings.weights.reduce((a,b)=>a+b,0),100);
  assert.equal(preset.settings.anchorMode,base.settings.anchorMode);assert(Math.abs(preset.settings.min-base.settings.min)<=3);assert(Math.abs(preset.settings.max-base.settings.max)<=3);assert(balance.valid(preset.settings.weights));assert.deepEqual(preset.weightSummary,balance.summary(preset.settings.weights));
  assert(preset.all.hits*20>=preset.all.evaluated*3);assert(preset.all.evaluated>=report.minimumEvaluated);assert(preset.metrics.product<=previous);previous=preset.metrics.product;counts.set(preset.baseId,(counts.get(preset.baseId)||0)+1);
  const key=[preset.baseId,preset.settings.min,preset.settings.max].join(':');ranges.set(key,(ranges.get(key)||0)+1);
