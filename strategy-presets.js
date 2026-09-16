@@ -17,7 +17,7 @@ const StrategyPresets=(()=>{
  }
  function replaceGenerated(storage,presets,revision,force=false){
   const old=JSON.parse(storage.getItem(KEY)||'{}');if(!force&&old.recommendationRevision===revision)return false;
-  const entries=read(storage).filter(p=>!/^서울 (?:과거 최고 \d+위|10% 분산 \d+번|5경주 기준(?:3|4|9) 파생 \d+번)$/.test(p.name));
+  const entries=read(storage).filter(p=>!/^서울 (?:과거 최고 \d+위|10% 분산 \d+번|(?:5경주|균형) 기준(?:3|4|9) 파생 \d+번)$/.test(p.name));
   const next=presets.map(p=>({name:String(p.name),settings:config(p.settings)}));
   if(next.some(p=>!p.name.trim()||p.name.length>60)||entries.length+next.length>50)throw Error('저장 공간 또는 설정 이름을 확인해 주세요. 최대 50개입니다.');
   persist(storage,[...entries,...next],revision);return true;
