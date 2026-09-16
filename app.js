@@ -7,6 +7,7 @@ let selectionRequest=0;
 const expandedResults=new Set(),marketOddsCache=new Map(),loadedMarketOdds=new Map();
 let partnerRange=Betkj3Policy.normalizeRange(),tuningSettings=TuningModel.settings(),qplHistory=null,historyRequest=0;
 let historyWorker=null,historyEngine=null,historyEvaluation=0,historyTimer=null;
+let weightCurves=null,curveEngine=null,historyReady=null,curveRequest=0,curvePending=null;
 let syncTuningControls=()=>{},refreshPresetOptions=()=>{};
 const strategySettings=()=>({...tuningSettings,...partnerRange});
 const anchorLabel=()=>tuningSettings.anchorMode==='analysis'?'분석 1위':'최종배당 1위';
@@ -43,17 +44,19 @@ async function loadQplHistory(){
  }
 }
 function setupHistoryEngine(){
- historyWorker?.terminate();historyWorker=null;historyEngine=null;
+ cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=last5-1');
-  historyWorker.onmessage=({data})=>{if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
+  historyWorker=new Worker('qpl-history-worker.js?v=curves-1');
+  historyWorker.onmessage=({data})=>{if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
  }catch{historyWorker=null;}
+ weightCurves?.restart();
 }
-function fallbackHistory(){historyWorker?.terminate();historyWorker=null;historyEngine=null;renderQplHistory();}
+function fallbackHistory(){cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;weightCurves?.restart();renderQplHistory();}
 function renderQplHistory(){
  if(!qplHistory)return;
+ weightCurves?.refresh();
  const id=++historyEvaluation,config=strategySettings(),from='00000000',to=day().replaceAll('-','');
  clearTimeout(historyTimer);
  $('#qplHistoryStats').textContent='현재 설정으로 과거 경주를 다시 계산하는 중…';
@@ -62,12 +65,26 @@ function renderQplHistory(){
   if(id!==historyEvaluation)return;
   if(historyWorker){historyWorker.postMessage({type:'evaluate',id,settings:config,from,to});return;}
   try{
-   if(!historyEngine){const doc=qplHistory,rows=await QplHistoryEngine.load(doc,url=>fetchJSON(url+'?t='+Date.now(),60000));if(id!==historyEvaluation)return;historyEngine=QplHistoryEngine.create(rows);}
+   await getHistoryEngines();if(id!==historyEvaluation)return;
    const groups=await historyEngine.evaluate(config,from,to,()=>id===historyEvaluation);
    if(groups&&id===historyEvaluation)showQplHistory(groups);
   }catch{if(id===historyEvaluation){$('#qplHistoryStats').textContent='통계 계산에 실패했습니다. 다시 불러오기를 눌러 주세요.';$('#retryQplHistory').hidden=false;$('#qplHistoryStats').setAttribute('aria-busy','false');}}
  },120);
 }
+
+function cancelWeightCurve(){curveRequest++;if(curvePending){curvePending.resolve(null);curvePending=null;}historyWorker?.postMessage({type:'cancel-curve',curveId:curveRequest});}
+async function getHistoryEngines(){
+ if(!historyReady){const doc=qplHistory;historyReady=QplHistoryEngine.load(doc,url=>fetchJSON(url+'?t='+Date.now(),60000)).then(rows=>{if(doc!==qplHistory)throw Error('자료가 갱신되었습니다.');historyEngine=QplHistoryEngine.create(rows);curveEngine=WeightCurveEngine.create(rows);}).catch(error=>{historyReady=null;throw error;});}
+ return historyReady;
+}
+async function calculateWeightCurve(settings,index,progress){
+ const id=++curveRequest,from='00000000',to=day().replaceAll('-','');
+ if(historyWorker)return new Promise((resolve,reject)=>{curvePending={id,resolve,reject,progress};historyWorker.postMessage({type:'curve',curveId:id,settings,index,from,to});});
+ await getHistoryEngines();if(id!==curveRequest)return null;
+ return curveEngine.curve(settings,index,from,to,()=>id===curveRequest,progress);
+}
+function initWeightCurves(){weightCurves=WeightCurves.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,day()]):'',calculate:calculateWeightCurve,cancel:cancelWeightCurve,apply:(i,value)=>{const input=$('#weight-'+i);input.value=String(value);input.onchange();}});}
+
 function showQplHistory(groups){
  const from='00000000',to=day().replaceAll('-',''),g=groups.all,m=QplHistoryEngine.metrics(g);
  const eligibleDates=qplHistory.schema===3?[qplHistory.from,qplHistory.to].filter(Boolean):(qplHistory.rows||[]).filter(r=>r.date<=to).map(r=>r.date).sort();
@@ -271,7 +288,7 @@ async function fetchPublicJSON(path){
  }
  throw Error('불러오기 실패');
 }
-initPartnerRange();initTuning();initStrategyPresets();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initPartnerRange();initTuning();initWeightCurves();initStrategyPresets();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});
