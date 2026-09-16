@@ -15,13 +15,13 @@ const WeightCurves=(()=>{
  }
  function init(api){
   const details=document.querySelector('#weightDetails'),roots=Array.from({length:17},(_,i)=>document.querySelector('#weight-curve-'+i));
-  let active=null,timer=null;const visible=new Set(),cache=new Map();
-  const key=(i,s)=>JSON.stringify([api.dataKey(),s.anchorMode,s.min,s.max,s.weights.map((x,j)=>j===i?null:x)]);
+  let active=null,timer=null,paused=false;const visible=new Set(),cache=new Map();
+  const key=(i,s)=>JSON.stringify([api.dataKey(),s.anchorMode,s.anchorRank??1,s.min,s.max,s.weights.map((x,j)=>j===i?null:x)]);
   const placeholder=(i,message)=>{roots[i].setAttribute('aria-busy','true');roots[i].innerHTML='<p class="curve-title">적중률 × 평균배당 변화</p><p class="curve-empty">'+esc(message)+'</p>';};
   function show(i){const s=api.settings(),c=cache.get(i);if(c?.key===key(i,s)){roots[i].innerHTML=view(c.result,s,i);roots[i].setAttribute('aria-busy','false');return true;}return false;}
   function schedule(){clearTimeout(timer);timer=setTimeout(pump,180);}
   async function pump(){
-   if(!details.open||active||!api.dataKey())return;
+   if(paused||!details.open||active||!api.dataKey())return;
    const s=api.settings(),i=[...visible].sort((a,b)=>a-b).find(i=>cache.get(i)?.key!==key(i,s));if(i===undefined)return;
    const job={i,key:key(i,s)};active=job;placeholder(i,'전체 서울 경주를 계산하는 중…');
    try{const result=await api.calculate(s,i,percent=>{if(active===job)placeholder(i,'전체 서울 경주 계산 중… '+percent+'%');});if(active!==job)return;if(result&&job.key===key(i,api.settings())){cache.set(i,{key:job.key,result});show(i);}else visible.delete(i);}
@@ -35,7 +35,7 @@ const WeightCurves=(()=>{
   });
   if(typeof IntersectionObserver==='function'){const observer=new IntersectionObserver(entries=>{for(const entry of entries){const i=roots.indexOf(entry.target);if(entry.isIntersecting)visible.add(i);else visible.delete(i);}schedule();},{rootMargin:'250px 0px'});roots.forEach(root=>observer.observe(root));}
   else roots.forEach((_,i)=>visible.add(i));
-  details.addEventListener('toggle',()=>{if(!details.open){if(active){api.cancel();active=null;}}else schedule();});refresh();return {refresh,restart(){if(active){api.cancel();active=null;}refresh();}};
+  details.addEventListener('toggle',()=>{if(!details.open){if(active){api.cancel();active=null;}}else schedule();});refresh();return {refresh,pause(value){paused=value;if(value&&active){api.cancel();active=null;}if(!value)refresh();},restart(){if(active){api.cancel();active=null;}refresh();}};
  }
  return {init,view};
 })();

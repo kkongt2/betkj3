@@ -20,8 +20,9 @@ function same(point,expected){for(const key of ['total','evaluated','hits','excl
  rows.push({...fixture(8,33),quotes:[]},{...fixture(8,34),starters:[]},{...fixture(8,35),starters:[1,2,3,4,5,6]},{...fixture(8,36),settled:false},{...fixture(8,37),venue:'busan'},{...fixture(8,38),pairs:[]},{...fixture(8,39),date:'20240101'});
  const missing=fixture(8,40);missing.horses[0][6]=null;missing.quotes.push(missing.quotes[0]);rows.push(missing);
  const evaluator=c.create(rows);
- for(const anchorMode of ['odds','analysis'])for(const index of [0,8,16]){
-  const settings={anchorMode,weights:t.defaults(),min:3,max:9},result=await evaluator.curve(settings,index,'20250101','20250101');
+ for(const anchorMode of ['odds','analysis'])for(const anchorRank of [1,2,3])for(const index of [0,8,16]){
+  const settings={anchorMode,anchorRank,weights:t.defaults(),min:3,max:9},result=await evaluator.curve(settings,index,'20250101','20250101');
+  const single=await evaluator.evaluate(settings,'20250101','20250101');same({...single.all,...single.metrics},direct(rows,settings,'20250101','20250101'));
   assert.equal(result.points.length,101);for(const point of result.points){const s={...settings,weights:settings.weights.map((x,i)=>i===index?point.value:x)};same(point,direct(rows,s,'20250101','20250101'));}
  }
  const w=Array(17).fill(0);w[0]=100;const zero=await evaluator.curve({weights:w,min:2,max:2,anchorMode:'analysis'},0,'00000000','99999999');assert.equal(zero.points[0].valid,false);assert.equal(zero.points[0].product,null);same(zero.points[100],direct(rows,{weights:w,min:2,max:2,anchorMode:'analysis'}));

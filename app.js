@@ -8,9 +8,10 @@ const expandedResults=new Set(),marketOddsCache=new Map(),loadedMarketOdds=new M
 let partnerRange=Betkj3Policy.normalizeRange(),tuningSettings=TuningModel.settings(),qplHistory=null,historyRequest=0;
 let historyWorker=null,historyEngine=null,historyEvaluation=0,historyTimer=null;
 let weightCurves=null,curveEngine=null,historyReady=null,curveRequest=0,curvePending=null;
+let weightSearch=null,searchRequest=0,searchPending=null,searchStopped=false;
 let syncTuningControls=()=>{},refreshPresetOptions=()=>{};
 const strategySettings=()=>({...tuningSettings,...partnerRange});
-const anchorLabel=()=>tuningSettings.anchorMode==='analysis'?'분석 1위':'최종배당 1위';
+const anchorLabel=()=>(tuningSettings.anchorMode==='analysis'?'분석 ':'최종배당 ')+(tuningSettings.anchorRank||1)+'위';
 function syncStrategyHelp(){$('#rangeHelp').textContent='현재 설정: '+anchorLabel()+' 축마 + 배당 '+partnerRange.min+'~'+partnerRange.max+'위에서 1마리 선택 · 이 기기에 자동 저장';}
 function initPartnerRange(){
  try{partnerRange=Betkj3Policy.normalizeRange(JSON.parse(localStorage.getItem('betkj3-partner-range')||'{}'));}catch{}
@@ -44,17 +45,19 @@ async function loadQplHistory(){
  }
 }
 function setupHistoryEngine(){
+ weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=curves-1');
-  historyWorker.onmessage=({data})=>{if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
+  historyWorker=new Worker('qpl-history-worker.js?v=search-1');
+  historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='전체 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='전체 기간 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
  }catch{historyWorker=null;}
  weightCurves?.restart();
 }
-function fallbackHistory(){cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;weightCurves?.restart();renderQplHistory();}
+function fallbackHistory(){weightSearch?.reset();cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;weightCurves?.restart();renderQplHistory();}
 function renderQplHistory(){
+ weightSearch?.refresh();
  if(!qplHistory)return;
  weightCurves?.refresh();
  const id=++historyEvaluation,config=strategySettings(),from='00000000',to=day().replaceAll('-','');
@@ -85,6 +88,17 @@ async function calculateWeightCurve(settings,index,progress){
 }
 function initWeightCurves(){weightCurves=WeightCurves.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,day()]):'',calculate:calculateWeightCurve,cancel:cancelWeightCurve,apply:(i,value)=>{const input=$('#weight-'+i);input.value=String(value);input.onchange();}});}
 
+function abortWeightSearch(){searchRequest++;searchStopped=true;if(searchPending){searchPending.resolve(null);searchPending=null;}historyWorker?.postMessage({type:'abort-search',searchId:searchRequest});}
+function stopWeightSearch(){searchStopped=true;historyWorker?.postMessage({type:'stop-search',searchId:searchRequest});}
+async function runWeightSearch(options,progress){
+ const id=++searchRequest;searchStopped=false;const config={...options,from:'00000000',to:day().replaceAll('-','')};
+ try{config.seeds=StrategyPresets.read(localStorage).map(p=>p.settings.weights);}catch{config.seeds=[];}
+ if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress};historyWorker.postMessage({type:'search',searchId:id,options:config});});
+ await getHistoryEngines();if(id!==searchRequest)return null;
+ return WeightSearchEngine.run(config,curveEngine.evaluate,historyEngine.evaluate,{current:()=>id===searchRequest,stopped:()=>searchStopped,progress});
+}
+function initWeightSearch(){weightSearch=WeightSearch.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,day()]):'',run:runWeightSearch,abort:abortWeightSearch,stop:stopWeightSearch,pause:value=>weightCurves?.pause(value),apply:applySavedStrategy,save:(name,settings)=>{StrategyPresets.save(localStorage,name,settings);refreshPresetOptions(name);}});}
+
 function showQplHistory(groups){
  const from='00000000',to=day().replaceAll('-',''),g=groups.all,m=QplHistoryEngine.metrics(g);
  const eligibleDates=qplHistory.schema===3?[qplHistory.from,qplHistory.to].filter(Boolean):(qplHistory.rows||[]).filter(r=>r.date<=to).map(r=>r.date).sort();
@@ -97,11 +111,12 @@ function initTuning(){
  const editing=()=>tuningSettings.weights;
  function setWeights(weights){tuningSettings=TuningModel.settings({...tuningSettings,weights});}
  function sync(){
-  $('#anchorMode').value=tuningSettings.anchorMode;
+  $('#anchorMode').value=tuningSettings.anchorMode;$('#anchorRank').value=String(tuningSettings.anchorRank||1);
   TuningModel.FEATURES.forEach((f,i)=>{$('#weight-'+i).value=String(tuningSettings.weights[i]);$('#weight-range-'+i).value=String(tuningSettings.weights[i]);});
   $('#weightStatus').textContent='서울 전용 가중치 · 합계 '+tuningSettings.weights.reduce((a,b)=>a+b,0)+'% (계산 시 100% 환산)';syncStrategyHelp();
  }
  function update(){try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}sync();renderQplHistory();render();}
+ $('#anchorRank').onchange=()=>{tuningSettings.anchorRank=+$('#anchorRank').value;update();};
  $('#anchorMode').onchange=()=>{tuningSettings.anchorMode=$('#anchorMode').value==='analysis'?'analysis':'odds';update();};
  TuningModel.FEATURES.forEach((f,i)=>{
   const change=node=>{const value=node.value.trim(),weights=TuningModel.FEATURES.map((_,i)=>editing()[i]??0);weights[i]=value===''?NaN:Number(value);if(!TuningModel.validWeights(weights)){$('#weightStatus').textContent='0~100 사이 정수를 입력하세요. 최소 한 요소는 1% 이상이어야 합니다.';return false;}setWeights(weights);update();return true;};
@@ -288,7 +303,7 @@ async function fetchPublicJSON(path){
  }
  throw Error('불러오기 실패');
 }
-initPartnerRange();initTuning();initWeightCurves();initStrategyPresets();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initPartnerRange();initTuning();initWeightCurves();initStrategyPresets();initWeightSearch();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});
