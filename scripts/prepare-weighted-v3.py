@@ -56,7 +56,10 @@ class History:
             best=max(records)*len(records)/(len(records)+3) if records else None
             consistency=-statistics.pstdev(records) if len(records)>=3 else None
             values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency,avg([x['form'] for x in recent],.5)]
-            result[str(h['number'])]={'raw':values,'starts':len(recent),'distanceStarts':len(near),'meanFinish':avg([x['finish'] for x in recent]),'meanFinishScore':avg([x['form'] for x in recent]),'fieldSizes':[x['fieldSize'] for x in recent],'recordStarts':sum(x.get('speed') is not None for x in recent),'marginStarts':sum(x.get('margin') is not None for x in recent),'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None}
+            available=[v is not None for v in values]
+            for i in (0,1,4,16):available[i]=bool(recent)
+            available[2]=bool(near)
+            result[str(h['number'])]={'available':available,'raw':values,'starts':len(recent),'distanceStarts':len(near),'meanFinish':avg([x['finish'] for x in recent]),'meanFinishScore':avg([x['form'] for x in recent]),'fieldSizes':[x['fieldSize'] for x in recent],'recordStarts':sum(x.get('speed') is not None for x in recent),'marginStarts':sum(x.get('margin') is not None for x in recent),'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None}
         return result
     def add_day(self,rs):
         rs=[r for r in rs if r.get('venue')=='seoul']
@@ -132,12 +135,13 @@ def main():
     by_source=defaultdict(list);by_target=defaultdict(list)
     for r in source.values():by_source[r['date']].append(r)
     for k,r in targets.items():by_target[r['date']].append((k,r))
-    history=History();snapshots={};raw_train=[[] for _ in FEATURES];coverage=[0]*len(FEATURES);horse_count=0
+    history=History();snapshots={};raw_train=[[] for _ in FEATURES];coverage=[0]*len(FEATURES);observed_coverage=[0]*len(FEATURES);horse_count=0
     for date in sorted(set(by_source)|set(by_target)):
         for k,r in by_target[date]:
             features=history.features(r);snapshots[k]={'date':r['date'],'venue':r['venue'],'race':r['race_no'],'version':VERSION,'historyThrough':history.through or None,'horses':features}
             for x in features.values():
                 horse_count+=1
+                for i,has_data in enumerate(x['available']):observed_coverage[i]+=int(has_data)
                 for i,v in enumerate(x['raw']):
                     if v is not None:
                         coverage[i]+=1
@@ -161,7 +165,7 @@ def main():
         p.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':')))
     Path('data/weighted-v3-scaler.json').write_text(json.dumps(scaler,separators=(',',':')))
     report={'schema':1,'scope':'seoul','version':VERSION,'sourceRaces':len(source),'targetRaces':len(snapshots),'horseStarts':horse_count,'historyThrough':history.through,
-            'fitThrough':FIT_TO,'coverage':dict(zip(FEATURES,coverage)),'tailDownloadErrors':errors,
+            'fitThrough':FIT_TO,'coverage':dict(zip(FEATURES,coverage)),'observedCoverage':dict(zip(FEATURES,observed_coverage)),'fallbackCoverage':dict(zip(FEATURES,[horse_count-x for x in observed_coverage])),'coverageDefinition':'coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions','tailDownloadErrors':errors,
             'marginDefinition':'Previous race time minus winner time, seconds normalized to 1200m; not lengths',
             'speedDefinition':'Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral',
             'recentDefinition':'Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included','meanFinishDefinition':'Arithmetic mean of (fieldSize-finish)/(fieldSize-1) over the same previous five starts; nonfinish is clipped to zero',
