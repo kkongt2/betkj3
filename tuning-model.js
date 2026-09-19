@@ -8,7 +8,7 @@ const TuningModel=(()=>{
  function settings(s={}){
   const candidate=s.weightScope==='venue'&&validWeights(s.venueWeights?.seoul)?s.venueWeights.seoul:s.weights;
   const weights=validWeights(candidate)?FEATURES.map((_,i)=>candidate[i]??0):defaults();
-  return {anchorMode:s.anchorMode==='analysis'?'analysis':'odds',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights};
+  return {anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights};
  }
  const label=()=> '서울 최근 5경주 가중치 (17개)';
  function weightsFor(s){return settings(s).weights;}
