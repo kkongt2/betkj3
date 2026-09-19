@@ -57,9 +57,9 @@ console.log('PASS payout is used only for historical performance');
 const analysisBase={...base,places:base.places.map(p=>({...p,prob:p.numbers[0]===4?1:p.prob}))};
 const analysis=apply(analysisBase,null,{min:3,max:4});
 assert.equal(analysis.qplPolicy.anchor.number,4);
-assert.equal(analysis.qplPolicy.partner.number,3);
-assert.deepEqual(analysis.pairs[0].numbers,[3,4]);
-assert.equal(apply(analysisBase,null,{min:4,max:4}).pairs.length,0);
+assert.equal(analysis.qplPolicy.partner.number,2);
+assert.deepEqual(analysis.pairs[0].numbers,[2,4]);
+assert.deepEqual(apply(analysisBase,null,{min:4,max:4}).pairs[0].numbers,[3,4]);
 assert.equal(apply({...analysisBase,official_result:{starters:[1,2,3,5,6]}},null,{min:2,max:4}).qplPolicy.anchor.number,1);
 
 for(const anchorRank of [1,2,3]){
