@@ -24,7 +24,7 @@ const QplHistoryEngine=(()=>{
     const analyzed=tuning.apply(tuning.unpack(entry.row),config),prob=new Map(analyzed.places.map(p=>[+p.numbers[0],p.prob]));
     entry.custom={...entry.row,horses:entry.row.horses.filter(h=>prob.has(h[0])).map(h=>[h[0],prob.get(h[0]),...h.slice(2)]),pairs:analyzed.pairs.map(p=>[...p.numbers,p.prob])};entry.signature=signature;
    }
-   const result=policy.apply(tuning.unpack(signature==='existing'?entry.row:entry.custom),{quotes:entry.row.quotes},config),selected=result.qplPolicy.partner;
+   const result=policy.apply(tuning.unpack(signature==='existing'?entry.row:entry.custom),null,config),selected=result.qplPolicy.partner;
    const pair=selected?result.pairs[0]:null,hit=!!pair&&entry.winning.has(key(pair.numbers));
    return {date:entry.row.date,venue:entry.row.venue,settled:entry.row.settled,
     candidates:pair?[{partner:selected,pick:{prob:pair.prob},hit,payout:hit?entry.winning.get(key(pair.numbers)):null}]:[]};
