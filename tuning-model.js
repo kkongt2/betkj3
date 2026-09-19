@@ -24,7 +24,7 @@ const TuningModel=(()=>{
   const raw=features.map(f=>f.reduce((s,x,i)=>s+x*config.weights[i]/sum,0)*6.28),mean=raw.reduce((a,b)=>a+b,0)/raw.length;
   const strengths=raw.map(x=>Math.exp(Math.max(-4,Math.min(4,(x-mean)*.6))));
   const place=engine.probs(strengths,base.k),pair=engine.probs(strengths,3);
-  const refresh=(item,prob)=>({...item,prob,ev:item.odds?prob*item.odds-1:null});
+  const refresh=(item,prob)=>({...item,prob});
   const byNumber=new Map(field.map((h,i)=>[+h.number,i]));
   const places=base.places.map(x=>refresh(x,place.p[byNumber.get(+x.numbers[0])]));
   const pairs=base.pairs.map(x=>{const ids=x.numbers.map(n=>byNumber.get(+n)).sort((a,b)=>a-b);return refresh(x,pair.q[ids.join('-')]);});
@@ -32,11 +32,11 @@ const TuningModel=(()=>{
   const horses=field.map((h,i)=>({...h,prob:place.p[i],reasons:[...FEATURES.map((f,j)=>({label:f.label,value:features[i][j],weight:config.weights[j]})).filter(x=>x.weight>0).sort((a,b)=>b.weight-a.weight).slice(0,3).map(x=>x.label+' 점수 '+Math.round(x.value*100)+' / 가중치 '+x.weight+'%'),h.weighted_v3_support?.through?'전적 기준 '+h.weighted_v3_support.through:'이전 전적 부족 · 중립값/사전값 포함']})).sort((a,b)=>b.prob-a.prob||+a.number-+b.number);
   return {...base,horses,places,pairs,model:version,models:{place:version,pair:version},advanced:{place:false,pair:false},selectiveActive:{place:false,pair:false},selection:{place:{qualified:false,reason:'사용자 가중치 적용 · 별도 선별 검증 없음'},pair:{qualified:false,reason:'사용자 가중치 적용'}},selectivePicks:{place:null,pair:null},tuning:config};
  }
- function pack(base,market){
+ function pack(base){
   const field=base.horses.slice().sort((a,b)=>+a.number-+b.number);
   return {date:base.date,venue:base.venue,race:base.race_no,k:base.k,models:base.models,
    horses:base.horses.map(h=>[+h.number,base.places.find(p=>+p.numbers[0]===+h.number).prob,h.quality,engine.score(h,field).features,h.weighted_features||null,h.weighted_support||null,h.weighted_v3_features||null,h.weighted_v3_support||null]),
-   pairs:base.pairs.map(p=>[...p.numbers.map(Number),p.prob]),quotes:market?.quotes||[],starters:base.official_result?.starters||null,
+   pairs:base.pairs.map(p=>[...p.numbers.map(Number),p.prob]),starters:base.official_result?.starters||null,
    settled:base.official_result?.pair?.status==='confirmed'&&!!base.official_result.pair.payouts?.length,payouts:base.official_result?.pair?.payouts||[]};
  }
  function unpack(row){
