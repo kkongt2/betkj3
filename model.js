@@ -74,7 +74,6 @@ function selectiveStatus(r,items,type,active){
  if(!policy?.approved)return status;
  if(!policy.approved_venues.includes(r.venue))return {...status,reason:'이 지역은 선별 검증 표본 부족 또는 기준 미달'};
  status.available=true;
- if(r.mode==='value')return {...status,reason:'적중률 우선 기준에서 선별 표시'};
  const p=policy.criteria,qs=x.numbers.map(n=>r.horses.find(h=>h.number===n).quality_v6);
  status.qualified=x.prob>=p.min_probability&&x.prob-(items[1]?.prob||0)>=p.min_gap&&Math.min(...qs.map(q=>q.starts))>=p.min_starts&&Math.max(...qs.map(q=>q.sparse))<=p.max_sparse;
  status.reason=status.qualified?'과거 검증을 통과한 선별 기준 충족':'일반 후보 · 선별 기준 미충족';
@@ -85,7 +84,7 @@ function setTrainedModel(report){
  learnedModel=report&&report.approved===true&&JSON.stringify(report.features)===JSON.stringify(expected)&&Array.isArray(report.weights)&&report.weights.length===10&&report.weights.every(x=>Number.isFinite(x)&&Math.abs(x)<=6)&&Array.isArray(report.approved_venues)?report:null;
 }
 
-function analyze(r,mode='accuracy',odds={place:{},qpl:{}}){
+function analyze(r){
  const h=(r.horses||[]).filter(x=>!x.withdrawn&&!/출전취소|출전제외|경주취소/.test(x.note||'')).map(x=>({...x})).sort((a,b)=>+a.number-+b.number);
  if(h.length<3||h.length>20||new Set(h.map(x=>+x.number)).size!==h.length||h.some(x=>!Number.isInteger(+x.number)||+x.number<1))throw Error('서로 다른 출전마 3~20두가 필요합니다.');
  const trained=learnedModel&&learnedModel.approved_venues.includes(r.venue);
@@ -98,18 +97,18 @@ function analyze(r,mode='accuracy',odds={place:{},qpl:{}}){
  if(active.place)h.forEach((x,i)=>place.p[i]=vp[i]);
  if(active.pair)Object.assign(pair.q,vq);
  h.forEach((x,i)=>{x.prob=place.p[i];x.reasons=sc[i].re;x.quality=sc[i].completeness;});
- const item=(numbers,p,quality,market)=>{const key=numbers.join('-'),odd=Number(market[key]??market[[...numbers].reverse().join('-')]);return {numbers,prob:p,quality,odds:Number.isFinite(odd)&&odd>=1?odd:null,ev:Number.isFinite(odd)&&odd>=1?p*odd-1:null};};
- const places=h.map(x=>({...item([x.number],x.prob,x.quality,odds.place||{}),names:[x.name]}));
- const pairs=[];for(let i=0;i<h.length;i++)for(let j=i+1;j<h.length;j++)pairs.push({...item([h[i].number,h[j].number],pair.q[i+'-'+j],Math.min(h[i].quality,h[j].quality),odds.qpl||{}),names:[h[i].name,h[j].name]});
- const selectivePlaces=vp?h.map((x,i)=>({...item([x.number],vp[i],x.quality,{}),names:[x.name]})).sort((a,b)=>b.prob-a.prob):[];
- const selectivePairs=[];if(selectiveActive.pair)for(let i=0;i<h.length;i++)for(let j=i+1;j<h.length;j++)selectivePairs.push({...item([h[i].number,h[j].number],vq[i+'-'+j],Math.min(h[i].quality,h[j].quality),{}),names:[h[i].name,h[j].name]});
+ const item=(numbers,p,quality)=>({numbers,prob:p,quality});
+ const places=h.map(x=>({...item([x.number],x.prob,x.quality),names:[x.name]}));
+ const pairs=[];for(let i=0;i<h.length;i++)for(let j=i+1;j<h.length;j++)pairs.push({...item([h[i].number,h[j].number],pair.q[i+'-'+j],Math.min(h[i].quality,h[j].quality)),names:[h[i].name,h[j].name]});
+ const selectivePlaces=vp?h.map((x,i)=>({...item([x.number],vp[i],x.quality),names:[x.name]})).sort((a,b)=>b.prob-a.prob):[];
+ const selectivePairs=[];if(selectiveActive.pair)for(let i=0;i<h.length;i++)for(let j=i+1;j<h.length;j++)selectivePairs.push({...item([h[i].number,h[j].number],vq[i+'-'+j],Math.min(h[i].quality,h[j].quality)),names:[h[i].name,h[j].name]});
  selectivePairs.sort((a,b)=>b.prob-a.prob);
- const compare=mode==='value'?(a,b)=>(b.ev??-Infinity)-(a.ev??-Infinity)||b.prob-a.prob:(a,b)=>b.prob-a.prob;
+ const compare=(a,b)=>b.prob-a.prob||+a.numbers[0]-+b.numbers[0];
  places.sort(compare);pairs.sort(compare);
  const sparse=h.filter(x=>(+x.starts_1y||0)<3).length/h.length;
  const reasons=[];if(sparse>=.3)reasons.push('전적 3회 미만 출전마가 30% 이상');
  if(h.filter(x=>x.quality<.5).length/h.length>=.3)reasons.push('출전마 정보 부족');
- const result={...r,horses:h.sort((a,b)=>b.prob-a.prob),places,pairs,k,mode,reasons,advanced:active,model:active.place||active.pair?advancedModel.model:(trained?learnedModel.model:MODEL_VERSION)};
+ const result={...r,horses:h.sort((a,b)=>b.prob-a.prob),places,pairs,k,mode:'accuracy',reasons,advanced:active,model:active.place||active.pair?advancedModel.model:(trained?learnedModel.model:MODEL_VERSION)};
  result.models={place:active.place?advancedModel.model:(trained?learnedModel.model:MODEL_VERSION),pair:active.pair?advancedModel.model:(trained?learnedModel.model:MODEL_VERSION)};
  result.selectiveActive=selectiveActive;
  result.selection={place:selectiveStatus(result,selectivePlaces,'place',selectiveActive.place),pair:selectiveStatus(result,selectivePairs,'pair',selectiveActive.pair)};
@@ -117,8 +116,7 @@ function analyze(r,mode='accuracy',odds={place:{},qpl:{}}){
  result.incumbent={model:{...result.models},place:result.places.slice(),pair:result.pairs.slice()};
  const challenger=challengerEngine?.analyze(r);result.challenger=challenger;
  if(challenger)for(const type of ['place','pair'])if(challenger.deployment[type].approved){
-  const market=type==='place'?odds.place:odds.qpl;
-  const items=challenger[type].map(x=>({...x,...item(x.numbers,x.prob,1,market||{})})).sort(compare);
+  const items=challenger[type].map(x=>({...x,...item(x.numbers,x.prob,1)})).sort(compare);
   result[type==='place'?'places':'pairs']=items;result.models[type]=challenger.model;result.advanced[type]=true;
   if(type==='place')result.horses.forEach(h=>h.prob=items.find(x=>x.numbers[0]===h.number).prob);
   result.model=challenger.model;
@@ -127,7 +125,6 @@ function analyze(r,mode='accuracy',odds={place:{},qpl:{}}){
 }
 function candidateReasons(r,x,type){
  const why=r.advanced?.[type]?[]:[...r.reasons];if(!x)return ['후보 없음'];if(!r.advanced?.[type]&&x.quality<2/3)why.push('후보 데이터 부족');
- if(r.mode==='value'&&(x.ev===null||x.ev<(type==='place'?.1:.15)))why.push(x.ev===null?'배당 입력 필요':'검토 기준 미달');
  return why;
 }
 if(typeof module!=='undefined')module.exports={score,setChallengerModel,analyze,probs,candidateReasons,MODEL_VERSION,setTrainedModel,setAdvancedModel,predictEstimator,pairFeatures,advancedReady};
