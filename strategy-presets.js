@@ -4,7 +4,7 @@ const StrategyPresets=(()=>{
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
  const KEY='betkj3-strategy-presets-v1';
  function config(value){
-  if(!value||(value.anchorRank!==undefined&&![1,2,3].includes(+value.anchorRank))||!tuning.validWeights(value.weights)||!['odds','analysis'].includes(value.anchorMode)||!['existing','custom','legacy','v2'].includes(value.modelMode)||![value.min,value.max].every(n=>Number.isInteger(n)&&n>=2&&n<=20)||value.min>value.max)throw Error('설정 자료를 확인해 주세요.');
+  if(!value||(value.anchorRank!==undefined&&![1,2,3].includes(+value.anchorRank))||!tuning.validWeights(value.weights)||!['existing','custom','legacy','v2'].includes(value.modelMode)||![value.min,value.max].every(n=>Number.isInteger(n)&&n>=2&&n<=20)||value.min>value.max)throw Error('설정 자료를 확인해 주세요.');
   return {...tuning.settings(value),...policy.normalizeRange(value)};
  }
  function read(storage){
