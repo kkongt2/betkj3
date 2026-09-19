@@ -2,13 +2,7 @@
   "bases": [
     {
       "id": 3,
-      "metrics": {
-        "average": 6.291607565011817,
-        "product": 0.9637334781821468,
-        "rate": 0.15317762085822922
-      },
       "settings": {
-        "anchorMode": "analysis",
         "max": 6,
         "min": 2,
         "modelMode": "custom",
@@ -29,71 +23,8 @@
           10,
           1,
           11
-        ]
-      }
-    },
-    {
-      "id": 4,
-      "metrics": {
-        "average": 5.415254237288129,
-        "product": 0.9255839217816393,
-        "rate": 0.17092160057939526
-      },
-      "settings": {
-        "anchorMode": "analysis",
-        "max": 12,
-        "min": 2,
-        "modelMode": "custom",
-        "weights": [
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          94,
-          0,
-          0,
-          0,
-          0,
-          6
-        ]
-      }
-    },
-    {
-      "id": 9,
-      "metrics": {
-        "average": 5.406033519553075,
-        "product": 0.8760456273764262,
-        "rate": 0.16204961071881224
-      },
-      "settings": {
-        "anchorMode": "odds",
-        "max": 10,
-        "min": 3,
-        "modelMode": "custom",
-        "weights": [
-          1,
-          2,
-          1,
-          0,
-          1,
-          3,
-          10,
-          9,
-          0,
-          1,
-          1,
-          1,
-          42,
-          2,
-          0,
-          26
-        ]
+        ],
+        "anchorRank": 1
       }
     }
   ],
@@ -101,5 +32,6 @@
   "sourceCommit": "f03ddccaf004761ebd562a8130afa84c63a4e5d3",
   "sourceFrom": "20210108",
   "sourceTo": "20260913",
-  "version": "user-weighted-seoul-v1"
+  "version": "user-weighted-seoul-v1",
+  "note": "분석순위 전용 프리셋 1번의 탐색 시작점입니다. 배당 기반 축마 모드는 사용하지 않습니다."
 }
