@@ -6,16 +6,14 @@ const WeightCurveEngine=(()=>{
  const pairKey=ns=>ns.slice().sort((a,b)=>a-b).join('-');
  function prepare(row){
   const field=row.horses.filter(h=>!Array.isArray(row.starters)||row.starters.map(Number).includes(+h[0])).slice().sort((a,b)=>a[0]-b[0]);
-  const prices=new Map();let valid=!!row.settled&&field.length>0&&Array.isArray(row.quotes)&&row.quotes.length>0;
-  for(const q of row.quotes||[]){if(!Array.isArray(q.numbers)||q.numbers.length!==1||!Number.isFinite(q.odds)||q.odds<1||prices.has(+q.numbers[0])){valid=false;break;}prices.set(+q.numbers[0],q.odds);}
-  if(field.some(h=>!prices.has(+h[0])))valid=false;
+  const valid=!!row.settled&&field.length>0;
   const features=field.map(h=>h[6]||Array(tuning.FEATURES.length).fill(.5));
   const numbers=field.map(h=>+h[0]),available=new Set(row.pairs.map(p=>pairKey(p.slice(0,2))));
   const slow=field.length<=3||features.some(f=>f.length!==17||f.some(x=>!Number.isFinite(x)||x<0||x>1))||numbers.some((a,i)=>numbers.slice(i+1).some(b=>!available.has(pairKey([a,b]))));
   const uniform=features.length>0&&features.every(f=>f.every((x,j)=>x===features[0][j]));
-  return {row,field,numbers,features,prices,valid,slow,uniform,winning:new Map(row.payouts.map(p=>[pairKey(p.numbers),p.odds]))};
+  return {row,field,numbers,features,valid,slow,uniform,winning:new Map(row.payouts.map(p=>[pairKey(p.numbers),p.odds]))};
  }
- function exact(entry,settings){const result=policy.apply(tuning.apply(tuning.unpack(entry.row),settings),{quotes:entry.row.quotes},settings);return result.qplPolicy.status==='ready'?pairKey(result.pairs[0].numbers):null;}
+ function exact(entry,settings){const result=policy.apply(tuning.apply(tuning.unpack(entry.row),settings),null,settings);return result.qplPolicy.status==='ready'?pairKey(result.pairs[0].numbers):null;}
  // Under this positive-strength top-three model, for a fixed anchor, pair probability
  // strictly increases with partner strength. Near ties and small fields use the exact
  // public model, preserving its floating-point tie behavior and missing-pair policy.
@@ -23,9 +21,8 @@ const WeightCurveEngine=(()=>{
   if(entry.slow)return exact(entry,settings);
   const order=entry.numbers.map((_,i)=>i).sort((a,b)=>values[b]-values[a]||entry.numbers[a]-entry.numbers[b]);
   for(let j=1;j<order.length;j++)if(Math.abs(values[order[j-1]]-values[order[j]])/total<1e-7)return exact(entry,settings);
-  const rank=order.slice().sort((a,b)=>entry.prices.get(entry.numbers[a])-entry.prices.get(entry.numbers[b])||values[b]-values[a]||entry.numbers[a]-entry.numbers[b]);
-  const anchor=settings.anchorMode==='analysis'?order[settings.anchorRank-1]:rank[settings.anchorRank-1];let partner=-1;
-  for(let k=settings.min-1;k<Math.min(settings.max,rank.length);k++){const candidate=rank[k];if(candidate!==anchor&&(partner<0||values[candidate]>values[partner]))partner=candidate;}
+  const anchor=order[settings.anchorRank-1];let partner=-1;
+  for(let k=settings.min-1;k<Math.min(settings.max,order.length);k++){const candidate=order[k];if(candidate!==anchor&&(partner<0||values[candidate]>values[partner]||values[candidate]===values[partner]&&entry.numbers[candidate]<entry.numbers[partner]))partner=candidate;}
   return partner<0?null:pairKey([entry.numbers[anchor],entry.numbers[partner]]);
  }
  function create(rows){
