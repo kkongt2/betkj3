@@ -25,7 +25,7 @@ function same(point,expected){for(const key of ['total','evaluated','hits','excl
   const single=await evaluator.evaluate(settings,'20250101','20250101');same({...single.all,...single.metrics},direct(rows,settings,'20250101','20250101'));
   assert.equal(result.points.length,101);for(const point of result.points){const s={...settings,weights:settings.weights.map((x,i)=>i===index?point.value:x)};same(point,direct(rows,s,'20250101','20250101'));}
  }
- const w=Array(17).fill(0);w[0]=100;const zero=await evaluator.curve({weights:w,min:2,max:2},0,'00000000','99999999');assert.equal(zero.points[0].valid,false);assert.equal(zero.points[0].product,null);same(zero.points[100],direct(rows,{weights:w,min:2,max:2,anchorMode:'analysis'}));
+ const w=Array(17).fill(0);w[0]=100;const zero=await evaluator.curve({weights:w,min:2,max:2},0,'00000000','99999999');assert.equal(zero.points[0].valid,false);assert.equal(zero.points[0].product,null);same(zero.points[100],direct(rows,{weights:w,min:2,max:2}));
  assert.equal(await evaluator.curve({weights:w},0,'00000000','99999999',()=>false),null);
  console.log('PASS all 101 points against exact model: analysis ranks, ties, tiny gaps, uniform strengths, scratched runners, unavailable pairs, date/venue exclusions, zero total and cancellation');
  if(process.argv.includes('--archive')){
