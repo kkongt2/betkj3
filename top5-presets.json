@@ -67,7 +67,6 @@
   "comparison": {
     "previousName": "서울 5경주 기준3 파생 1번",
     "previousSettings": {
-      "anchorMode": "analysis",
       "modelMode": "custom",
       "weights": [
         0,
@@ -225,7 +224,6 @@
     {
       "id": 3,
       "settings": {
-        "anchorMode": "analysis",
         "max": 6,
         "min": 2,
         "modelMode": "custom",
@@ -834,7 +832,6 @@
       "rank": 1,
       "name": "서울 균형 기준3 파생 1번",
       "settings": {
-        "anchorMode": "analysis",
         "modelMode": "custom",
         "weights": [
           3,
@@ -978,5 +975,5 @@
     "qpl-history-years/2025.json": "7f19db9ed5a53d4913ca116fdeb4935af6869dbb91262676d9300204d994fe0e",
     "qpl-history-years/2026.json": "3d10fbfbe255edd64e05d5a4929ee06be6c016a1331be6e3033a21aac1f5041d"
   },
-  "note": "기존 파생 프리셋 15개 중 1번 프리셋만 유지합니다. 나머지 2~15번 프리셋은 제거했습니다."
+  "note": "프리셋 1번만 유지합니다. 추천 선정은 축마와 두 번째 말 모두 연승확률 분석 순위만 사용하며, 지급배당은 과거 성과 계산에만 사용합니다. 기존 저장 성적은 정책 변경 전 산출값일 수 있으므로 화면에서는 동적 재계산 통계를 사용합니다."
 }
