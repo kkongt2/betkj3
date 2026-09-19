@@ -10,20 +10,20 @@
 #include <vector>
 #include <omp.h>
 using W=std::array<int,17>;
-struct Race{int date,n,k;int number[20];double odds[20],prob[20],f[20][17],q[20][20],paid[20][20];};
+struct Race{int date,n,k;int number[20];double legacy[20],prob[20],f[20][17],q[20][20],paid[20][20];};
 struct Result{W w;int mode,lo,hi,n,hits;double paid;double value()const{return n?paid/n:0;}};
 std::vector<Race> races;
 std::vector<Result> evaluate(W w,bool existing=false){
  double paid[2][21][21]={};int count[2][21][21]={},hits[2][21][21]={};
  for(const auto&r:races){
   double score[20];int rank[20],active=0;double sum=std::accumulate(w.begin(),w.end(),0.0),mean=0;
-  for(int i=0;i<r.n;i++){if(r.odds[i]>=1)rank[active++]=i;score[i]=0;for(int j=0;j<17;j++)score[i]+=r.f[i][j]*w[j]/sum;score[i]*=6.28;mean+=score[i];}
+  for(int i=0;i<r.n;i++){rank[active++]=i;score[i]=0;for(int j=0;j<17;j++)score[i]+=r.f[i][j]*w[j]/sum;score[i]*=6.28;mean+=score[i];}
   mean/=r.n;for(int i=0;i<r.n;i++)score[i]=existing?r.prob[i]:std::exp(std::max(-4.0,std::min(4.0,(score[i]-mean)*.6)));
   auto better=[&](int a,int b){return b<0||score[a]>score[b]||(score[a]==score[b]&&r.number[a]<r.number[b]);};
-  std::sort(rank,rank+active,[&](int a,int b){return r.odds[a]!=r.odds[b]?r.odds[a]<r.odds[b]:better(a,b);});
-  int analysis=rank[0];for(int j=1;j<active;j++){int i=rank[j];if(better(i,analysis))analysis=i;}
+  std::sort(rank,rank+active,[&](int a,int b){return better(a,b);});
+  int analysis=rank[0];
   for(int mode=0;mode<2;mode++){
-   int anchor=mode?analysis:rank[0];
+   int anchor=analysis;
    for(int lo=2;lo<=active;lo++){int partner=-1;
     for(int hi=lo;hi<=20;hi++){
      if(hi<=active){int c=rank[hi-1];if(c!=anchor&&(partner<0||(existing?(r.q[anchor][c]>r.q[anchor][partner]||(r.q[anchor][c]==r.q[anchor][partner]&&better(c,partner))):better(c,partner))))partner=c;}
@@ -35,7 +35,7 @@ std::vector<Result> evaluate(W w,bool existing=false){
  std::vector<Result> out;for(int m=0;m<2;m++)for(int l=2;l<=20;l++)for(int h=l;h<=20;h++)if(count[m][l][h])out.push_back({w,m,l,h,count[m][l][h],hits[m][l][h],paid[m][l][h]});return out;
 }
 int main(int argc,char**argv){
- std::ifstream in(argv[1]);int n,totalRaces;in>>n>>totalRaces;races.resize(n);for(auto&r:races){in>>r.date>>r.n>>r.k;for(int i=0;i<r.n;i++){in>>r.number[i]>>r.odds[i]>>r.prob[i];for(double&x:r.f[i])in>>x;}for(int i=0;i<r.n;i++)for(int j=0;j<r.n;j++)in>>r.q[i][j]>>r.paid[i][j];}if(!in)return 2;
+ std::ifstream in(argv[1]);int n,totalRaces;in>>n>>totalRaces;races.resize(n);for(auto&r:races){in>>r.date>>r.n>>r.k;for(int i=0;i<r.n;i++){in>>r.number[i]>>r.legacy[i]>>r.prob[i];for(double&x:r.f[i])in>>x;}for(int i=0;i<r.n;i++)for(int j=0;j<r.n;j++)in>>r.q[i][j]>>r.paid[i][j];}if(!in)return 2;
 
  const int minimumEvaluated=int(std::ceil(totalRaces*.4));
  int style=std::stoi(argv[3]),maxLo=std::stoi(argv[4]);std::mt19937 rng(20260915);std::set<W> seen;std::vector<Result> board;int tested=0;
