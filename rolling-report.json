@@ -2,13 +2,14 @@
   "schema": 2,
   "scope": "seoul",
   "version": "user-weighted-seoul-last5-v2",
-  "generatedAt": "2026-09-15T13:03:01.987Z",
+  "policyVersion": "betkj3-configurable-anchor-v3",
+  "generatedAt": "2026-09-19T01:05:49.407Z",
   "sourceRaces": 5606,
   "from": "20240101",
   "to": "20260913",
   "minimumCoverageRatio": 0.4,
   "search": {
-    "weightCandidates": 16723,
+    "weightCandidates": 16283,
     "windows": [
       24,
       36
@@ -32,45 +33,45 @@
       "validationThrough": "20231231",
       "style": "평균+변동성",
       "settings": {
-        "anchorMode": "odds",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
           0,
-          1,
-          1,
-          16,
-          2,
-          7,
-          28,
-          3,
-          1,
-          0,
-          1,
-          4,
-          24,
           0,
           0,
-          12,
+          0,
+          0,
+          0,
+          94,
+          0,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
           0
         ],
-        "min": 8,
-        "max": 11
+        "min": 4,
+        "max": 10
       },
       "selection": {
         "total": 294,
-        "evaluated": 292,
-        "hits": 26,
-        "excluded": 2,
-        "paidHits": 26,
-        "payoutTotal": 345.59999999999997
+        "evaluated": 293,
+        "hits": 24,
+        "excluded": 1,
+        "paidHits": 24,
+        "payoutTotal": 408.90000000000003
       },
       "selected": {
         "total": 260,
-        "evaluated": 258,
-        "hits": 15,
-        "excluded": 2,
-        "paidHits": 15,
-        "payoutTotal": 211.80000000000004
+        "evaluated": 260,
+        "hits": 30,
+        "excluded": 0,
+        "paidHits": 30,
+        "payoutTotal": 145.29999999999998
       }
     },
     {
@@ -78,52 +79,52 @@
       "to": "20240701",
       "through": "20240630",
       "partial": false,
-      "months": 36,
-      "trainFrom": "20210401",
+      "months": 24,
+      "trainFrom": "20220401",
       "trainThrough": "20231231",
       "validationFrom": "20240101",
       "validationThrough": "20240331",
-      "style": "평균 기록",
+      "style": "평균+변동성",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
           0,
+          4,
+          4,
+          0,
+          2,
+          3,
+          1,
+          2,
+          12,
+          30,
+          6,
           0,
           0,
           0,
           0,
-          0,
-          0,
-          0,
-          0,
-          0,
-          100,
-          0,
-          0,
-          0,
-          0,
-          0,
-          0
+          21,
+          15
         ],
-        "min": 7,
-        "max": 11
+        "min": 4,
+        "max": 10
       },
       "selection": {
         "total": 260,
         "evaluated": 260,
-        "hits": 21,
+        "hits": 45,
         "excluded": 0,
-        "paidHits": 21,
-        "payoutTotal": 339.1000000000001
+        "paidHits": 45,
+        "payoutTotal": 365.4
       },
       "selected": {
         "total": 272,
         "evaluated": 272,
-        "hits": 20,
+        "hits": 43,
         "excluded": 0,
-        "paidHits": 20,
-        "payoutTotal": 249.5
+        "paidHits": 43,
+        "payoutTotal": 169.5
       }
     },
     {
@@ -131,44 +132,44 @@
       "to": "20241001",
       "through": "20240929",
       "partial": false,
-      "months": 24,
-      "trainFrom": "20220701",
+      "months": 36,
+      "trainFrom": "20210701",
       "trainThrough": "20240331",
       "validationFrom": "20240401",
       "validationThrough": "20240630",
-      "style": "최고 기록",
+      "style": "평균 기록",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          0,
           1,
-          7,
-          13,
-          8,
-          4,
-          17,
+          2,
+          0,
           2,
           4,
-          18,
-          0,
+          6,
+          70,
+          4,
           1,
-          8,
           0,
-          11,
           0,
-          6
+          4,
+          5,
+          0,
+          0,
+          0,
+          1
         ],
-        "min": 6,
-        "max": 9
+        "min": 8,
+        "max": 10
       },
       "selection": {
         "total": 272,
-        "evaluated": 272,
-        "hits": 26,
-        "excluded": 0,
-        "paidHits": 26,
-        "payoutTotal": 338.00000000000006
+        "evaluated": 265,
+        "hits": 36,
+        "excluded": 7,
+        "paidHits": 36,
+        "payoutTotal": 322.4
       },
       "selected": {
         "total": 226,
@@ -176,7 +177,7 @@
         "hits": 19,
         "excluded": 0,
         "paidHits": 19,
-        "payoutTotal": 158.60000000000002
+        "payoutTotal": 195.3
       }
     },
     {
@@ -189,47 +190,47 @@
       "trainThrough": "20240630",
       "validationFrom": "20240701",
       "validationThrough": "20240929",
-      "style": "기록 전체 혼합",
+      "style": "중앙값",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
           1,
+          7,
+          3,
+          34,
+          7,
+          0,
           0,
           1,
           0,
-          3,
+          30,
           0,
-          35,
-          0,
-          4,
-          38,
-          0,
-          3,
+          1,
+          16,
           0,
           0,
           0,
-          12,
-          3
+          0
         ],
-        "min": 4,
-        "max": 7
+        "min": 9,
+        "max": 10
       },
       "selection": {
         "total": 226,
-        "evaluated": 226,
-        "hits": 29,
-        "excluded": 0,
-        "paidHits": 29,
-        "payoutTotal": 277.4
+        "evaluated": 208,
+        "hits": 17,
+        "excluded": 18,
+        "paidHits": 17,
+        "payoutTotal": 354.5
       },
       "selected": {
         "total": 283,
-        "evaluated": 283,
-        "hits": 31,
-        "excluded": 0,
-        "paidHits": 31,
-        "payoutTotal": 229.00000000000003
+        "evaluated": 259,
+        "hits": 15,
+        "excluded": 24,
+        "paidHits": 15,
+        "payoutTotal": 190.49999999999997
       }
     },
     {
@@ -244,45 +245,45 @@
       "validationThrough": "20241229",
       "style": "평균+변동성",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
           0,
           4,
           4,
-          1,
-          2,
-          3,
           0,
           2,
+          4,
+          1,
+          7,
           13,
           29,
           6,
-          0,
+          4,
           0,
           0,
           0,
           21,
-          15
+          5
         ],
-        "min": 6,
-        "max": 7
+        "min": 3,
+        "max": 10
       },
       "selection": {
         "total": 283,
         "evaluated": 283,
-        "hits": 33,
+        "hits": 59,
         "excluded": 0,
-        "paidHits": 33,
-        "payoutTotal": 363.40000000000003
+        "paidHits": 59,
+        "payoutTotal": 378.5
       },
       "selected": {
         "total": 256,
         "evaluated": 256,
-        "hits": 22,
+        "hits": 29,
         "excluded": 0,
-        "paidHits": 22,
-        "payoutTotal": 178.29999999999998
+        "paidHits": 29,
+        "payoutTotal": 188.3
       }
     },
     {
@@ -290,52 +291,52 @@
       "to": "20250701",
       "through": "20250629",
       "partial": false,
-      "months": 24,
-      "trainFrom": "20230401",
+      "months": 36,
+      "trainFrom": "20220401",
       "trainThrough": "20241229",
       "validationFrom": "20250101",
       "validationThrough": "20250330",
-      "style": "중앙값",
+      "style": "평균 기록",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          4,
-          6,
-          0,
-          25,
-          0,
+          16,
           3,
+          0,
+          2,
+          3,
+          6,
+          27,
+          2,
+          9,
           16,
           4,
-          0,
-          10,
-          0,
-          10,
-          5,
-          9,
+          7,
+          3,
           0,
           0,
-          8
+          0,
+          2
         ],
-        "min": 7,
-        "max": 11
+        "min": 6,
+        "max": 10
       },
       "selection": {
         "total": 256,
         "evaluated": 256,
-        "hits": 23,
+        "hits": 34,
         "excluded": 0,
-        "paidHits": 23,
-        "payoutTotal": 390.40000000000003
+        "paidHits": 34,
+        "payoutTotal": 338.09999999999997
       },
       "selected": {
         "total": 263,
-        "evaluated": 262,
-        "hits": 17,
-        "excluded": 1,
-        "paidHits": 17,
-        "payoutTotal": 175.99999999999994
+        "evaluated": 263,
+        "hits": 31,
+        "excluded": 0,
+        "paidHits": 31,
+        "payoutTotal": 188.29999999999998
       }
     },
     {
@@ -350,45 +351,45 @@
       "validationThrough": "20250629",
       "style": "기록 전체 혼합",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          2,
           0,
+          3,
+          1,
           1,
           4,
+          10,
+          3,
           1,
           1,
-          8,
-          1,
-          1,
-          57,
-          1,
-          0,
+          7,
+          3,
+          10,
           0,
           14,
-          2,
-          7,
-          0
+          41,
+          0,
+          1
         ],
         "min": 7,
-        "max": 8
+        "max": 10
       },
       "selection": {
         "total": 263,
         "evaluated": 262,
-        "hits": 21,
+        "hits": 28,
         "excluded": 1,
-        "paidHits": 21,
-        "payoutTotal": 429
+        "paidHits": 28,
+        "payoutTotal": 363.4
       },
       "selected": {
         "total": 250,
         "evaluated": 249,
-        "hits": 23,
+        "hits": 26,
         "excluded": 1,
-        "paidHits": 23,
-        "payoutTotal": 384.00000000000006
+        "paidHits": 26,
+        "payoutTotal": 171.29999999999998
       }
     },
     {
@@ -396,52 +397,52 @@
       "to": "20260101",
       "through": "20251228",
       "partial": false,
-      "months": 36,
-      "trainFrom": "20221001",
+      "months": 24,
+      "trainFrom": "20231001",
       "trainThrough": "20250629",
       "validationFrom": "20250701",
       "validationThrough": "20250928",
-      "style": "기록 전체 혼합",
+      "style": "평균+변동성",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          2,
           0,
           1,
-          4,
-          1,
-          1,
-          8,
-          1,
-          1,
-          57,
           1,
           0,
-          0,
-          14,
           2,
           7,
+          18,
+          18,
+          0,
+          51,
+          1,
+          1,
+          0,
+          0,
+          0,
+          0,
           0
         ],
-        "min": 6,
-        "max": 9
+        "min": 5,
+        "max": 10
       },
       "selection": {
         "total": 250,
         "evaluated": 250,
-        "hits": 29,
+        "hits": 36,
         "excluded": 0,
-        "paidHits": 29,
-        "payoutTotal": 437.5
+        "paidHits": 36,
+        "payoutTotal": 359
       },
       "selected": {
         "total": 264,
         "evaluated": 264,
-        "hits": 11,
+        "hits": 26,
         "excluded": 0,
-        "paidHits": 11,
-        "payoutTotal": 118.4
+        "paidHits": 26,
+        "payoutTotal": 165.4
       }
     },
     {
@@ -449,52 +450,52 @@
       "to": "20260401",
       "through": "20260329",
       "partial": false,
-      "months": 36,
-      "trainFrom": "20230101",
+      "months": 24,
+      "trainFrom": "20240101",
       "trainThrough": "20250928",
       "validationFrom": "20251001",
       "validationThrough": "20251228",
-      "style": "평균+변동성",
+      "style": "기록 전체 혼합",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          0,
-          4,
-          3,
-          0,
-          2,
-          3,
           1,
           2,
-          14,
-          29,
+          1,
           6,
+          4,
+          10,
+          3,
+          1,
           0,
+          3,
+          3,
+          10,
           0,
+          14,
+          41,
           0,
-          0,
-          21,
-          15
+          1
         ],
         "min": 8,
-        "max": 11
+        "max": 10
       },
       "selection": {
         "total": 264,
-        "evaluated": 260,
-        "hits": 17,
-        "excluded": 4,
-        "paidHits": 17,
-        "payoutTotal": 363.8
+        "evaluated": 261,
+        "hits": 27,
+        "excluded": 3,
+        "paidHits": 27,
+        "payoutTotal": 282.19999999999993
       },
       "selected": {
         "total": 262,
         "evaluated": 261,
-        "hits": 12,
+        "hits": 21,
         "excluded": 1,
-        "paidHits": 12,
-        "payoutTotal": 174.8
+        "paidHits": 21,
+        "payoutTotal": 201.10000000000005
       }
     },
     {
@@ -502,52 +503,52 @@
       "to": "20260701",
       "through": "20260628",
       "partial": false,
-      "months": 24,
-      "trainFrom": "20240401",
+      "months": 36,
+      "trainFrom": "20230401",
       "trainThrough": "20251228",
       "validationFrom": "20260101",
       "validationThrough": "20260329",
-      "style": "기록 전체 혼합",
+      "style": "최고 기록",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
+          0,
+          23,
+          0,
           2,
           0,
+          0,
+          34,
+          2,
           1,
           4,
           0,
-          2,
+          15,
+          10,
+          0,
           8,
-          1,
-          1,
-          58,
-          1,
           0,
-          0,
-          14,
-          1,
-          7,
-          0
+          1
         ],
-        "min": 3,
-        "max": 9
+        "min": 8,
+        "max": 10
       },
       "selection": {
         "total": 262,
-        "evaluated": 262,
-        "hits": 36,
-        "excluded": 0,
-        "paidHits": 36,
-        "payoutTotal": 352.40000000000003
+        "evaluated": 261,
+        "hits": 35,
+        "excluded": 1,
+        "paidHits": 35,
+        "payoutTotal": 436.49999999999994
       },
       "selected": {
         "total": 264,
-        "evaluated": 264,
-        "hits": 28,
-        "excluded": 0,
-        "paidHits": 28,
-        "payoutTotal": 176.4
+        "evaluated": 260,
+        "hits": 15,
+        "excluded": 4,
+        "paidHits": 15,
+        "payoutTotal": 111.40000000000002
       }
     },
     {
@@ -555,216 +556,216 @@
       "to": "20261001",
       "through": "20260913",
       "partial": true,
-      "months": 24,
-      "trainFrom": "20240701",
+      "months": 36,
+      "trainFrom": "20230701",
       "trainThrough": "20260329",
       "validationFrom": "20260401",
       "validationThrough": "20260628",
-      "style": "평균+변동성",
+      "style": "중앙값",
       "settings": {
-        "anchorMode": "analysis",
+        "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          31,
+          3,
+          6,
           0,
+          15,
+          1,
+          3,
+          16,
           4,
-          2,
+          1,
+          20,
           0,
           9,
-          15,
-          2,
-          2,
+          5,
+          9,
           0,
           0,
-          34,
-          1,
-          0,
-          0,
-          0,
-          0
+          8
         ],
-        "min": 8,
-        "max": 9
+        "min": 9,
+        "max": 10
       },
       "selection": {
         "total": 264,
-        "evaluated": 260,
-        "hits": 14,
-        "excluded": 4,
-        "paidHits": 14,
-        "payoutTotal": 280.5
+        "evaluated": 249,
+        "hits": 22,
+        "excluded": 15,
+        "paidHits": 22,
+        "payoutTotal": 306.20000000000005
       },
       "selected": {
         "total": 212,
-        "evaluated": 210,
-        "hits": 4,
-        "excluded": 2,
-        "paidHits": 4,
-        "payoutTotal": 81.3
+        "evaluated": 179,
+        "hits": 14,
+        "excluded": 33,
+        "paidHits": 14,
+        "payoutTotal": 189.20000000000002
       }
     }
   ],
   "selected": {
     "all": {
       "total": 2812,
-      "evaluated": 2805,
-      "hits": 202,
-      "excluded": 7,
-      "paidHits": 202,
-      "payoutTotal": 2138.1000000000004
+      "evaluated": 2749,
+      "hits": 269,
+      "excluded": 63,
+      "paidHits": 269,
+      "payoutTotal": 1915.6000000000001
     },
     "metrics": {
-      "rate": 0.07201426024955437,
-      "average": 10.584653465346536,
-      "product": 0.762245989304813
+      "rate": 0.09785376500545653,
+      "average": 7.121189591078068,
+      "product": 0.6968352128046563
     },
-    "maxDrawdown": 688.5999999999997,
-    "netUnits": -666.8999999999996
+    "maxDrawdown": 876.6000000000003,
+    "netUnits": -833.3999999999999
   },
   "recordComparison": [
     {
       "label": "평균 기록",
       "all": {
         "total": 2812,
-        "evaluated": 2803,
-        "hits": 227,
-        "excluded": 9,
-        "paidHits": 227,
-        "payoutTotal": 2090.6
+        "evaluated": 2763,
+        "hits": 262,
+        "excluded": 49,
+        "paidHits": 262,
+        "payoutTotal": 1878.6
       },
       "metrics": {
-        "rate": 0.08098465929361398,
-        "average": 9.209691629955946,
-        "product": 0.7458437388512307
+        "rate": 0.09482446615997105,
+        "average": 7.170229007633587,
+        "product": 0.6799131378935939
       },
-      "maxDrawdown": 748.5000000000001,
-      "netUnits": -712.4000000000001
+      "maxDrawdown": 923.6,
+      "netUnits": -884.4000000000001
     },
     {
       "label": "중앙값",
       "all": {
         "total": 2812,
-        "evaluated": 2807,
-        "hits": 262,
-        "excluded": 5,
-        "paidHits": 262,
-        "payoutTotal": 2175.7
+        "evaluated": 2699,
+        "hits": 248,
+        "excluded": 113,
+        "paidHits": 248,
+        "payoutTotal": 1816.8000000000002
       },
       "metrics": {
-        "rate": 0.09333808336302102,
-        "average": 8.304198473282442,
-        "product": 0.7750979693623085
+        "rate": 0.09188588366061504,
+        "average": 7.325806451612904,
+        "product": 0.6731381993330863
       },
-      "maxDrawdown": 667.4000000000001,
-      "netUnits": -631.3000000000002
+      "maxDrawdown": 945.9999999999999,
+      "netUnits": -882.1999999999998
     },
     {
       "label": "최고 기록",
       "all": {
         "total": 2812,
-        "evaluated": 2802,
-        "hits": 278,
-        "excluded": 10,
-        "paidHits": 278,
-        "payoutTotal": 2152.2000000000003
+        "evaluated": 2783,
+        "hits": 328,
+        "excluded": 29,
+        "paidHits": 328,
+        "payoutTotal": 2081.8
       },
       "metrics": {
-        "rate": 0.099214846538187,
-        "average": 7.741726618705037,
-        "product": 0.7680942184154177
+        "rate": 0.11785842615882142,
+        "average": 6.346951219512196,
+        "product": 0.7480416816385197
       },
-      "maxDrawdown": 675.9000000000002,
-      "netUnits": -649.7999999999997
+      "maxDrawdown": 721.7999999999998,
+      "netUnits": -701.1999999999998
     },
     {
       "label": "평균+변동성",
       "all": {
         "total": 2812,
-        "evaluated": 2749,
-        "hits": 270,
-        "excluded": 63,
-        "paidHits": 270,
-        "payoutTotal": 1968.8
+        "evaluated": 2747,
+        "hits": 313,
+        "excluded": 65,
+        "paidHits": 313,
+        "payoutTotal": 2262.9
       },
       "metrics": {
-        "rate": 0.09821753364859949,
-        "average": 7.291851851851852,
-        "product": 0.7161877046198617
+        "rate": 0.11394248270840918,
+        "average": 7.229712460063898,
+        "product": 0.8237713869676011
       },
-      "maxDrawdown": 801.8999999999997,
-      "netUnits": -780.2
+      "maxDrawdown": 653.6999999999999,
+      "netUnits": -484.0999999999999
     },
     {
       "label": "기록 전체 혼합",
       "all": {
         "total": 2812,
-        "evaluated": 2804,
-        "hits": 279,
-        "excluded": 8,
-        "paidHits": 279,
-        "payoutTotal": 2302.4
+        "evaluated": 2758,
+        "hits": 292,
+        "excluded": 54,
+        "paidHits": 292,
+        "payoutTotal": 2165.8
       },
       "metrics": {
-        "rate": 0.09950071326676177,
-        "average": 8.252329749103943,
-        "product": 0.8211126961483595
+        "rate": 0.10587382160986222,
+        "average": 7.417123287671234,
+        "product": 0.785279187817259
       },
-      "maxDrawdown": 535.4999999999999,
-      "netUnits": -501.5999999999999
+      "maxDrawdown": 623.3999999999999,
+      "netUnits": -592.1999999999998
     }
   ],
   "live": {
     "forQuarter": "20260701",
     "settings": {
-      "anchorMode": "analysis",
+      "anchorRank": 1,
       "modelMode": "custom",
       "weights": [
-        31,
+        3,
+        6,
         0,
+        15,
+        1,
+        3,
+        16,
         4,
-        2,
+        1,
+        20,
         0,
         9,
-        15,
-        2,
-        2,
+        5,
+        9,
         0,
         0,
-        34,
-        1,
-        0,
-        0,
-        0,
-        0
+        8
       ],
-      "min": 8,
-      "max": 9
+      "min": 9,
+      "max": 10
     },
-    "style": "평균+변동성",
-    "months": 24,
+    "style": "중앙값",
+    "months": 36,
     "retrospective": {
       "all": {
         "total": 5606,
-        "evaluated": 5443,
-        "hits": 278,
-        "excluded": 163,
-        "paidHits": 278,
-        "payoutTotal": 3899.9000000000015
+        "evaluated": 5034,
+        "hits": 359,
+        "excluded": 572,
+        "paidHits": 359,
+        "payoutTotal": 4145.9000000000015
       },
       "metrics": {
-        "rate": 0.05107477494029028,
-        "average": 14.028417266187056,
-        "product": 0.7164982546389861
+        "rate": 0.0713150576082638,
+        "average": 11.54846796657382,
+        "product": 0.8235796583234012
       }
     }
   },
   "sourceSha256": {
-    "qpl-history-years/2021.json": "98f2fdf20489b288a24513320401253b9f88faf083f74189078595ab359f3dde",
-    "qpl-history-years/2022.json": "ae2d745c1d2e316e2cf9822de69feff9ebfe18fe7967197b2d3825a4eb144573",
-    "qpl-history-years/2023.json": "049da699ceaa584320c2cb21bc34b4cb138be935c87493f1e8255af713cf23b3",
-    "qpl-history-years/2024.json": "0e02b6ff86fa2b35921a88a2093d86571550b954213675548bbdc8f39827a243",
-    "qpl-history-years/2025.json": "7f19db9ed5a53d4913ca116fdeb4935af6869dbb91262676d9300204d994fe0e",
-    "qpl-history-years/2026.json": "3d10fbfbe255edd64e05d5a4929ee06be6c016a1331be6e3033a21aac1f5041d"
+    "qpl-history-years/2021.json": "7ad8a97c2948fa0b80885d27a694ff6c82674b1e9f87fdb6308768b315491b7b",
+    "qpl-history-years/2022.json": "b96f1b9d888a70879dbe45f84514c5e1927a758cd42879e4ee01b12ce95cd3d3",
+    "qpl-history-years/2023.json": "07482473d55515512d0c34ef6ecf8afb8a0a30989c121b7a58f8dd7f93ca2d33",
+    "qpl-history-years/2024.json": "0c6d2ccb24627cb2466fe9a1d84b5acad9cac7765fd3d80277be211fb2fbbef3",
+    "qpl-history-years/2025.json": "cd2816ad95b0bc649cd7c6c2f1288f504a2f87ba6b3b8379804becbddaf9e35e",
+    "qpl-history-years/2026.json": "6c02d867272633ac5f847667d5ad7d90626b696116a0e1bbacd8c12bd97958b4"
   },
-  "note": "서울 경주만 사용하여 각 분기 직전 3개월로 가중치·학습기간·기록 방식을 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 서울 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 최종배당 기준 사후 재계산입니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다."
+  "note": "서울 경주만 사용하여 각 분기 직전 3개월로 가중치·학습기간·기록 방식을 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 서울 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 연승확률 분석 순위 기준 사후 재계산입니다. 지급배당은 성과 계산에만 사용합니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다."
 }
