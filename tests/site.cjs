@@ -36,7 +36,7 @@ const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Inf
 };
 
 vm.createContext(sandbox);
-for(const p of ['model.js','qpl-policy.js','tuning-model.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','weight-search-engine.js','weight-search.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','weight-search-engine.js','weight-search.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 
 (async()=>{await flush();
  assert.equal(vm.runInContext('races.every(r=>r.venue==="seoul")',sandbox),true);

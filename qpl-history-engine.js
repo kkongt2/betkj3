@@ -2,6 +2,7 @@
 const QplHistoryEngine=(()=>{
  const tuning=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
+ const screening=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
  const PERIOD={from:'20220101',comparisonFrom:'20230101'};
  const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
  function sumYears(years,from){const g=blank();for(const [year,x] of Object.entries(years||{}))if(year>=from.slice(0,4))for(const k of Object.keys(g))g[k]+=x[k]||0;return g;}
@@ -26,11 +27,18 @@ const QplHistoryEngine=(()=>{
    }
    const result=policy.apply(tuning.unpack(signature==='existing'?entry.row:entry.custom),null,config),selected=result.qplPolicy.partner;
    const pair=selected?result.pairs[0]:null,hit=!!pair&&entry.winning.has(key(pair.numbers));
+   let screen;
+   if(config.includeScreening){
+    const screenKey=signature+':'+config.anchorRank+':'+config.min+':'+config.max;
+    if(entry.screenKey!==screenKey){entry.screen=screening.score(result,config);entry.screenKey=screenKey;}
+    screen=entry.screen;
+   }
    return {date:entry.row.date,venue:entry.row.venue,settled:entry.row.settled,
+    ...(config.includeScreening?{screening:screen}:{}),
     candidates:pair?[{partner:selected,pick:{prob:pair.prob},hit,payout:hit?entry.winning.get(key(pair.numbers)):null}]:[]};
   }
   async function evaluate(options,from,to,isCurrent=()=>true,onProgress=()=>{}){
-   const config={...tuning.settings(options),...policy.normalizeRange(options)},results=[];
+   const config={...tuning.settings(options),...policy.normalizeRange(options),includeScreening:options.includeScreening===true},results=[];
    for(let i=0;i<entries.length;i++){
     if(!isCurrent())return null;
     const entry=entries[i];if(entry.row.date>=from&&entry.row.date<=to)results.push(evaluateRow(entry,config));
@@ -39,7 +47,7 @@ const QplHistoryEngine=(()=>{
    if(!isCurrent())return null;
    const groups=policy.summarize(results,config,from,to),comparisonFrom=from>PERIOD.comparisonFrom?from:PERIOD.comparisonFrom;
    const comparison=policy.summarize(results,config,comparisonFrom,to);
-   return {...groups,from,to,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to)};
+   return {...groups,from,to,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to),...(config.includeScreening?{screening:screening.curve(results)}:{})};
   }
   return {evaluate,evaluateRow:(i,options)=>evaluateRow(entries[i],{...tuning.settings(options),...policy.normalizeRange(options)})};
  }
@@ -68,4 +76,3 @@ const QplHistoryEngine=(()=>{
  return {create,metrics,load,PERIOD,sumYears};
 })();
 if(typeof module!=='undefined')module.exports=QplHistoryEngine;
-
