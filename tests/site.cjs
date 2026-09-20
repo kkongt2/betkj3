@@ -17,7 +17,7 @@ const flush=()=>new Promise(resolve=>setTimeout(resolve,180));
 const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,disabled:false,dataset:{},classList:{toggle(){}},setAttribute(){},addEventListener(t,f){this[t]=f},focus(){}});
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
-const savedData=new Map();
+const savedData=new Map([['betkj3-screening-strictness','75']]);
 const requested=[];
 const rollingFile=JSON.parse(fs.readFileSync('rolling-report.json'));
 const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,
@@ -53,6 +53,17 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(nodes['#pairLead'].innerHTML.includes('분석 3위'));
  assert(!nodes['#pairLead'].innerHTML.includes('최종배당'));
 
+ assert.equal(nodes['#screeningEnabled'].checked,false);
+ assert.equal(nodes['#screeningControls'].hidden,true);
+ assert(!nodes['#pairLead'].innerHTML.includes('screening-badge'));
+ assert(!nodes['#raceOverview'].innerHTML.includes('screening-badge'));
+ nodes['#screeningEnabled'].checked=true;nodes['#screeningEnabled'].onchange();
+ assert(nodes['#pairLead'].innerHTML.includes('screening-badge'));
+ nodes['#screeningOnly'].checked=true;
+ nodes['#screeningEnabled'].checked=false;nodes['#screeningEnabled'].onchange();
+ assert.equal(nodes['#screeningOnly'].checked,false);
+ assert(!nodes['#raceOverview'].innerHTML.includes('screening-badge'));
+ assert(!nodes['#overviewStatus'].textContent.includes('선별'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('100.0%'));
  assert(!nodes['#qplHistoryStats'].innerHTML.includes('2021.01.08'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('2023년 이후 비교'));

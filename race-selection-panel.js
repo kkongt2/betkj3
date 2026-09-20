@@ -19,14 +19,27 @@ const RaceSelectionPanel=(()=>{
  }
  function init(api){
   const range=document.querySelector('#screeningStrictness'),input=document.querySelector('#screeningStrictnessNumber'),root=document.querySelector('#screeningStats');
-  let value=0,data=null;
+  const toggle=document.querySelector('#screeningEnabled');
+  let value=0,data=null,enabled=false;
   try{value=RaceSelectionModel.strictness(localStorage.getItem('betkj3-screening-strictness'));}catch{}
-  function sync(){range.value=String(value);input.value=String(value);document.querySelector('#screeningLevel').textContent=value===0?'전체 선택':value===100?'선택 없음':'선별 점수 '+value+'점 이상';if(data)root.innerHTML=view(data,value);}
-  function set(next){value=RaceSelectionModel.strictness(next);try{localStorage.setItem('betkj3-screening-strictness',String(value));}catch{}sync();api.change(value);}
+  try{enabled=localStorage.getItem('betkj3-screening-enabled')==='true';}catch{}
+  function sync(){
+   toggle.checked=enabled;
+   document.querySelector('#screeningControls').hidden=!enabled;
+   document.querySelector('#screeningToggleStatus').textContent=enabled?'ON · 경기 선별 사용 중':'OFF · 경기 선별을 사용하지 않습니다.';
+   document.querySelector('#screeningOnlyControl').hidden=!enabled;
+   document.querySelector('#screeningOnly').disabled=!enabled;
+   if(!enabled)document.querySelector('#screeningOnly').checked=false;
+   range.value=String(value);input.value=String(value);
+   document.querySelector('#screeningLevel').textContent=value===0?'전체 선택':value===100?'선택 없음':'선별 점수 '+value+'점 이상';
+   if(data&&enabled)root.innerHTML=view(data,value);
+  }
+  toggle.onchange=()=>{enabled=toggle.checked;try{localStorage.setItem('betkj3-screening-enabled',String(enabled));}catch{}sync();api.change(value);};
+  function set(next){if(!enabled)return;value=RaceSelectionModel.strictness(next);try{localStorage.setItem('betkj3-screening-strictness',String(value));}catch{}sync();api.change(value);}
   range.oninput=()=>set(range.value);input.oninput=()=>{if(input.value.trim()!==''&&Number.isFinite(+input.value))set(input.value);};input.onchange=()=>set(input.value);
   document.querySelector('#screeningLess').onclick=()=>set(value-1);document.querySelector('#screeningMore').onclick=()=>set(value+1);
   root.addEventListener('click',e=>{const b=e.target.closest('[data-screening-level]');if(b)set(+b.dataset.screeningLevel);});
-  sync();return {value:()=>value,pending(){data=null;root.setAttribute('aria-busy','true');root.textContent='현재 조합 설정으로 경기 선별 점수를 계산하는 중…';},show(result){data=result;root.setAttribute('aria-busy','false');sync();},error(){data=null;root.setAttribute('aria-busy','false');root.textContent='선별 통계를 불러오지 못했습니다. 과거 통계 다시 불러오기를 눌러 주세요.';}};
+  sync();return {value:()=>value,enabled:()=>enabled,pending(){data=null;root.setAttribute('aria-busy','true');root.textContent='현재 조합 설정으로 경기 선별 점수를 계산하는 중…';},show(result){data=result;root.setAttribute('aria-busy','false');sync();},error(){data=null;root.setAttribute('aria-busy','false');root.textContent='선별 통계를 불러오지 못했습니다. 과거 통계 다시 불러오기를 눌러 주세요.';}};
  }
  return {init,view,badge};
 })();

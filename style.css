@@ -36,7 +36,7 @@
 .period-comparison{margin-top:16px;padding:14px;border:1px solid var(--line);border-radius:12px;background:#f4f9f6}.period-comparison h3{font-size:15px;margin:0 0 8px}.period-comparison p{margin-bottom:0}.feature-coverage{margin-top:16px}.feature-coverage table{min-width:470px}
 
 /* Independent race screening controls, designed for narrow mobile screens. */
-.race-screening>input[type=range]{width:100%;margin:14px 0 4px;accent-color:var(--accent,#2563eb)}
+.race-screening input[type=range]{width:100%;margin:14px 0 4px;accent-color:var(--accent,#2563eb)}
 .screening-range-labels,.screening-number,.screening-detail{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .screening-range-labels{font-size:12px;opacity:.75}.screening-number{justify-content:center;margin:14px 0}.screening-number input{width:85px;text-align:center}.screening-number button{min-width:44px;min-height:44px}
 .screening-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}.screening-metrics>div{padding:14px 10px;border:1px solid #64748b44;border-radius:12px;font-size:12px;min-width:0}.screening-metrics strong{display:block;font-size:24px;margin:7px 0;overflow-wrap:anywhere}.screening-primary{background:#14b8a612}.screening-primary strong{color:#0f9e85}.screening-metrics small{display:block;font-size:11px;opacity:.8}

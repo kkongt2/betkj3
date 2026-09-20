@@ -21,7 +21,13 @@ const server=http.createServer((req,res)=>{
   await context.route('**/*',route=>route.request().url().startsWith('http://127.0.0.1:')?route.continue():route.abort());
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(({fallback})=>{window.__evaluations=0;if(fallback)window.Worker=undefined;else{const Original=window.Worker;window.Worker=class extends Original{postMessage(m,...rest){if(m.type==='evaluate')window.__evaluations++;return super.postMessage(m,...rest);}};}},{fallback});
-  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#screeningProduct').waitFor();await page.locator('#pairLead .screening-badge').waitFor();
+  await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
+  assert.equal(await page.locator('#screeningEnabled').isChecked(),false);
+  assert.equal(await page.locator('#screeningControls').isVisible(),false);
+  assert.equal(await page.locator('#screeningOnlyControl').isVisible(),false);
+  assert.equal(await page.locator('.screening-badge').count(),0);
+  assert.equal(await page.locator('#raceOverview .overview-row').count(),races.length);
+  await page.locator('#screeningEnabled').check();await page.locator('#screeningProduct').waitFor();await page.locator('#pairLead .screening-badge').waitFor();
   const config=await page.evaluate(()=>strategySettings());const expected=await H.create(rows).evaluate({...config,includeScreening:true},'20220101','20260920');
   const beforePair=await page.locator('#pairLead .lead-number').innerText(),beforeCount=await page.evaluate(()=>window.__evaluations);
   for(const level of [0,25,50,75,100,60]){
@@ -39,8 +45,16 @@ const server=http.createServer((req,res)=>{
   await page.reload();await page.locator('#screeningProduct').waitFor();assert.equal(await page.locator('#screeningStrictness').inputValue(),'61');
   await page.locator('#screeningStrictness').evaluate(n=>{n.value='100';n.dispatchEvent(new Event('input'));});
   await page.locator('#screeningOnly').check();assert((await page.locator('#raceOverview').innerText()).includes('선별된 경기가 없습니다'));
+  await page.locator('#screeningEnabled').uncheck();
+  assert.equal(await page.locator('.screening-badge').count(),0);
+  assert.equal(await page.locator('#screeningOnly').isChecked(),false);
+  assert.equal(await page.locator('#raceOverview .overview-row').count(),races.length);
+  assert(!(await page.locator('#overviewStatus').innerText()).includes('선별'));
+  await page.locator('#screeningEnabled').check();
+  assert.equal(await page.locator('#screeningStrictness').inputValue(),'100');
   await page.locator('#screeningStats [data-screening-level="50"]').click();
   assert.equal(await page.locator('#screeningStrictnessNumber').inputValue(),'50');
+  await page.locator('#screeningOnly').check();
   assert.equal(await page.locator('#raceOverview .overview-row').count(),expected.screening.points[50].evaluated);
   await page.locator('#screeningOnly').uncheck();
   await page.selectOption('#anchorRank','3');await page.selectOption('#partnerMin','2');await page.selectOption('#partnerMax','6');
@@ -53,6 +67,10 @@ const server=http.createServer((req,res)=>{
   assert.equal(await page.locator('#screeningProduct').innerText(),expected3.screening.points[50].product.toFixed(4)+'배');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile width overflow');
   await page.locator('.race-screening').screenshot({path:path.join(process.env.SCREENING_SCREENSHOT_DIR||'/tmp','screening-'+(fallback?'fallback':'worker')+'.png')});
+  await page.locator('#screeningEnabled').uncheck();await page.reload();await page.locator('#pairLead .lead-number').waitFor();
+  assert.equal(await page.locator('#screeningEnabled').isChecked(),false);
+  assert.equal(await page.locator('.screening-badge').count(),0);
+  assert.equal(await page.locator('#raceOverview .overview-row').count(),races.length);
   await context.close();
  }
  assert.deepEqual(errors,[]);console.log('PASS mobile worker/fallback, exact selected stats, instant slider, unchanged pairs, persistence, date filtering and setting invalidation');
