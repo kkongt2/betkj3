@@ -1,0 +1,996 @@
+{
+  "protocol": {
+    "outer_years": [
+      2024,
+      2025,
+      2026
+    ],
+    "label": "official pair top-three membership",
+    "payout_inputs": false,
+    "selection_training": "earlier out-of-time predictions only",
+    "pair_anchor": "full horse model rank 1; partners ranks 2..10",
+    "targets": [
+      40,
+      60,
+      80
+    ],
+    "feature_info": "prior days only; last five starts; raw features without global scaler; binary top-three labels; no payout amount inputs"
+  },
+  "all": {
+    "linear": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 2833,
+        "hits": 836,
+        "payoutTotal": 2339.7,
+        "coverage": 1.0,
+        "rate": 0.2950935404165196,
+        "average": 2.7986842105263157,
+        "product": 0.8258736321920225
+      },
+      "years": {
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 301,
+          "payoutTotal": 811.5,
+          "coverage": 1.0,
+          "rate": 0.28914505283381364,
+          "average": 2.6960132890365447,
+          "product": 0.7795389048991355
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 315,
+          "payoutTotal": 959.0,
+          "coverage": 1.0,
+          "rate": 0.30493707647628265,
+          "average": 3.0444444444444443,
+          "product": 0.9283639883833494
+        },
+        "2026": {
+          "total": 759,
+          "evaluated": 759,
+          "hits": 220,
+          "payoutTotal": 569.2,
+          "coverage": 1.0,
+          "rate": 0.2898550724637681,
+          "average": 2.5872727272727274,
+          "product": 0.7499341238471674
+        }
+      }
+    },
+    "core": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 2833,
+        "hits": 750,
+        "payoutTotal": 2067.3,
+        "coverage": 1.0,
+        "rate": 0.2647370278856336,
+        "average": 2.7564,
+        "product": 0.7297211436639606
+      },
+      "years": {
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 271,
+          "payoutTotal": 738.7,
+          "coverage": 1.0,
+          "rate": 0.26032660902977905,
+          "average": 2.725830258302583,
+          "product": 0.7096061479346782
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 267,
+          "payoutTotal": 752.3,
+          "coverage": 1.0,
+          "rate": 0.2584704743465634,
+          "average": 2.8176029962546814,
+          "product": 0.7282671829622458
+        },
+        "2026": {
+          "total": 759,
+          "evaluated": 759,
+          "hits": 212,
+          "payoutTotal": 576.3,
+          "coverage": 1.0,
+          "rate": 0.27931488801054016,
+          "average": 2.718396226415094,
+          "product": 0.7592885375494071
+        }
+      }
+    },
+    "full": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 2833,
+        "hits": 825,
+        "payoutTotal": 2229.1,
+        "coverage": 1.0,
+        "rate": 0.29121073067419695,
+        "average": 2.701939393939394,
+        "product": 0.7868337451464877
+      },
+      "years": {
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 291,
+          "payoutTotal": 782.6,
+          "coverage": 1.0,
+          "rate": 0.27953890489913547,
+          "average": 2.689347079037801,
+          "product": 0.7517771373679155
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 300,
+          "payoutTotal": 826.7,
+          "coverage": 1.0,
+          "rate": 0.2904162633107454,
+          "average": 2.755666666666667,
+          "product": 0.8002904162633108
+        },
+        "2026": {
+          "total": 759,
+          "evaluated": 759,
+          "hits": 234,
+          "payoutTotal": 619.8,
+          "coverage": 1.0,
+          "rate": 0.308300395256917,
+          "average": 2.6487179487179486,
+          "product": 0.8166007905138339
+        }
+      }
+    },
+    "pair": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 2833,
+        "hits": 796,
+        "payoutTotal": 2131.4,
+        "coverage": 1.0,
+        "rate": 0.28097423226261914,
+        "average": 2.677638190954774,
+        "product": 0.752347334980586
+      },
+      "years": {
+        "2024": {
+          "total": 1041,
+          "evaluated": 1041,
+          "hits": 282,
+          "payoutTotal": 725.4,
+          "coverage": 1.0,
+          "rate": 0.27089337175792505,
+          "average": 2.5723404255319147,
+          "product": 0.6968299711815562
+        },
+        "2025": {
+          "total": 1033,
+          "evaluated": 1033,
+          "hits": 283,
+          "payoutTotal": 780.9,
+          "coverage": 1.0,
+          "rate": 0.2739593417231365,
+          "average": 2.759363957597173,
+          "product": 0.7559535333978703
+        },
+        "2026": {
+          "total": 759,
+          "evaluated": 759,
+          "hits": 231,
+          "payoutTotal": 625.1,
+          "coverage": 1.0,
+          "rate": 0.30434782608695654,
+          "average": 2.706060606060606,
+          "product": 0.8235836627140976
+        }
+      }
+    }
+  },
+  "selected": {
+    "full-40": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 1193,
+        "hits": 395,
+        "payoutTotal": 896.8,
+        "coverage": 0.4211083656900812,
+        "rate": 0.3310980720871752,
+        "average": 2.270379746835443,
+        "product": 0.7517183570829841
+      },
+      "folds": [
+        {
+          "year": 2024,
+          "mode": "base_confidence",
+          "threshold": 0.3152105980297785,
+          "selector_train_through": 20230625,
+          "threshold_train_through": 20231231,
+          "prior_validation": {
+            "total": 544,
+            "evaluated": 218,
+            "hits": 86,
+            "payoutTotal": 176.9,
+            "coverage": 0.4007352941176471,
+            "rate": 0.3944954128440367,
+            "average": 2.0569767441860467,
+            "product": 0.8114678899082569
+          },
+          "test": {
+            "total": 1041,
+            "evaluated": 486,
+            "hits": 168,
+            "payoutTotal": 373.9,
+            "coverage": 0.4668587896253602,
+            "rate": 0.345679012345679,
+            "average": 2.225595238095238,
+            "product": 0.7693415637860082
+          }
+        },
+        {
+          "year": 2025,
+          "mode": "predicted_hit",
+          "threshold": 0.3055086778572987,
+          "selector_train_through": 20240630,
+          "threshold_train_through": 20241229,
+          "prior_validation": {
+            "total": 509,
+            "evaluated": 204,
+            "hits": 75,
+            "payoutTotal": 165.3,
+            "coverage": 0.40078585461689586,
+            "rate": 0.36764705882352944,
+            "average": 2.204,
+            "product": 0.8102941176470588
+          },
+          "test": {
+            "total": 1033,
+            "evaluated": 372,
+            "hits": 141,
+            "payoutTotal": 295.0,
+            "coverage": 0.3601161665053243,
+            "rate": 0.3790322580645161,
+            "average": 2.0921985815602837,
+            "product": 0.793010752688172
+          }
+        },
+        {
+          "year": 2026,
+          "mode": "prediction_residual",
+          "threshold": -0.019434721969500746,
+          "selector_train_through": 20250629,
+          "threshold_train_through": 20251228,
+          "prior_validation": {
+            "total": 514,
+            "evaluated": 206,
+            "hits": 53,
+            "payoutTotal": 217.4,
+            "coverage": 0.40077821011673154,
+            "rate": 0.25728155339805825,
+            "average": 4.10188679245283,
+            "product": 1.0553398058252428
+          },
+          "test": {
+            "total": 759,
+            "evaluated": 335,
+            "hits": 86,
+            "payoutTotal": 227.9,
+            "coverage": 0.4413702239789196,
+            "rate": 0.25671641791044775,
+            "average": 2.65,
+            "product": 0.6802985074626866
+          }
+        }
+      ],
+      "meets_40_percent_each_year": false
+    },
+    "full-60": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 1713,
+        "hits": 513,
+        "payoutTotal": 1304.0,
+        "coverage": 0.6046593716907872,
+        "rate": 0.29947460595446584,
+        "average": 2.5419103313840155,
+        "product": 0.7612375948628137
+      },
+      "folds": [
+        {
+          "year": 2024,
+          "mode": "predicted_hit",
+          "threshold": 0.27753049519917183,
+          "selector_train_through": 20230625,
+          "threshold_train_through": 20231231,
+          "prior_validation": {
+            "total": 544,
+            "evaluated": 327,
+            "hits": 113,
+            "payoutTotal": 273.8,
+            "coverage": 0.6011029411764706,
+            "rate": 0.345565749235474,
+            "average": 2.4230088495575224,
+            "product": 0.8373088685015291
+          },
+          "test": {
+            "total": 1041,
+            "evaluated": 685,
+            "hits": 213,
+            "payoutTotal": 486.0,
+            "coverage": 0.6580211335254563,
+            "rate": 0.310948905109489,
+            "average": 2.2816901408450705,
+            "product": 0.7094890510948905
+          }
+        },
+        {
+          "year": 2025,
+          "mode": "prediction_residual",
+          "threshold": -0.029006627558922804,
+          "selector_train_through": 20240630,
+          "threshold_train_through": 20241229,
+          "prior_validation": {
+            "total": 509,
+            "evaluated": 306,
+            "hits": 77,
+            "payoutTotal": 221.0,
+            "coverage": 0.6011787819253438,
+            "rate": 0.25163398692810457,
+            "average": 2.8701298701298703,
+            "product": 0.7222222222222222
+          },
+          "test": {
+            "total": 1033,
+            "evaluated": 612,
+            "hits": 147,
+            "payoutTotal": 457.4,
+            "coverage": 0.5924491771539206,
+            "rate": 0.24019607843137256,
+            "average": 3.11156462585034,
+            "product": 0.7473856209150327
+          }
+        },
+        {
+          "year": 2026,
+          "mode": "predicted_hit",
+          "threshold": 0.25619839297996244,
+          "selector_train_through": 20250629,
+          "threshold_train_through": 20251228,
+          "prior_validation": {
+            "total": 514,
+            "evaluated": 309,
+            "hits": 116,
+            "payoutTotal": 279.6,
+            "coverage": 0.6011673151750972,
+            "rate": 0.37540453074433655,
+            "average": 2.410344827586207,
+            "product": 0.9048543689320389
+          },
+          "test": {
+            "total": 759,
+            "evaluated": 416,
+            "hits": 153,
+            "payoutTotal": 360.6,
+            "coverage": 0.5480895915678524,
+            "rate": 0.36778846153846156,
+            "average": 2.3568627450980393,
+            "product": 0.8668269230769231
+          }
+        }
+      ],
+      "meets_40_percent_each_year": true
+    },
+    "full-80": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 2292,
+        "hits": 637,
+        "payoutTotal": 1765.2,
+        "coverage": 0.8090363572184963,
+        "rate": 0.2779232111692845,
+        "average": 2.7711145996860282,
+        "product": 0.7701570680628272
+      },
+      "folds": [
+        {
+          "year": 2024,
+          "mode": "prediction_residual",
+          "threshold": -0.02177035738022476,
+          "selector_train_through": 20230625,
+          "threshold_train_through": 20231231,
+          "prior_validation": {
+            "total": 544,
+            "evaluated": 436,
+            "hits": 127,
+            "payoutTotal": 365.8,
+            "coverage": 0.8014705882352942,
+            "rate": 0.29128440366972475,
+            "average": 2.880314960629921,
+            "product": 0.8389908256880734
+          },
+          "test": {
+            "total": 1041,
+            "evaluated": 834,
+            "hits": 231,
+            "payoutTotal": 628.3,
+            "coverage": 0.8011527377521613,
+            "rate": 0.27697841726618705,
+            "average": 2.7199134199134196,
+            "product": 0.753357314148681
+          }
+        },
+        {
+          "year": 2025,
+          "mode": "prediction_residual",
+          "threshold": -0.05971040156213059,
+          "selector_train_through": 20240630,
+          "threshold_train_through": 20241229,
+          "prior_validation": {
+            "total": 509,
+            "evaluated": 408,
+            "hits": 110,
+            "payoutTotal": 301.8,
+            "coverage": 0.8015717092337917,
+            "rate": 0.2696078431372549,
+            "average": 2.7436363636363637,
+            "product": 0.7397058823529412
+          },
+          "test": {
+            "total": 1033,
+            "evaluated": 826,
+            "hits": 219,
+            "payoutTotal": 639.7,
+            "coverage": 0.7996127783155856,
+            "rate": 0.2651331719128329,
+            "average": 2.921004566210046,
+            "product": 0.774455205811138
+          }
+        },
+        {
+          "year": 2026,
+          "mode": "prediction_residual",
+          "threshold": -0.06728616526013498,
+          "selector_train_through": 20250629,
+          "threshold_train_through": 20251228,
+          "prior_validation": {
+            "total": 514,
+            "evaluated": 412,
+            "hits": 117,
+            "payoutTotal": 381.4,
+            "coverage": 0.8015564202334631,
+            "rate": 0.28398058252427183,
+            "average": 3.25982905982906,
+            "product": 0.9257281553398058
+          },
+          "test": {
+            "total": 759,
+            "evaluated": 632,
+            "hits": 187,
+            "payoutTotal": 497.2,
+            "coverage": 0.8326745718050066,
+            "rate": 0.2958860759493671,
+            "average": 2.6588235294117646,
+            "product": 0.7867088607594936
+          }
+        }
+      ],
+      "meets_40_percent_each_year": true
+    },
+    "pair-40": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 1108,
+        "hits": 406,
+        "payoutTotal": 902.4,
+        "coverage": 0.39110483586304273,
+        "rate": 0.3664259927797834,
+        "average": 2.2226600985221676,
+        "product": 0.8144404332129964
+      },
+      "folds": [
+        {
+          "year": 2024,
+          "mode": "base_confidence",
+          "threshold": 0.26142461633041053,
+          "selector_train_through": 20230625,
+          "threshold_train_through": 20231231,
+          "prior_validation": {
+            "total": 544,
+            "evaluated": 218,
+            "hits": 82,
+            "payoutTotal": 180.0,
+            "coverage": 0.4007352941176471,
+            "rate": 0.3761467889908257,
+            "average": 2.1951219512195124,
+            "product": 0.8256880733944955
+          },
+          "test": {
+            "total": 1041,
+            "evaluated": 476,
+            "hits": 173,
+            "payoutTotal": 380.0,
+            "coverage": 0.457252641690682,
+            "rate": 0.3634453781512605,
+            "average": 2.1965317919075145,
+            "product": 0.7983193277310925
+          }
+        },
+        {
+          "year": 2025,
+          "mode": "base_confidence",
+          "threshold": 0.2767749598682074,
+          "selector_train_through": 20240630,
+          "threshold_train_through": 20241229,
+          "prior_validation": {
+            "total": 509,
+            "evaluated": 204,
+            "hits": 77,
+            "payoutTotal": 168.4,
+            "coverage": 0.40078585461689586,
+            "rate": 0.37745098039215685,
+            "average": 2.187012987012987,
+            "product": 0.8254901960784314
+          },
+          "test": {
+            "total": 1033,
+            "evaluated": 349,
+            "hits": 143,
+            "payoutTotal": 302.9,
+            "coverage": 0.3378509196515005,
+            "rate": 0.40974212034383956,
+            "average": 2.118181818181818,
+            "product": 0.8679083094555873
+          }
+        },
+        {
+          "year": 2026,
+          "mode": "prediction_residual",
+          "threshold": 0.03761767170878191,
+          "selector_train_through": 20250629,
+          "threshold_train_through": 20251228,
+          "prior_validation": {
+            "total": 514,
+            "evaluated": 206,
+            "hits": 64,
+            "payoutTotal": 208.7,
+            "coverage": 0.40077821011673154,
+            "rate": 0.3106796116504854,
+            "average": 3.2609375,
+            "product": 1.0131067961165048
+          },
+          "test": {
+            "total": 759,
+            "evaluated": 283,
+            "hits": 90,
+            "payoutTotal": 219.5,
+            "coverage": 0.37285902503293805,
+            "rate": 0.31802120141342755,
+            "average": 2.438888888888889,
+            "product": 0.7756183745583038
+          }
+        }
+      ],
+      "meets_40_percent_each_year": false
+    },
+    "pair-60": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 1723,
+        "hits": 583,
+        "payoutTotal": 1400.8,
+        "coverage": 0.6081891987292622,
+        "rate": 0.3383633197910621,
+        "average": 2.4027444253859347,
+        "product": 0.8130005803830528
+      },
+      "folds": [
+        {
+          "year": 2024,
+          "mode": "predicted_hit",
+          "threshold": 0.26203556346044693,
+          "selector_train_through": 20230625,
+          "threshold_train_through": 20231231,
+          "prior_validation": {
+            "total": 544,
+            "evaluated": 327,
+            "hits": 105,
+            "payoutTotal": 239.5,
+            "coverage": 0.6011029411764706,
+            "rate": 0.3211009174311927,
+            "average": 2.280952380952381,
+            "product": 0.7324159021406728
+          },
+          "test": {
+            "total": 1041,
+            "evaluated": 680,
+            "hits": 218,
+            "payoutTotal": 503.6,
+            "coverage": 0.6532180595581172,
+            "rate": 0.3205882352941177,
+            "average": 2.310091743119266,
+            "product": 0.7405882352941177
+          }
+        },
+        {
+          "year": 2025,
+          "mode": "base_confidence",
+          "threshold": 0.22277509146018162,
+          "selector_train_through": 20240630,
+          "threshold_train_through": 20241229,
+          "prior_validation": {
+            "total": 509,
+            "evaluated": 306,
+            "hits": 100,
+            "payoutTotal": 233.4,
+            "coverage": 0.6011787819253438,
+            "rate": 0.32679738562091504,
+            "average": 2.334,
+            "product": 0.7627450980392158
+          },
+          "test": {
+            "total": 1033,
+            "evaluated": 567,
+            "hits": 211,
+            "payoutTotal": 485.6,
+            "coverage": 0.5488867376573088,
+            "rate": 0.37213403880070545,
+            "average": 2.3014218009478675,
+            "product": 0.8564373897707231
+          }
+        },
+        {
+          "year": 2026,
+          "mode": "prediction_residual",
+          "threshold": 0.010945793917562757,
+          "selector_train_through": 20250629,
+          "threshold_train_through": 20251228,
+          "prior_validation": {
+            "total": 514,
+            "evaluated": 309,
+            "hits": 94,
+            "payoutTotal": 302.4,
+            "coverage": 0.6011673151750972,
+            "rate": 0.3042071197411003,
+            "average": 3.2170212765957444,
+            "product": 0.978640776699029
+          },
+          "test": {
+            "total": 759,
+            "evaluated": 476,
+            "hits": 154,
+            "payoutTotal": 411.6,
+            "coverage": 0.6271409749670619,
+            "rate": 0.3235294117647059,
+            "average": 2.672727272727273,
+            "product": 0.8647058823529412
+          }
+        }
+      ],
+      "meets_40_percent_each_year": true
+    },
+    "pair-80": {
+      "overall": {
+        "total": 2833,
+        "evaluated": 2363,
+        "hits": 710,
+        "payoutTotal": 1798.9,
+        "coverage": 0.8340981291916696,
+        "rate": 0.30046550994498517,
+        "average": 2.533661971830986,
+        "product": 0.7612780363944139
+      },
+      "folds": [
+        {
+          "year": 2024,
+          "mode": "base_confidence",
+          "threshold": 0.15182944439300838,
+          "selector_train_through": 20230625,
+          "threshold_train_through": 20231231,
+          "prior_validation": {
+            "total": 544,
+            "evaluated": 436,
+            "hits": 128,
+            "payoutTotal": 324.1,
+            "coverage": 0.8014705882352942,
+            "rate": 0.29357798165137616,
+            "average": 2.53203125,
+            "product": 0.7433486238532111
+          },
+          "test": {
+            "total": 1041,
+            "evaluated": 899,
+            "hits": 262,
+            "payoutTotal": 657.2,
+            "coverage": 0.8635926993275697,
+            "rate": 0.2914349276974416,
+            "average": 2.508396946564886,
+            "product": 0.7310344827586207
+          }
+        },
+        {
+          "year": 2025,
+          "mode": "base_confidence",
+          "threshold": 0.16226262848349624,
+          "selector_train_through": 20240630,
+          "threshold_train_through": 20241229,
+          "prior_validation": {
+            "total": 509,
+            "evaluated": 408,
+            "hits": 123,
+            "payoutTotal": 319.0,
+            "coverage": 0.8015717092337917,
+            "rate": 0.3014705882352941,
+            "average": 2.5934959349593494,
+            "product": 0.7818627450980392
+          },
+          "test": {
+            "total": 1033,
+            "evaluated": 824,
+            "hits": 253,
+            "payoutTotal": 614.8,
+            "coverage": 0.797676669893514,
+            "rate": 0.3070388349514563,
+            "average": 2.4300395256916993,
+            "product": 0.7461165048543689
+          }
+        },
+        {
+          "year": 2026,
+          "mode": "prediction_residual",
+          "threshold": -0.0167344939178469,
+          "selector_train_through": 20250629,
+          "threshold_train_through": 20251228,
+          "prior_validation": {
+            "total": 514,
+            "evaluated": 412,
+            "hits": 125,
+            "payoutTotal": 392.4,
+            "coverage": 0.8015564202334631,
+            "rate": 0.30339805825242716,
+            "average": 3.1391999999999998,
+            "product": 0.9524271844660194
+          },
+          "test": {
+            "total": 759,
+            "evaluated": 640,
+            "hits": 195,
+            "payoutTotal": 526.9,
+            "coverage": 0.8432147562582345,
+            "rate": 0.3046875,
+            "average": 2.702051282051282,
+            "product": 0.82328125
+          }
+        }
+      ],
+      "meets_40_percent_each_year": true
+    }
+  },
+  "fold_models": {},
+  "horse_probability_quality": {
+    "linear": {
+      "logloss": 0.5204277432257574,
+      "brier": 0.1732248097485812
+    },
+    "core": {
+      "logloss": 0.5441164404675692,
+      "brier": 0.18260388916890105
+    },
+    "full": {
+      "logloss": 0.5213565156895761,
+      "brier": 0.1734863778959104
+    }
+  },
+  "data": {
+    "generated_at": "2026-09-21T13:41:55+09:00",
+    "through": "20260920",
+    "horse_features": 92,
+    "detail_missing_count": 19,
+    "detail_missing": [
+      [
+        "20251123",
+        2
+      ],
+      [
+        "20251206",
+        2
+      ],
+      [
+        "20251221",
+        11
+      ],
+      [
+        "20251228",
+        5
+      ],
+      [
+        "20260117",
+        7
+      ],
+      [
+        "20260214",
+        7
+      ],
+      [
+        "20260228",
+        8
+      ],
+      [
+        "20260314",
+        9
+      ],
+      [
+        "20260315",
+        6
+      ],
+      [
+        "20260524",
+        1
+      ],
+      [
+        "20260628",
+        4
+      ],
+      [
+        "20260704",
+        2
+      ],
+      [
+        "20260725",
+        7
+      ],
+      [
+        "20260809",
+        6
+      ],
+      [
+        "20260817",
+        5
+      ],
+      [
+        "20260920",
+        8
+      ],
+      [
+        "20260920",
+        9
+      ],
+      [
+        "20260920",
+        10
+      ],
+      [
+        "20260920",
+        11
+      ]
+    ],
+    "source_sha256": "bcc4be04d3fff6b36014227f647420bfe64761cae91d7ac628521cf05b29636e"
+  },
+  "horse_models": {
+    "core-2023": {
+      "depth": 3,
+      "trees": 152,
+      "validation_logloss": 0.5597024587276803,
+      "train_through": 20221225,
+      "validation_from": 20220701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "full-2023": {
+      "depth": 3,
+      "trees": 227,
+      "validation_logloss": 0.5396662634565423,
+      "train_through": 20221225,
+      "validation_from": 20220701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "core-2024": {
+      "depth": 4,
+      "trees": 336,
+      "validation_logloss": 0.5449102397206247,
+      "train_through": 20231231,
+      "validation_from": 20230701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "full-2024": {
+      "depth": 4,
+      "trees": 347,
+      "validation_logloss": 0.5248306861792716,
+      "train_through": 20231231,
+      "validation_from": 20230701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "core-2025": {
+      "depth": 4,
+      "trees": 335,
+      "validation_logloss": 0.5516303049554008,
+      "train_through": 20241229,
+      "validation_from": 20240701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "full-2025": {
+      "depth": 4,
+      "trees": 350,
+      "validation_logloss": 0.5321546102063351,
+      "train_through": 20241229,
+      "validation_from": 20240701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "core-2026": {
+      "depth": 4,
+      "trees": 331,
+      "validation_logloss": 0.5341963685970286,
+      "train_through": 20251228,
+      "validation_from": 20250701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "full-2026": {
+      "depth": 4,
+      "trees": 350,
+      "validation_logloss": 0.5158624520714464,
+      "train_through": 20251228,
+      "validation_from": 20250701,
+      "selection_metric": "binary log loss, not payout"
+    }
+  },
+  "pair_models": {
+    "2023": {
+      "depth": 3,
+      "trees": 280,
+      "validation_logloss": 0.22342741711830025,
+      "train_through": 20221225,
+      "validation_from": 20220701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "2024": {
+      "depth": 4,
+      "trees": 350,
+      "validation_logloss": 0.21182095136760798,
+      "train_through": 20231231,
+      "validation_from": 20230701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "2025": {
+      "depth": 4,
+      "trees": 350,
+      "validation_logloss": 0.21623474982944935,
+      "train_through": 20241229,
+      "validation_from": 20240701,
+      "selection_metric": "binary log loss, not payout"
+    },
+    "2026": {
+      "depth": 4,
+      "trees": 350,
+      "validation_logloss": 0.20664582575741886,
+      "train_through": 20251228,
+      "validation_from": 20250701,
+      "selection_metric": "binary log loss, not payout"
+    }
+  },
+  "note": "Retrospective chronological research. Historical periods have been inspected before; not an untouched prospective test. Final payouts only evaluate candidates and select prior-validation rules.",
+  "reproducibility": {
+    "python": "3.12.14",
+    "catboost": "1.2.10",
+    "numpy": "2.3.5",
+    "scikit_learn": "1.8.0",
+    "base_site_commit": "23485096a639885316dde4306c84476798071084",
+    "source_commit": "058af7036a54fa1b98952d58bbf1f3992b1cc1c9",
+    "source_git_blob": "ada1569775cd3e2d20e17f455e7e86c18abedac0",
+    "input_hashes": {
+      "history/weighted-source.jsonl.gz": "f2f062185fe3a70862d5f6f9722c9287a92d00d2db88efcdd66b1d9e51448075",
+      "qpl-history.json": "d6031190d375dcd05d6689f0171805686816f3db9f892fe4fbdb3c70b930b2e9",
+      "qpl-history-years/2021.json": "7ad8a97c2948fa0b80885d27a694ff6c82674b1e9f87fdb6308768b315491b7b",
+      "qpl-history-years/2022.json": "b96f1b9d888a70879dbe45f84514c5e1927a758cd42879e4ee01b12ce95cd3d3",
+      "qpl-history-years/2023.json": "07482473d55515512d0c34ef6ecf8afb8a0a30989c121b7a58f8dd7f93ca2d33",
+      "qpl-history-years/2024.json": "0c6d2ccb24627cb2466fe9a1d84b5acad9cac7765fd3d80277be211fb2fbbef3",
+      "qpl-history-years/2025.json": "cd2816ad95b0bc649cd7c6c2f1288f504a2f87ba6b3b8379804becbddaf9e35e",
+      "qpl-history-years/2026.json": "a7f6d66062b1f4278b626f3b84f776c4814d0a6832feb24dbe864c9c10898a17"
+    }
+  },
+  "deployment_decision": "No production model replacement: all new chronological returns are below 1.0 and below the previous 0.8711 research result."
+}
