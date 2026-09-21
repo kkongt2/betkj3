@@ -29,7 +29,7 @@ const QplHistoryEngine=(()=>{
    const pair=selected?result.pairs[0]:null,hit=!!pair&&entry.winning.has(key(pair.numbers));
    let screen;
    if(config.includeScreening){
-    const screenKey=signature+':'+config.anchorRank+':'+config.min+':'+config.max;
+    const screenKey=signature+':'+config.anchorRank+':'+config.min+':'+config.max+':'+JSON.stringify(config.screening);
     if(entry.screenKey!==screenKey){entry.screen=screening.score(result,config);entry.screenKey=screenKey;}
     screen=entry.screen;
    }

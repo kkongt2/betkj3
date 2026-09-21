@@ -25,6 +25,7 @@ const RaceSelectionPanel=(()=>{
   try{enabled=localStorage.getItem('betkj3-screening-enabled')==='true';}catch{}
   function sync(){
    toggle.checked=enabled;
+   const model=api.model?.();document.querySelector('#screeningModelInfo').textContent=model?'공동 탐색 선별 모델 · 목표 '+model.target+'% · 축마/상대마 격차, 출전 두수, 전적 및 마체중 자료 등 12개 지표. 점수는 적중확률이 아닙니다. 엄격도를 조절하면 목표 비율과 달라질 수 있습니다.':'기존 고정 규칙 모델 · 조합 안정성 35%, 전적 충실도 25%, 경쟁마 격차 25%, 동반입상확률 우위 15%. 공동 탐색 결과를 적용하면 별도 선별 기준으로 전환됩니다.';
    document.querySelector('#screeningControls').hidden=!enabled;
    document.querySelector('#screeningToggleStatus').textContent=enabled?'ON · 경기 선별 사용 중':'OFF · 경기 선별을 사용하지 않습니다.';
    document.querySelector('#screeningOnlyControl').hidden=!enabled;
@@ -39,7 +40,7 @@ const RaceSelectionPanel=(()=>{
   range.oninput=()=>set(range.value);input.oninput=()=>{if(input.value.trim()!==''&&Number.isFinite(+input.value))set(input.value);};input.onchange=()=>set(input.value);
   document.querySelector('#screeningLess').onclick=()=>set(value-1);document.querySelector('#screeningMore').onclick=()=>set(value+1);
   root.addEventListener('click',e=>{const b=e.target.closest('[data-screening-level]');if(b)set(+b.dataset.screeningLevel);});
-  sync();return {value:()=>value,enabled:()=>enabled,pending(){data=null;root.setAttribute('aria-busy','true');root.textContent='현재 조합 설정으로 경기 선별 점수를 계산하는 중…';},show(result){data=result;root.setAttribute('aria-busy','false');sync();},error(){data=null;root.setAttribute('aria-busy','false');root.textContent='선별 통계를 불러오지 못했습니다. 과거 통계 다시 불러오기를 눌러 주세요.';}};
+  sync();return {value:()=>value,enabled:()=>enabled,applyModel(model){value=model?.threshold??0;data=null;try{localStorage.setItem('betkj3-screening-strictness',String(value));}catch{}sync();},pending(){data=null;root.setAttribute('aria-busy','true');root.textContent='현재 조합 설정으로 경기 선별 점수를 계산하는 중…';},show(result){data=result;root.setAttribute('aria-busy','false');sync();},error(){data=null;root.setAttribute('aria-busy','false');root.textContent='선별 통계를 불러오지 못했습니다. 과거 통계 다시 불러오기를 눌러 주세요.';}};
  }
  return {init,view,badge};
 })();

@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model.js?v=analysis-rank-1','tuning-model.js?v=analysis-rank-1','qpl-policy.js?v=analysis-rank-1','race-selection-model.js?v=screening-1','qpl-history-engine.js?v=screening-1','weight-curve-engine.js?v=analysis-rank-1','weight-balance.js?v=search-1','weight-search-engine.js?v=analysis-rank-1');
+importScripts('model.js?v=analysis-rank-1','tuning-model.js?v=joint-1','qpl-policy.js?v=analysis-rank-1','race-selection-model.js?v=joint-1','qpl-history-engine.js?v=joint-1','weight-curve-engine.js?v=joint-1','weight-balance.js?v=search-1','weight-search-engine.js?v=joint-1','joint-search-engine.js?v=joint-1');
 let ready=null,latest=0,latestCurve=0,searchId=0,searchStopped=false;
 async function fetchYear(url){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
@@ -7,14 +7,15 @@ async function fetchYear(url){
 }
 onmessage=async({data})=>{
  if(data.type==='init'){
-  ready=QplHistoryEngine.load(data.manifest,fetchYear,(done,total)=>postMessage({type:'loading',done,total})).then(rows=>({history:QplHistoryEngine.create(rows),curves:WeightCurveEngine.create(rows)}));ready.catch(()=>{});return;
+  ready=QplHistoryEngine.load(data.manifest,fetchYear,(done,total)=>postMessage({type:'loading',done,total})).then(rows=>({history:QplHistoryEngine.create(rows),curves:WeightCurveEngine.create(rows),joint:JointSearchEngine.create(rows)}));ready.catch(()=>{});return;
  }
  if(data.type==='abort-search'){searchId=data.searchId;searchStopped=true;return;}
  if(data.type==='stop-search'){if(searchId===data.searchId)searchStopped=true;return;}
  if(data.type==='search'){
   searchId=data.searchId;searchStopped=false;
-  try{const {curves,history}=await ready;if(searchId!==data.searchId)return;
-   const result=await WeightSearchEngine.run(data.options,curves.evaluate,history.evaluate,{current:()=>searchId===data.searchId,stopped:()=>searchStopped,progress:p=>postMessage({type:'search-progress',searchId:data.searchId,progress:p})});
+  try{const {curves,history,joint}=await ready;if(searchId!==data.searchId)return;
+   const run=data.options.joint?(o,f,v,c)=>joint.run(o,v,c):WeightSearchEngine.run;
+   const result=await run(data.options,curves.evaluate,history.evaluate,{current:()=>searchId===data.searchId,stopped:()=>searchStopped,progress:p=>postMessage({type:'search-progress',searchId:data.searchId,progress:p})});
    if(searchId===data.searchId)postMessage({type:'search-result',searchId:data.searchId,result});
   }catch(e){if(searchId===data.searchId)postMessage({type:'search-result',searchId:data.searchId,error:String(e.message||e)});}return;
  }

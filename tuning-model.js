@@ -8,7 +8,9 @@ const TuningModel=(()=>{
  function settings(s={}){
   const candidate=s.weightScope==='venue'&&validWeights(s.venueWeights?.seoul)?s.venueWeights.seoul:s.weights;
   const weights=validWeights(candidate)?FEATURES.map((_,i)=>candidate[i]??0):defaults();
-  return {anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights};
+  const selection=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
+  const screening=selection.jointConfig(s.screening);
+  return {anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...(screening?{screening}:{})};
  }
  const label=()=> '서울 최근 5경주 가중치 (17개)';
  function weightsFor(s){return settings(s).weights;}
@@ -49,4 +51,3 @@ const TuningModel=(()=>{
  return {FEATURES,VERSION,label,weightsFor,defaults,validWeights,settings,apply,pack,unpack};
 })();
 if(typeof module!=='undefined')module.exports=TuningModel;
-

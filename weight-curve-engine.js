@@ -61,6 +61,6 @@ const WeightCurveEngine=(()=>{
   }
   return {curve,evaluate};
  }
- return {create};
+ return {create,prepare,pick};
 })();
 if(typeof module!=='undefined')module.exports=WeightCurveEngine;

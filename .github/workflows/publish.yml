@@ -67,6 +67,7 @@ jobs:
           node tests/seoul.cjs
           node tests/site.cjs
           node tests/race-selection.cjs
+          node tests/joint-search.cjs
           node tests/weight-curves.cjs
           node tests/weight-search.cjs
           node tests/evaluation-period.cjs --archive
@@ -90,7 +91,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir -p _site
-          cp index.html style.css app.js model.js race-selection-model.js race-selection-panel.js qpl-policy.js tuning-model.js qpl-history-engine.js qpl-history-worker.js weight-curve-engine.js weight-curves.js weight-balance.js weight-search-engine.js weight-search.js history-summary.js qpl-history.json strategy-presets.js rolling-panel.js rolling-report.json top5-panel.js top5-presets.json _site/
+          cp index.html style.css app.js model.js race-selection-model.js race-selection-panel.js qpl-policy.js tuning-model.js qpl-history-engine.js qpl-history-worker.js weight-curve-engine.js weight-curves.js weight-balance.js weight-search-engine.js joint-search-engine.js weight-search.js history-summary.js qpl-history.json strategy-presets.js rolling-panel.js rolling-report.json top5-panel.js top5-presets.json _site/
           cp -R data _site/data
           cp -R qpl-history-years _site/qpl-history-years
           touch _site/.nojekyll

@@ -9,10 +9,10 @@ let partnerRange=Betkj3Policy.normalizeRange(),tuningSettings=TuningModel.settin
 let historyWorker=null,historyEngine=null,historyEvaluation=0,historyTimer=null;
 let weightCurves=null,curveEngine=null,historyReady=null,curveRequest=0,curvePending=null;
 let weightSearch=null,searchRequest=0,searchPending=null,searchStopped=false;
-let screeningPanel=null;
+let screeningPanel=null,jointEngine=null;
 const raceAnalysisCache=new WeakMap();
 let syncTuningControls=()=>{},refreshPresetOptions=()=>{};
-const strategySettings=()=>({...tuningSettings,...partnerRange});
+const strategySettings=()=>({...tuningSettings,...partnerRange,...(tuningSettings.screening?{screening:{...tuningSettings.screening,threshold:(screeningPanel?.value()??tuningSettings.screening.threshold)}}:{})});
 const anchorLabel=()=> '연승확률 분석 '+(tuningSettings.anchorRank||1)+'위';
 function syncStrategyHelp(){$('#rangeHelp').textContent='현재 설정: '+anchorLabel()+' 축마 + 연승확률 분석 '+partnerRange.min+'~'+partnerRange.max+'위에서 1마리 선택 · 이 기기에 자동 저장';}
 function initPartnerRange(){
@@ -23,6 +23,7 @@ function initPartnerRange(){
   let min=+$('#partnerMin').value,max=+$('#partnerMax').value;
   if(min>max){if(changed==='min')max=min;else min=max;}
   partnerRange=Betkj3Policy.normalizeRange({min,max});
+  if(tuningSettings.screening){delete tuningSettings.screening;screeningPanel?.applyModel(null);try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}}
   try{localStorage.setItem('betkj3-partner-range',JSON.stringify(partnerRange));}catch{}
   sync();renderQplHistory();render();
  }
@@ -50,7 +51,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=screening-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=joint-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2022년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
@@ -80,7 +81,7 @@ function renderQplHistory(){
 
 function cancelWeightCurve(){curveRequest++;if(curvePending){curvePending.resolve(null);curvePending=null;}historyWorker?.postMessage({type:'cancel-curve',curveId:curveRequest});}
 async function getHistoryEngines(){
- if(!historyReady){const doc=qplHistory;historyReady=QplHistoryEngine.load(doc,url=>fetchJSON(url+'?t='+Date.now(),60000)).then(rows=>{if(doc!==qplHistory)throw Error('자료가 갱신되었습니다.');historyEngine=QplHistoryEngine.create(rows);curveEngine=WeightCurveEngine.create(rows);}).catch(error=>{historyReady=null;throw error;});}
+ if(!historyReady){const doc=qplHistory;historyReady=QplHistoryEngine.load(doc,url=>fetchJSON(url+'?t='+Date.now(),60000)).then(rows=>{if(doc!==qplHistory)throw Error('자료가 갱신되었습니다.');historyEngine=QplHistoryEngine.create(rows);curveEngine=WeightCurveEngine.create(rows);jointEngine=JointSearchEngine.create(rows);}).catch(error=>{historyReady=null;throw error;});}
  return historyReady;
 }
 async function calculateWeightCurve(settings,index,progress){
@@ -98,7 +99,8 @@ async function runWeightSearch(options,progress){
  try{config.seeds=StrategyPresets.read(localStorage).map(p=>p.settings.weights);}catch{config.seeds=[];}
  if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress};historyWorker.postMessage({type:'search',searchId:id,options:config});});
  await getHistoryEngines();if(id!==searchRequest)return null;
- return WeightSearchEngine.run(config,curveEngine.evaluate,historyEngine.evaluate,{current:()=>id===searchRequest,stopped:()=>searchStopped,progress});
+ const run=config.joint?(o,f,v,c)=>jointEngine.run(o,v,c):WeightSearchEngine.run;
+ return run(config,curveEngine.evaluate,historyEngine.evaluate,{current:()=>id===searchRequest,stopped:()=>searchStopped,progress});
 }
 function initWeightSearch(){weightSearch=WeightSearch.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,QplHistoryEngine.PERIOD.from,QplHistoryEngine.PERIOD.comparisonFrom,day()]):'',run:runWeightSearch,abort:abortWeightSearch,stop:stopWeightSearch,pause:value=>weightCurves?.pause(value),apply:applySavedStrategy,save:(name,settings)=>{StrategyPresets.save(localStorage,name,settings);refreshPresetOptions(name);}});}
 
@@ -119,7 +121,7 @@ function initTuning(){
   TuningModel.FEATURES.forEach((f,i)=>{$('#weight-'+i).value=String(tuningSettings.weights[i]);$('#weight-range-'+i).value=String(tuningSettings.weights[i]);});
   $('#weightStatus').textContent='서울 전용 가중치 · 합계 '+tuningSettings.weights.reduce((a,b)=>a+b,0)+'% (계산 시 100% 환산)';syncStrategyHelp();
  }
- function update(){try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}sync();renderQplHistory();render();}
+ function update(){if(tuningSettings.screening){delete tuningSettings.screening;screeningPanel?.applyModel(null);}try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}sync();renderQplHistory();render();}
  $('#anchorRank').onchange=()=>{tuningSettings.anchorRank=+$('#anchorRank').value;update();};
  TuningModel.FEATURES.forEach((f,i)=>{
   const change=node=>{const value=node.value.trim(),weights=TuningModel.FEATURES.map((_,i)=>editing()[i]??0);weights[i]=value===''?NaN:Number(value);if(!TuningModel.validWeights(weights)){$('#weightStatus').textContent='0~100 사이 정수를 입력하세요. 최소 한 요소는 1% 이상이어야 합니다.';return false;}setWeights(weights);update();return true;};
@@ -130,6 +132,7 @@ function initTuning(){
 function applySavedStrategy(settings){
  const config=StrategyPresets.config(settings);
  tuningSettings=TuningModel.settings(config);partnerRange=Betkj3Policy.normalizeRange(config);
+ screeningPanel?.applyModel(config.screening);
  $('#partnerMin').value=String(partnerRange.min);$('#partnerMax').value=String(partnerRange.max);syncTuningControls();
  let persisted=true;try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));localStorage.setItem('betkj3-partner-range',JSON.stringify(partnerRange));}catch{persisted=false;}
  renderQplHistory();render();return persisted;
@@ -159,7 +162,7 @@ function screeningValue(){return screeningPanel?.value()??0;}
 function screeningEnabled(){return screeningPanel?.enabled()===true;}
 function screeningBadge(r){return screeningEnabled()?RaceSelectionPanel.badge(r.screening,screeningValue()):'';}
 function initScreening(){
- screeningPanel=RaceSelectionPanel.init({change:()=>{if(current)render();else renderOverview();}});
+ screeningPanel=RaceSelectionPanel.init({model:()=>tuningSettings.screening,change:()=>{if(current)render();else renderOverview();}});
  $('#screeningOnly').onchange=renderOverview;
 }
 function policyExplanationHTML(r){

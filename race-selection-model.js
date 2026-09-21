@@ -6,11 +6,34 @@ const RaceSelectionModel=(()=>{
  const clamp=x=>Math.max(0,Math.min(1,Number.isFinite(x)?x:0));
  const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
  const pairKey=a=>a.map(Number).sort((a,b)=>a-b).join('-');
+ const JOINT_VERSION='joint-selection-v1';
+ const JOINT_LABELS=['축마 점수 우위','상대마 점수 우위','두 말 점수 차이','출전 두수','축마 전적 충실도','상대마 전적 충실도','마체중 자료 충실도','기수·조교사 자료 충실도','두 말 평균 점수','전체 점수 분산','축마 우위 × 상대마 경합','마체중 점수 × 자료 존재'];
+ function jointConfig(s){
+  if(!s||s.version!==JOINT_VERSION||!Array.isArray(s.coefficients)||s.coefficients.length!==JOINT_LABELS.length||!s.coefficients.every(x=>Number.isFinite(x)&&Math.abs(x)<=10)||!s.coefficients.some(x=>x!==0)||!Number.isInteger(s.threshold)||s.threshold<0||s.threshold>100||![40,60,80].includes(s.target))return null;
+  return {version:JOINT_VERSION,coefficients:s.coefficients.slice(),threshold:s.threshold,target:s.target};
+ }
+ // Only pre-race horse features, support flags and selected horse numbers enter here.
+ function jointFeatures(field,weights,anchor,partner){
+  const total=weights.reduce((s,x)=>s+x,0),raw=field.map(h=>(h.weighted_v3_features||Array(17).fill(.5)).reduce((s,x,j)=>s+x*weights[j]/total,0));
+  const a=field.findIndex(h=>+h.number===+anchor),b=field.findIndex(h=>+h.number===+partner);
+  if(a<0||b<0)return null;
+  const others=raw.filter((_,i)=>i!==a&&i!==b),boundary=others.length?Math.max(...others):0;
+  const support=i=>field[i].weighted_v3_support,has=(i,j)=>support(i)?.available?.[j]===true?1:0;
+  const quality=i=>.5*clamp((support(i)?.starts||0)/5)+.5*weights.reduce((s,w,j)=>s+w*has(i,j),0)/total;
+  const ag=clamp(.5+(raw[a]-boundary)*3),bg=clamp(.5+(raw[b]-boundary)*3),body=(has(a,8)+has(b,8))/2;
+  return [ag,bg,clamp(Math.abs(raw[a]-raw[b])*5),clamp((field.length-5)/11),quality(a),quality(b),body,(has(a,5)+has(a,6)+has(b,5)+has(b,6))/4,(raw[a]+raw[b])/2,clamp((Math.max(...raw)-Math.min(...raw))*3),ag*(1-bg),mean([a,b].map(i=>has(i,8)*(field[i].weighted_v3_features?.[8]??.5)))];
+ }
+ function jointScore(features,coefficients){
+  const scale=coefficients.reduce((s,x)=>s+Math.abs(x),0)||1;
+  return Math.max(0,Math.min(99,Math.floor(50+49*features.reduce((s,x,j)=>s+(2*x-1)*coefficients[j],0)/scale)));
+ }
  function strictness(value){return Number.isFinite(+value)?Math.max(0,Math.min(100,Math.round(+value))):0;}
  function qualifies(result,value){const threshold=strictness(value);return result?.available===true&&threshold<100&&(threshold===0||result.score>=threshold);}
  function score(result,settings){
   const pair=result.pairs?.[0],policy=result.qplPolicy;
   if(policy?.status!=='ready'||!pair)return {version:VERSION,available:false,score:null};
+  const joint=jointConfig(settings.screening);
+  if(joint){const values=jointFeatures(result.horses,settings.weights,policy.anchor.number,policy.partner.number);return {version:JOINT_VERSION,available:!!values,score:values?jointScore(values,joint.coefficients):null};}
   const field=result.horses.slice().sort((a,b)=>+a.number-+b.number),n=field.length;
   const selected=new Set(pair.numbers.map(Number));
   const weights=settings.weights,total=weights.reduce((s,w)=>s+w,0);
@@ -69,6 +92,6 @@ const RaceSelectionModel=(()=>{
   }
   return {version:VERSION,total:rows.length,eligible,unavailable:rows.length-eligible,points};
  }
- return {VERSION,strictness,qualifies,score,metrics,curve};
+ return {VERSION,JOINT_VERSION,JOINT_LABELS,jointConfig,jointFeatures,jointScore,strictness,qualifies,score,metrics,curve};
 })();
 if(typeof module!=='undefined')module.exports=RaceSelectionModel;

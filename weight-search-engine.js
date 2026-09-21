@@ -12,6 +12,7 @@ const WeightSearchEngine=(()=>{
   if(!objectives.includes(options.objective))throw Error('탐색 목표를 확인해 주세요.');
   if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>600)throw Error('탐색 시간은 1~600초 정수로 입력하세요.');
   const settings={...options.settings,...tuning.settings(options.settings)},balanced=options.balanced!==false,project=w=>balanced?(balance.valid(w)?w.slice():balance.project(w)):normalize(w),objective=options.objective;
+  delete settings.screening;
   const seeds=[settings.weights,tuning.defaults(),...(options.seeds||[]).filter(tuning.validWeights).map(w=>tuning.settings({weights:w}).weights)].map(project),seen=new Set(),elite=[];
   let best=null,count=0,lastProgress=-Infinity;const started=now(),deadline=started+options.seconds*1000;
   const active=()=>current()&&!stopped()&&now()<deadline;
