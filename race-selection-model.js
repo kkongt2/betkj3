@@ -3,6 +3,7 @@
 // Outcomes and payouts are deliberately absent from the score inputs.
 const RaceSelectionModel=(()=>{
  const VERSION='race-screening-v1';
+ const values=(h,w)=>w.map((_,j)=>Number.isFinite(h.weighted_v3_features?.[j])?h.weighted_v3_features[j]:.5);
  const clamp=x=>Math.max(0,Math.min(1,Number.isFinite(x)?x:0));
  const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
  const pairKey=a=>a.map(Number).sort((a,b)=>a-b).join('-');
@@ -14,7 +15,7 @@ const RaceSelectionModel=(()=>{
  }
  // Only pre-race horse features, support flags and selected horse numbers enter here.
  function jointFeatures(field,weights,anchor,partner){
-  const total=weights.reduce((s,x)=>s+x,0),raw=field.map(h=>(h.weighted_v3_features||Array(17).fill(.5)).reduce((s,x,j)=>s+x*weights[j]/total,0));
+  const total=weights.reduce((s,x)=>s+x,0),raw=field.map(h=>values(h,weights).reduce((s,x,j)=>s+x*weights[j]/total,0));
   const a=field.findIndex(h=>+h.number===+anchor),b=field.findIndex(h=>+h.number===+partner);
   if(a<0||b<0)return null;
   const others=raw.filter((_,i)=>i!==a&&i!==b),boundary=others.length?Math.max(...others):0;
@@ -37,20 +38,20 @@ const RaceSelectionModel=(()=>{
   const field=result.horses.slice().sort((a,b)=>+a.number-+b.number),n=field.length;
   const selected=new Set(pair.numbers.map(Number));
   const weights=settings.weights,total=weights.reduce((s,w)=>s+w,0);
-  const validFeatures=h=>Array.isArray(h.weighted_v3_features)&&h.weighted_v3_features.length===17&&h.weighted_v3_features.every(Number.isFinite);
-  const features=field.map(h=>validFeatures(h)?h.weighted_v3_features:Array(17).fill(.5));
+  const validFeatures=h=>Array.isArray(h.weighted_v3_features)&&h.weighted_v3_features.length>=17&&h.weighted_v3_features.every(Number.isFinite);
+  const features=field.map(h=>values(h,weights));
   const raw=features.map(f=>f.reduce((s,x,j)=>s+x*weights[j]/total,0));
   const quality=h=>{
    if(!validFeatures(h))return 0;
    const support=h.weighted_v3_support,available=support?.available;
-   const coverage=Array.isArray(available)&&available.length===17?available.reduce((s,v,j)=>s+(v===true?weights[j]:0),0)/total:0;
+   const coverage=Array.isArray(available)&&available.length>=17?weights.reduce((s,w,j)=>s+(available[j]===true?w:0),0)/total:0;
    return .5*coverage+.5*clamp((support?.starts??0)/5);
   };
   const completeness=.5*mean(field.filter(h=>selected.has(+h.number)).map(quality))+.5*mean(field.map(quality));
   // Test deterministic +/-20% relative changes to every active input weight.
   // Comparing raw ranks is equivalent to comparing positive-strength ranks.
   let same=0,trials=0;
-  for(let j=0;j<17;j++)if(weights[j]>0)for(const factor of [-.2,.2]){
+  for(let j=0;j<weights.length;j++)if(weights[j]>0)for(const factor of [-.2,.2]){
    const changed=raw.map((v,i)=>v+features[i][j]*weights[j]/total*factor);
    const order=field.map((_,i)=>i).sort((a,b)=>changed[b]-changed[a]||field[a].number-field[b].number);
    const anchor=order[(settings.anchorRank||1)-1];

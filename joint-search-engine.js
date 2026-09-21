@@ -27,8 +27,8 @@ const JointSearchEngine=(()=>{
   if(index===0)return options.balanced?B.project(options.settings.weights):normalize(options.settings.weights);
   const base=T.defaults();
   if(index===1)return options.balanced?B.project(base):normalize(base);
-  if(index%3){for(let k=0;k<5;k++){const a=Math.floor(random()*17),b=Math.floor(random()*17),n=Math.min(base[a],1+Math.floor(random()*12));base[a]-=n;base[b]+=n;}}
-  else for(let i=0;i<17;i++)base[i]=Math.pow(random(),2)*100;
+  if(index%3){for(let k=0;k<5;k++){const a=Math.floor(random()*T.FEATURES.length),b=Math.floor(random()*T.FEATURES.length),n=Math.min(base[a],1+Math.floor(random()*12));base[a]-=n;base[b]+=n;}}
+  else for(let i=0;i<T.FEATURES.length;i++)base[i]=Math.pow(random(),2)*100;
   return options.balanced?B.project(base):normalize(base);
  }
  function profiles(){const random=rng(73021),out=[];
@@ -38,6 +38,7 @@ const JointSearchEngine=(()=>{
  function create(rows){
   const entries=rows.filter(r=>r.venue==='seoul').map(C.prepare);
   async function evaluate(settings,from,to,current=()=>true){
+   settings={...settings,...T.settings(settings)};
    const out=[],total=settings.weights.reduce((s,x)=>s+x,0);
    for(let i=0;i<entries.length;i++){
     if(i%96===95){await new Promise(r=>setTimeout(r,0));if(!current())return null;}

@@ -7,9 +7,9 @@ const WeightCurveEngine=(()=>{
  function prepare(row){
   const field=row.horses.filter(h=>!Array.isArray(row.starters)||row.starters.map(Number).includes(+h[0])).slice().sort((a,b)=>a[0]-b[0]);
   const valid=!!row.settled&&field.length>0;
-  const features=field.map(h=>h[6]||Array(tuning.FEATURES.length).fill(.5));
+  const features=field.map(h=>tuning.featureValues(h[6]));
   const numbers=field.map(h=>+h[0]),available=new Set(row.pairs.map(p=>pairKey(p.slice(0,2))));
-  const slow=field.length<=3||features.some(f=>f.length!==17||f.some(x=>!Number.isFinite(x)||x<0||x>1))||numbers.some((a,i)=>numbers.slice(i+1).some(b=>!available.has(pairKey([a,b]))));
+  const slow=field.length<=3||features.some(f=>f.length!==tuning.FEATURES.length||f.some(x=>!Number.isFinite(x)||x<0||x>1))||numbers.some((a,i)=>numbers.slice(i+1).some(b=>!available.has(pairKey([a,b]))));
   const uniform=features.length>0&&features.every(f=>f.every((x,j)=>x===features[0][j]));
   return {row,field,numbers,features,valid,slow,uniform,winning:new Map(row.payouts.map(p=>[pairKey(p.numbers),p.odds]))};
  }
@@ -28,7 +28,7 @@ const WeightCurveEngine=(()=>{
  function create(rows){
   const entries=rows.filter(r=>r.venue==='seoul').map(prepare);
   async function curve(options,index,from,to,isCurrent=()=>true,onProgress=()=>{}){
-   if(!Number.isInteger(index)||index<0||index>=17)throw Error('가중치 항목 확인 필요');
+   if(!Number.isInteger(index)||index<0||index>=tuning.FEATURES.length)throw Error('가중치 항목 확인 필요');
    const settings={...tuning.settings(options),...policy.normalizeRange(options)},others=settings.weights.reduce((s,x,i)=>s+(i===index?0:x),0);
    const points=Array.from({length:101},(_,value)=>({value,valid:others+value>0,total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0}));
    const configs=points.map(p=>({...settings,weights:settings.weights.map((x,i)=>i===index?p.value:x)}));

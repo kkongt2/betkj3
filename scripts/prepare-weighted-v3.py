@@ -6,7 +6,7 @@ from pathlib import Path
 
 VERSION='weighted-seoul-last5-v2'
 FIT_TO='20230930'
-FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency','mean_finish5']
+FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency','mean_finish5','finish_trend','speed_trend','speed_last','finish_consistency']
 def day(s):return datetime.strptime(s,'%Y%m%d').toordinal()
 def avg(xs,default=None):return sum(xs)/len(xs) if xs else default
 def clip(x,a,b):return max(a,min(b,x))
@@ -20,6 +20,13 @@ def weighted(xs,day_no,fn,half=120):
     pairs=[(fn(x),2**(-(day_no-x['day'])/half)) for x in xs];pairs=[(v,w) for v,w in pairs if v is not None]
     return (sum(v*w for v,w in pairs),sum(w for v,w in pairs))
 def smooth(xs,d,fn,prior,strength):v,n=weighted(xs,d,fn);return (v+strength*prior)/(n+strength)
+def trend(xs,field):
+    # Preserve the original start positions when some records are missing.
+    points=[(i,x[field]) for i,x in enumerate(xs) if x.get(field) is not None]
+    if len(points)<2:return None
+    mx=avg([i for i,v in points]);my=avg([v for i,v in points])
+    slope=sum((i-mx)*(v-my) for i,v in points)/sum((i-mx)**2 for i,v in points)
+    return slope*len(points)/(len(points)+3)
 def active(r):return [h for h in r['horses'] if not h.get('withdrawn') and (not r.get('official_result',{}).get('starters') or h['number'] in r['official_result']['starters'])]
 class History:
     def __init__(self):self.horses=defaultdict(list);self.people=defaultdict(list);self.times=defaultdict(list);self.through=''
@@ -34,10 +41,11 @@ class History:
             dist=avg([x['placed'] for x in near],place)
             rating=(float(h['rating'])-field_rating) if h.get('rating',0)>0 and field_rating is not None else None
             form=smooth(recent,d,lambda x:x['form'],.5,3)
-            people=[]
+            people=[];people_counts=[]
             for kind in ('jockey','trainer'):
                 p=[x for x in self.people[(r['venue'],kind,clean_person(h.get(kind)))] if d-365<=x['day']<d]
                 people.append(smooth(p,d,lambda x:x['residual'],0,30) if p else None)
+                people_counts.append(len(p))
             comparable=last and h.get('burden') and last.get('burden') and grade(r.get('grade')) is not None and grade(r.get('grade'))==last.get('grade') and h.get('rating',0)>0 and abs(h['rating']-last['rating'])<=3
             burden=clip(last['burden']-h['burden'],-5,5) if comparable else None
             own_body=[x['body'] for x in hist[-10:] if x.get('body') and x['placed']]
@@ -55,11 +63,23 @@ class History:
             median=statistics.median(records) if records else None
             best=max(records)*len(records)/(len(records)+3) if records else None
             consistency=-statistics.pstdev(records) if len(records)>=3 else None
-            values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency,avg([x['form'] for x in recent],.5)]
+            forms=[x['form'] for x in recent]
+            values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency,avg(forms,.5),trend(recent,'form'),trend(recent,'speed'),last.get('speed') if last else None,-statistics.pstdev(forms) if len(forms)>=3 else None]
             available=[v is not None for v in values]
             for i in (0,1,4,16):available[i]=bool(recent)
             available[2]=bool(near)
-            result[str(h['number'])]={'available':available,'raw':values,'starts':len(recent),'distanceStarts':len(near),'meanFinish':avg([x['finish'] for x in recent]),'meanFinishScore':avg([x['form'] for x in recent]),'fieldSizes':[x['fieldSize'] for x in recent],'recordStarts':sum(x.get('speed') is not None for x in recent),'marginStarts':sum(x.get('margin') is not None for x in recent),'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None}
+            margin_count=sum(x.get('margin') is not None for x in recent)
+            counts=[len(recent),len(recent),len(near),len(ratings) if rating is not None else 0,len(recent),*people_counts,int(bool(comparable)),len(own_body),len(gaps[-10:]),len(records),margin_count,len(opp),len(records),len(records),len(records),len(recent),len(forms),len(records),int(values[19] is not None),len(forms)]
+            details={
+                'version':'last5-detail-v1','counts':counts,
+                'recent':[{'date':datetime.fromordinal(x['day']).strftime('%Y%m%d'),'finish':x['finish'],'fieldSize':x['fieldSize'],'form':x['form'],'speed':x.get('speed'),'distance':x['distance'],'grade':x.get('grade')} for x in recent],
+                'finishTrend':values[17],'speedTrend':values[18],'lastSpeed':values[19],
+                'finishStd':statistics.pstdev(forms) if len(forms)>=3 else None,
+                'speedStd':statistics.pstdev(records) if len(records)>=3 else None,
+                'distanceChange':r['distance']-last['distance'] if last else None,
+                'previousGrade':lg,'currentGrade':cg,'restDays':gap,
+                'usualRestDays':statistics.median(gaps[-10:]) if len(gaps)>=3 else None}
+            result[str(h['number'])]={'available':available,'raw':values,'starts':len(recent),'distanceStarts':len(near),'meanFinish':avg([x['finish'] for x in recent]),'meanFinishScore':avg(forms),'fieldSizes':[x['fieldSize'] for x in recent],'recordStarts':len(records),'marginStarts':margin_count,'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None,'detail':details}
         return result
     def add_day(self,rs):
         rs=[r for r in rs if r.get('venue')=='seoul']
@@ -173,4 +193,3 @@ def main():
     Path('data/weighted-v3-coverage.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps(report,ensure_ascii=False),flush=True)
 if __name__=='__main__':main()
-

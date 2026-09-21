@@ -12,9 +12,9 @@ const QplHistoryEngine=(()=>{
   const coverageCache=new Map();
   function coverage(from,to){
    const key=from+':'+to;if(coverageCache.has(key))return coverageCache.get(key);
-   const c={horses:0,supportKnown:0,fullFive:0,noHistory:0,features:Array.from({length:17},()=>({available:0,fallback:0,unknown:0}))};
+   const c={horses:0,supportKnown:0,fullFive:0,noHistory:0,features:Array.from({length:tuning.FEATURES.length},()=>({available:0,fallback:0,unknown:0}))};
    for(const {row} of entries){if(row.date<from||row.date>to)continue;for(const horse of row.horses){c.horses++;const s=horse[7];if(Number.isInteger(s?.starts)){c.supportKnown++;c.fullFive+=s.starts>=5;c.noHistory+=s.starts===0;}
-    let flags=Array.isArray(s?.available)&&s.available.length===17?s.available:Array(17).fill(null);
+    let flags=tuning.FEATURES.map((_,i)=>s?.available?.[i]??null);
     if(!s?.available&&s){flags=flags.slice();for(const i of [0,1,4,16])if(Number.isInteger(s.starts))flags[i]=s.starts>0;if(Number.isInteger(s.distanceStarts))flags[2]=s.distanceStarts>0;for(const i of [10,13,14])if(Number.isInteger(s.recordStarts))flags[i]=s.recordStarts>0;if(Number.isInteger(s.recordStarts))flags[15]=s.recordStarts>=3;if(Number.isInteger(s.marginStarts))flags[11]=s.marginStarts>0;}
     flags.forEach((v,i)=>c.features[i][v===true?'available':v===false?'fallback':'unknown']++);
    }}coverageCache.set(key,c);return c;

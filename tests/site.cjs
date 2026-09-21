@@ -122,7 +122,7 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(nodes['#top5Status'].textContent.includes('1번 프리셋을 저장'));
  assert.equal(vm.runInContext('JSON.stringify(strategySettings())',sandbox),beforeAll);
  nodes['#top5Presets'].click({target:{closest:()=>({dataset:{top5:'0'}})}});await flush();
- assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),top.presets[0].settings.weights.join(','));
+ assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),require('../tuning-model.js').settings(top.presets[0].settings).weights.join(','));
  assert.equal(vm.runInContext('partnerRange.min',sandbox),top.presets[0].settings.min);
 
  assert(!requested.some(x=>x.includes('market-odds')));

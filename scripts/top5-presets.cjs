@@ -8,7 +8,7 @@ const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul'}).format(new 
 const rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows).filter(r=>r.date<today);assert(rows.every(r=>r.venue==='seoul'));
 const minimum=Math.ceil(rows.length*.4),tmp=fs.mkdtempSync(path.join(os.tmpdir(),'seoul-top1-')),input=path.join(tmp,'races.txt'),output=path.join(tmp,'top.json'),seed=path.join(tmp,'seeds.txt');
 const parents=JSON.parse(fs.readFileSync('preset-bases.json')),parent=parents.bases.find(p=>p.id===3);assert(parent);
-const base={...parent,settings:{...parent.settings,anchorRank:parent.settings.anchorRank||1,weights:[...parent.settings.weights,0]}};
+const base={...parent,settings:{...parent.settings,anchorRank:parent.settings.anchorRank||1,weights:t.settings(parent.settings).weights}};
 delete base.settings.anchorMode;
 exportTrain(rows,input);
 const board=[];let tried=0,tested=0,exact=0;const baselines=[];

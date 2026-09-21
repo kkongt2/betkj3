@@ -21,8 +21,8 @@ const WeightSearchEngine=(()=>{
   while(active()){
    let weights=seeds.shift();
    if(!weights){
-    if(elite.length&&random()<.8){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=Math.floor(random()*17),b=Math.floor(random()*17),amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
-    else weights=project(Array.from({length:17},()=>Math.pow(random(),3)*100));
+    if(elite.length&&random()<.8){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=Math.floor(random()*tuning.FEATURES.length),b=Math.floor(random()*tuning.FEATURES.length),amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
+    else weights=project(Array.from({length:tuning.FEATURES.length},()=>Math.pow(random(),3)*100));
    }
    const key=weights.join(',');if(seen.has(key)){await new Promise(r=>setTimeout(r,0));continue;}seen.add(key);
    const config={...settings,weights},result=await fast(config,options.from,options.to,active);if(!current())return null;
