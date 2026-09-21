@@ -86,7 +86,7 @@ const server=http.createServer((req,res)=>{
   await page.locator('#screeningEnabled').check();
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
   assert.equal(await page.locator('#screeningProduct').innerText(),product,'applied and searched selected product must match');
-  assert((await page.locator('#screeningModelInfo').innerText()).includes('공동 탐색'));
+  assert((await page.locator('#screeningModelInfo').textContent()).includes('공동 탐색'),JSON.stringify(await page.evaluate(()=>({settings:strategySettings(),info:document.querySelector('#screeningModelInfo').textContent}))));
   await page.locator('#saveWeightSearch').click();
   const applied=await page.evaluate(()=>strategySettings());
   assert(applied.screening);assert.equal(applied.screening.target,60);
