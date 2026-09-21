@@ -24,7 +24,11 @@
     "speed_median": 49774,
     "speed_best": 49774,
     "speed_consistency": 39616,
-    "mean_finish5": 60079
+    "mean_finish5": 60079,
+    "finish_trend": 49972,
+    "speed_trend": 44711,
+    "speed_last": 46389,
+    "finish_consistency": 45606
   },
   "observedCoverage": {
     "place": 54745,
@@ -43,7 +47,11 @@
     "speed_median": 49774,
     "speed_best": 49774,
     "speed_consistency": 39616,
-    "mean_finish5": 54745
+    "mean_finish5": 54745,
+    "finish_trend": 49972,
+    "speed_trend": 44711,
+    "speed_last": 46389,
+    "finish_consistency": 45606
   },
   "fallbackCoverage": {
     "place": 5334,
@@ -62,7 +70,11 @@
     "speed_median": 10305,
     "speed_best": 10305,
     "speed_consistency": 20463,
-    "mean_finish5": 5334
+    "mean_finish5": 5334,
+    "finish_trend": 10107,
+    "speed_trend": 15368,
+    "speed_last": 13690,
+    "finish_consistency": 14473
   },
   "coverageDefinition": "coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions",
   "tailDownloadErrors": [],
