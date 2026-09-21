@@ -39,6 +39,10 @@ jobs:
           node tests/weight-search.cjs
           node tests/weight-curves.cjs
           node tests/site.cjs
+          node tests/seoul.cjs
+          node tests/seoul-report.cjs
+          node tests/evaluation-period.cjs --archive
+          node tests/archive.cjs
       - name: Check mobile worker and fallback
         run: |
           npm install --no-save --package-lock=false playwright@1.58.2

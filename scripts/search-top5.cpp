@@ -47,7 +47,7 @@ int main(int argc,char**argv){
  auto groupSum=[&](const W&w,int gi){int sum=0;for(int i:groups[gi].ids)sum+=w[i];return sum;};
  auto distance=[](const W&a,const W&b){int n=0;for(int i=0;i<21;i++)n+=std::abs(a[i]-b[i]);return n;};
  auto valid=[&](const W&w){if(std::accumulate(w.begin(),w.end(),0)!=100)return false;for(int i=0;i<21;i++)if(w[i]<(i<17?minWeight:0)||w[i]>maxWeight)return false;for(int gi=0;gi<ng;gi++){int sum=groupSum(w,gi);if(sum<groups[gi].min||sum>groups[gi].max)return false;}return true;};
- std::mt19937 rng(20260916+baseMax*21+familyMode);std::set<W> seen;std::vector<Result> board;int tested=0;
+ std::mt19937 rng(20260916+baseMax*17+familyMode);std::set<W> seen;std::vector<Result> board;int tested=0;
  auto batch=[&](const std::vector<W>& ws){std::vector<W> pending;for(const auto&w:ws)if(valid(w)&&seen.insert(w).second)pending.push_back(w);tested+=pending.size();std::vector<std::vector<Result>> scores(pending.size());
  #pragma omp parallel for schedule(dynamic,1) num_threads(2)
  for(int i=0;i<int(pending.size());i++)scores[i]=evaluate(pending[i]);
