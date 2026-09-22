@@ -21,6 +21,7 @@ const settings={...T.settings(),min:2,max:10};
   const out=await W.run({settings,method:'de',seconds:1,objective,balanced,from:'0',to:'9'},async config=>{clock+=5;const all=group(15+config.weights[0],100+config.weights[1]*8);seen.push({settings:config,all,metrics:H.metrics(all)});return {all};},async config=>{verified++;return {all:seen.find(x=>x.settings===config).all};},{now:()=>clock,random:rng(555)});
   assert.equal(out.method,'de');assert(out.evolution.generations>0);assert.equal(verified,1);assert.equal(out.best.metrics[objective],Math.max(...seen.map(x=>x.metrics[objective])));assert.deepEqual(out.best.all,seen.find(x=>x.settings===out.best.settings).all);
  }
+ let deadlineClock=0;const expired=await W.run({settings,method:'de',seconds:1,objective:'product'},async()=>{deadlineClock=1001;return null;},()=>{throw Error('no completed candidate');},{now:()=>deadlineClock});assert.equal(expired.count,0);assert.equal(expired.evolution.population,0);
  let stopped=false;
  const partial=await W.run({settings,method:'de',seconds:3,objective:'product'},async()=>{stopped=true;return {all:group(30,120)};},async()=>({all:group(30,120)}),{stopped:()=>stopped});assert(partial.stopped&&partial.best);
  const abort=await W.run({settings,method:'de',seconds:1,objective:'product'},()=>{throw Error('must not evaluate');},()=>{},{current:()=>false});assert.equal(abort,null);

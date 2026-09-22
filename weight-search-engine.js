@@ -30,7 +30,7 @@ const WeightSearchEngine=(()=>{
    }
    const key=weights.join(',');if(seen.has(key)){await new Promise(r=>setTimeout(r,0));continue;}seen.add(key);
    const config={...settings,weights},result=await fast(config,options.from,options.to,active);if(!current())return null;
-   if(evolution)evolution.tell(result&&eligible(result.all)?history.metrics(result.all)[objective]:-Infinity);
+   if(evolution){if(!result)break;evolution.tell(eligible(result.all)?history.metrics(result.all)[objective]:-Infinity);}
    if(result){count++;const candidate={settings:config,all:result.all,metrics:history.metrics(result.all)};
     if(eligible(candidate.all)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective))best=candidate;elite.push(candidate);elite.sort((a,b)=>better(a,b,objective)?-1:better(b,a,objective)?1:0);elite.length=Math.min(elite.length,8);}
    }
