@@ -75,6 +75,7 @@ jobs:
           node tests/global-search.cjs
           node tests/parallel-search.cjs
           node tests/runner-search.cjs
+          node tests/search-minutes.cjs
           node tests/evaluation-period.cjs --archive
           node tests/archive.cjs
           node tests/seoul-report.cjs

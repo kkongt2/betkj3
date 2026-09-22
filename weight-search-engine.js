@@ -11,7 +11,7 @@ const WeightSearchEngine=(()=>{
  async function run(options,fast,verify,control={}){
   const now=control.now||(()=>performance.now()),random=control.random||(options.searchSeed===undefined?Math.random:globalSearch.rng(options.searchSeed)),current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{});
   if(!objectives.includes(options.objective))throw Error('탐색 목표를 확인해 주세요.');
-  if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>3600)throw Error('탐색 시간은 1~3600초 정수로 입력하세요.');
+  if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>18000)throw Error('탐색 시간은 1~18,000초(최대 300분) 정수로 입력하세요.');
   const settings={...options.settings,...tuning.settings(options.settings)},balanced=options.balanced!==false,project=w=>balanced?(balance.valid(w)?w.slice():balance.project(w)):normalize(w),objective=options.objective;
   const method=globalSearch.method(options.method);
   delete settings.screening;

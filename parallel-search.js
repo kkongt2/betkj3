@@ -35,7 +35,7 @@ const ParallelSearch=(()=>{
   b.all=exact;b.metrics=H.metrics(exact);if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=parallel-1'),now=()=>performance.now()}={}){
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=minutes-1'),now=()=>performance.now()}={}){
   let states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}
@@ -67,7 +67,7 @@ const ParallelSearch=(()=>{
   function run(rows,input,count,onProgress){
    options=input;progress=onProgress;return new Promise((resolve,reject)=>{
     resolveRun=resolve;rejectRun=reject;
-    if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>3600){close(null,Error('탐색 시간은 1~3600초 정수로 입력하세요.'));return;}
+    if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>18000){close(null,Error('탐색 시간은 1~18,000초(최대 300분) 정수로 입력하세요.'));return;}
     const data=compact(rows,options.from,options.to),base=(options.searchSeed??92821)>>>0;
     states=Array.from({length:count},(_,i)=>({index:i,ready:false,done:false,failed:false,latest:null,result:null,worker:null}));
     prepareTimer=setTimeout(()=>{for(const s of states)if(!s.ready)fail(s);},20000);

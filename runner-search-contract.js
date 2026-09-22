@@ -11,7 +11,7 @@ const RunnerSearchContract=(()=>{
  }
  function request(x){
   if(!x||x.schema!==1||typeof x.requestId!=='string'||!/^[-a-zA-Z0-9]{1,64}$/.test(x.requestId))fail();
-  if(!Number.isInteger(x.seconds)||x.seconds<1||x.seconds>3600||!['local','de'].includes(x.method)||!['rate','average','product'].includes(x.objective)||typeof x.joint!=='boolean'||typeof x.balanced!=='boolean'||typeof x.parallel!=='boolean'||![40,60,80].includes(x.target))fail();
+  if(!Number.isInteger(x.seconds)||x.seconds<1||x.seconds>18000||!['local','de'].includes(x.method)||!['rate','average','product'].includes(x.objective)||typeof x.joint!=='boolean'||typeof x.balanced!=='boolean'||typeof x.parallel!=='boolean'||![40,60,80].includes(x.target))fail();
   return {schema:1,requestId:x.requestId,seconds:x.seconds,method:x.method,objective:x.joint?'product':x.objective,joint:x.joint,balanced:x.balanced,parallel:x.parallel,target:x.target,settings:settings(x.settings)};
  }
  function stats(g){
@@ -21,7 +21,7 @@ const RunnerSearchContract=(()=>{
  function report(x){
   if(!x||x.schema!==1||x.modelVersion!==T.VERSION||x.featureCount!==T.FEATURES.length||!/^\d+(?:-\d+)?$/.test(x.runId)||!/^\d{8}$/.test(x.from)||!/^\d{8}$/.test(x.to)||!Number.isFinite(Date.parse(x.finishedAt)))fail();
   x.request=request(x.request);const r=x.result;
-  if(!r||!Number.isSafeInteger(r.count)||r.count<0||!Number.isFinite(r.elapsed)||r.elapsed<0||r.elapsed>3600||!Number.isInteger(r.workers)||r.workers<1||r.workers>8)fail();
+  if(!r||!Number.isSafeInteger(r.count)||r.count<0||!Number.isFinite(r.elapsed)||r.elapsed<0||r.elapsed>18000||!Number.isInteger(r.workers)||r.workers<1||r.workers>8)fail();
   r.method=x.request.method;r.objective=x.request.objective;
   if(r.best){const b=r.best;b.settings=settings(b.settings);b.all=stats(b.all);b.metrics=H.metrics(b.all);
    if(!b.all.evaluated||b.all.hits!==b.all.paidHits||b.metrics.rate<.15)fail();

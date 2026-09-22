@@ -61,7 +61,7 @@ const JointSearchEngine=(()=>{
    return current()?out:null;
   }
   async function run(options,verify,control={}){
-   if(![40,60,80].includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>3600)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
+   if(![40,60,80].includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>18000)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
    const current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{}),now=control.now||(()=>performance.now());
    const start=now(),random=rng((options.searchSeed??0)+913721),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(2);
    const method=G.method(options.method);

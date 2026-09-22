@@ -14,12 +14,12 @@ const output=(payout,count=1)=>({best:candidate(payout),count,elapsed:.5});
  const a=output(160),b=output(130);a.best.joint={ratios:[],validation:{folds:[fold(120,1000)]}};b.best.joint={ratios:[],validation:{folds:[fold(150,50)]}};
  const joint=P.merge([a,b],{...options,joint:true,target:60});assert.equal(joint.best.metrics.product,1.6);assert.equal(joint.best.joint.validation.metrics.product,.5,'fold winner must use training performance only');
  await assert.rejects(P.verify(output(120),options,async()=>({all:group(130)}),()=>true),/검산/);
- for(const seconds of [600,601,3600]){
+ for(const seconds of [600,601,3600,18000]){
   const out=await W.run({...options,seconds},()=>{throw Error('stopped');},()=>{},{stopped:()=>true});assert.equal(out.count,0);
   const j=await J.create([]).run({...options,seconds,target:60},()=>{},{stopped:()=>true});assert.equal(j.count,0);
  }
- await assert.rejects(W.run({...options,seconds:3601},()=>{},()=>{}),/3600/);
- await assert.rejects(J.create([]).run({...options,seconds:3601,target:60},()=>{}));
+ await assert.rejects(W.run({...options,seconds:18001},()=>{},()=>{}),/300분/);
+ await assert.rejects(J.create([]).run({...options,seconds:18001,target:60},()=>{}));
  // Deterministic, distinct search islands avoid duplicating the common seed sequence.
  for(const method of ['local','de']){
   async function trajectory(island){let clock=0;const seen=[];await W.run({...options,method,island,searchSeed:123+island},async s=>{clock+=100;seen.push(s.weights);return {all:group()};},async()=>({all:group()}),{now:()=>clock,yieldTask:()=>Promise.resolve()});return seen;}
@@ -42,5 +42,5 @@ const output=(payout,count=1)=>({best:candidate(payout),count,elapsed:.5});
  created=[];const aborting=P.create({makeWorker:factory(false)}),abortRun=aborting.run(rows,options,3,()=>{});aborting.abort();assert.equal(await abortRun,null);assert(created.every(w=>w.terminated));
  await assert.rejects(P.create({makeWorker:()=>{throw Error('unsupported');}}).run(rows,options,3,()=>{}),e=>e.beforeStart===true);
  created=[];const timed=P.create({makeWorker:factory(false)}),start=performance.now();const timedOut=await timed.run(rows,options,3,()=>{});assert(performance.now()-start<2500);assert.equal(timedOut.stopped,false);assert.equal(timedOut.count,15);
- console.log('PASS parallel merge, causal fold selection, compact history parity, distinct seeds, 3600-second limits, start barrier, deadline, stop, abort and initialization failure');
+ console.log('PASS parallel merge, causal fold selection, compact history parity, distinct seeds, 300-minute limits, start barrier, deadline, stop, abort and initialization failure');
 })().catch(e=>{console.error(e);process.exitCode=1;});

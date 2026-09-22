@@ -3,8 +3,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('nod
 const Contract=require('../runner-search-contract.js'),T=require('../tuning-model.js'),H=require('../qpl-history-engine.js'),{search}=require('../scripts/runner-search.cjs');
 const request={schema:1,requestId:'runner-test',seconds:1,method:'de',objective:'product',parallel:true,balanced:false,joint:false,target:60,settings:{...T.settings(),anchorRank:1,min:2,max:10}};
 (async()=>{
- for(const seconds of [1,600,601,3600])assert.equal(Contract.request({...request,seconds}).seconds,seconds);
- for(const changed of [{seconds:3601},{seconds:0},{seconds:NaN},{requestId:'$(command)'},{method:'shell'},{settings:{...request.settings,min:1}},{settings:{...request.settings,weights:Array(21).fill(-1)}}])assert.throws(()=>Contract.request({...request,...changed}));
+ for(const seconds of [1,600,601,3600,18000])assert.equal(Contract.request({...request,seconds}).seconds,seconds);
+ for(const changed of [{seconds:18001},{seconds:0},{seconds:NaN},{requestId:'$(command)'},{method:'shell'},{settings:{...request.settings,min:1}},{settings:{...request.settings,weights:Array(21).fill(-1)}}])assert.throws(()=>Contract.request({...request,...changed}));
  const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows.slice(0,50));
  let report;
  for(const joint of [false,true]){
