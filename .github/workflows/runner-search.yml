@@ -1,0 +1,49 @@
+name: Runner weight search
+run-name: Runner search · ${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      request:
+        description: '사이트에서 복사한 탐색 조건(JSON)을 붙여넣으세요'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: runner-weight-search
+  cancel-in-progress: false
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Search on Runner CPUs
+        env:
+          SEARCH_REQUEST: ${{ inputs.request }}
+        run: node scripts/runner-search.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runner-search-result
+          path: _runner-out/result.json
+          retention-days: 30
+  publish:
+    needs: search
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          name: runner-search-result
+          path: _runner-out
+      - name: Publish results without changing the site or race data
+        run: node scripts/publish-runner-result.cjs

@@ -16,12 +16,18 @@ const WeightSearch=(()=>{
   methodHelp();
   let token=0,busy=false,snapshot='',best=null;
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
+  const options=()=>({seconds:Number(el('weightSearchSeconds').value),parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value});
+  const runner=RunnerSearchPanel.init({options,canPrepare:()=>!busy,receive:report=>{
+   invalidate('Runner 결과를 불러옵니다.');const o=report.request,out=report.result;
+   methodControl.value=o.method;methodHelp();el('weightSearchGoal').value=o.objective;el('weightSearchMode').value=o.joint?'joint':'all';el('weightSearchTarget').value=String(o.target);el('weightSearchGoal').disabled=o.joint;el('weightSearchTarget').disabled=!o.joint;
+   best=out.best;snapshot=key();display(best);buttons();status.textContent='Runner 탐색 완료 · '+workerLabel(out)+' · '+out.count.toLocaleString()+'회 평가 · '+out.elapsed.toFixed(1)+'초 · '+(best?'검산 완료 · 적용 버튼을 누르면 반영됩니다.':'조건을 만족한 후보 없음');
+  }});
   function buttons(){start.disabled=busy;stop.disabled=!busy;apply.disabled=save.disabled=busy||!best;}
   function display(candidate){if(!candidate){result.textContent='조건을 만족한 후보가 아직 없습니다.';return;}const m=candidate.metrics,g=candidate.all,s=candidate.settings;
    result.innerHTML='<p><b>'+labels[el('weightSearchGoal').value]+' 기준 탐색 중 최고</b> · '+methodLabels[methodControl.value]+'<br>'+'연승확률 분석 '+s.anchorRank+'위 축마 · 두 번째 말 분석 '+s.min+'~'+s.max+'위</p><div class="search-metrics"><span>적중률<strong>'+(m.rate*100).toFixed(2)+'%</strong></span><span>평균 적중배당<strong>'+m.average.toFixed(3)+'배</strong></span><span>적중률 × 평균배당<strong>'+m.product.toFixed(4)+'배</strong></span></div><p class="hint">적중 '+g.hits.toLocaleString()+' / 평가 '+g.evaluated.toLocaleString()+'경주 · 전체 '+g.total.toLocaleString()+'경주의 '+(g.evaluated/g.total*100).toFixed(2)+'%</p>'+(candidate.joint?jointView(candidate):HistorySummary.comparison(candidate.comparison))+'<details><summary>탐색 가중치 '+TuningModel.FEATURES.length+'개 보기</summary><table class="validation-table"><tbody>'+TuningModel.FEATURES.map((f,i)=>'<tr><td>'+f.label+'</td><td>'+s.weights[i]+'%</td></tr>').join('')+'</tbody></table></details>';
   }
   function invalidate(message){token++;api.abort();busy=false;best=null;api.pause(false);buttons();result.textContent='';status.textContent=message;}
-  function refresh(){if(snapshot&&snapshot!==key()){snapshot='';invalidate('설정 또는 자료가 바뀌었습니다. 현재 설정으로 다시 탐색하세요.');}}
+  function refresh(){runner.changed();if(snapshot&&snapshot!==key()){snapshot='';invalidate('설정 또는 자료가 바뀌었습니다. 현재 설정으로 다시 탐색하세요.');}}
   start.onclick=async()=>{
    const seconds=Number(el('weightSearchSeconds').value);if(!Number.isInteger(seconds)||seconds<1||seconds>3600){status.textContent='탐색 시간은 1~3600초 정수로 입력하세요.';return;}
    if(!api.dataKey()){status.textContent='과거 자료를 불러온 뒤 시작해 주세요.';return;}
@@ -35,7 +41,7 @@ const WeightSearch=(()=>{
   stop.onclick=()=>{api.stop();stop.disabled=true;status.textContent='중지 후 완료된 후보 중 최고 조합을 검산합니다…';};
   apply.onclick=()=>{if(!best)return;const selected=best; snapshot='';const saved=api.apply(selected.settings);snapshot=key();status.textContent='탐색 결과를 적용했습니다.'+(selected.settings.screening?' 선별 ON/OFF 상태는 유지됩니다. 위 경기 선별 사용을 켜면 적용한 기준으로 표시됩니다.':'')+(saved?' 이 기기의 현재 설정에 저장했습니다.':' 현재 설정 자동 저장에 실패했습니다.');};
   save.onclick=()=>{if(!best)return;try{const name='자동탐색 '+labels[el('weightSearchGoal').value]+' '+new Date().toISOString().slice(0,19).replace('T',' ');api.save(name,best.settings);status.textContent='“'+name+'” 설정을 저장했습니다. 저장한 설정에서 불러올 수 있습니다.';}catch(e){status.textContent='저장 실패: '+e.message;}};
-  for(const id of ['weightSearchParallel','weightSearchMethod','weightSearchSeconds','weightSearchGoal','weightSearchBalanced','weightSearchMode','weightSearchTarget'])el(id).onchange=()=>{if(id==='weightSearchParallel'){try{localStorage.setItem('betkj3-search-parallel',String(parallelControl.checked));}catch{}}if(id==='weightSearchMethod'){methodHelp();try{localStorage.setItem('betkj3-search-method',methodControl.value);}catch{}}if(id==='weightSearchMode'&&el('weightSearchMode').value==='joint')el('weightSearchBalanced').checked=false;if(el('weightSearchMode').value==='joint')el('weightSearchGoal').value='product';el('weightSearchGoal').disabled=el('weightSearchMode').value==='joint';el('weightSearchTarget').disabled=el('weightSearchMode').value!=='joint';snapshot='';invalidate('탐색 조건을 변경했습니다. 시작 버튼을 눌러 주세요.');};
+  for(const id of ['weightSearchParallel','weightSearchMethod','weightSearchSeconds','weightSearchGoal','weightSearchBalanced','weightSearchMode','weightSearchTarget'])el(id).onchange=()=>{runner.changed();if(id==='weightSearchParallel'){try{localStorage.setItem('betkj3-search-parallel',String(parallelControl.checked));}catch{}}if(id==='weightSearchMethod'){methodHelp();try{localStorage.setItem('betkj3-search-method',methodControl.value);}catch{}}if(id==='weightSearchMode'&&el('weightSearchMode').value==='joint')el('weightSearchBalanced').checked=false;if(el('weightSearchMode').value==='joint')el('weightSearchGoal').value='product';el('weightSearchGoal').disabled=el('weightSearchMode').value==='joint';el('weightSearchTarget').disabled=el('weightSearchMode').value!=='joint';snapshot='';invalidate('탐색 조건을 변경했습니다. 시작 버튼을 눌러 주세요.');};
   buttons();return {refresh,reset:()=>{snapshot='';invalidate('자료를 다시 준비합니다. 잠시 후 탐색을 시작해 주세요.');}};
  }
  return {init};

@@ -21,7 +21,7 @@ const savedData=new Map([['betkj3-screening-strictness','75']]);
 const requested=[];
 const rollingFile=JSON.parse(fs.readFileSync('rolling-report.json'));
 const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,
- document:{getElementById:id=>nodes['#'+id]||null,querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},
+ document:{addEventListener(){},getElementById:id=>nodes['#'+id]||null,querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},
  localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},
  fetch:async url=>{requested.push(String(url));return {ok:true,json:async()=>{
   const s=String(url);
@@ -36,7 +36,7 @@ const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Inf
 };
 
 vm.createContext(sandbox);
-for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','global-weight-search.js','weight-search-engine.js','weight-search.js','joint-search-engine.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','global-weight-search.js','weight-search-engine.js','runner-search-contract.js','runner-search-panel.js','weight-search.js','joint-search-engine.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 
 (async()=>{await flush();
  assert.equal(vm.runInContext('races.every(r=>r.venue==="seoul")',sandbox),true);
