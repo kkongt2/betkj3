@@ -13,8 +13,8 @@ const historyDoc={schema:2,policyVersion:'betkj3-configurable-anchor-v3',generat
 const historicalRows=[{...historyDoc.rows[0],date:'20210108'},...historyDoc.rows];
 const historyManifest={schema:3,scope:'seoul',policyVersion:historyDoc.policyVersion,generatedAt:doc.updated_at,from:'20210108',to:fixture.date,races:2,shards:[{url:'qpl-history-years/2021.json',rows:1},{url:'qpl-history-years/2025.json',rows:1}]};
 
-const flush=()=>new Promise(resolve=>setTimeout(resolve,180));
-const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,disabled:false,dataset:{},classList:{toggle(){}},setAttribute(){},addEventListener(t,f){this[t]=f},focus(){}});
+const flush=async()=>{await new Promise(resolve=>setTimeout(resolve,180));for(let i=0;i<100&&nodes['#qplHistoryStats']['aria-busy']==='true';i++)await new Promise(resolve=>setTimeout(resolve,10));};
+const nodes={},node=()=>({innerHTML:'',textContent:'',value:'',hidden:false,disabled:false,dataset:{},classList:{toggle(){}},setAttribute(k,v){this[k]=v},addEventListener(t,f){this[t]=f},focus(){}});
 for(const m of fs.readFileSync('index.html','utf8').matchAll(/id="([^"]+)"/g))nodes['#'+m[1]]=node();
 const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
 const savedData=new Map([['betkj3-screening-strictness','75']]);
@@ -36,7 +36,7 @@ const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Inf
 };
 
 vm.createContext(sandbox);
-for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','weight-search-engine.js','weight-search.js','joint-search-engine.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','global-weight-search.js','weight-search-engine.js','weight-search.js','joint-search-engine.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 
 (async()=>{await flush();
  assert.equal(vm.runInContext('races.every(r=>r.venue==="seoul")',sandbox),true);

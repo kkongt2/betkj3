@@ -3,6 +3,7 @@ const WeightSearchEngine=(()=>{
  const tuning=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const balance=typeof module!=='undefined'?require('./weight-balance.js'):WeightBalance;
  const history=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
+ const globalSearch=typeof module!=='undefined'?require('./global-weight-search.js'):GlobalWeightSearch;
  const objectives=['rate','average','product'];
  function normalize(w){const sum=w.reduce((a,b)=>a+b,0)||1,raw=w.map(x=>x*100/sum),out=raw.map(Math.floor);for(const i of raw.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])||a-b).slice(0,100-out.reduce((a,b)=>a+b,0)))out[i]++;return out;}
  function eligible(g){return g.total>0&&g.evaluated>=Math.ceil(g.total*.4)&&g.hits*20>=g.evaluated*3&&g.hits===g.paidHits;}
@@ -12,20 +13,24 @@ const WeightSearchEngine=(()=>{
   if(!objectives.includes(options.objective))throw Error('탐색 목표를 확인해 주세요.');
   if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>600)throw Error('탐색 시간은 1~600초 정수로 입력하세요.');
   const settings={...options.settings,...tuning.settings(options.settings)},balanced=options.balanced!==false,project=w=>balanced?(balance.valid(w)?w.slice():balance.project(w)):normalize(w),objective=options.objective;
+  const method=globalSearch.method(options.method);
   delete settings.screening;
   const seeds=[settings.weights,tuning.defaults(),...(options.seeds||[]).filter(tuning.validWeights).map(w=>tuning.settings({weights:w}).weights)].map(project),seen=new Set(),elite=[];
+  const evolution=method==='de'?globalSearch.create({seeds,balanced,random}):null;
   let best=null,count=0,lastProgress=-Infinity;const started=now(),deadline=started+options.seconds*1000;
   const active=()=>current()&&!stopped()&&now()<deadline;
-  const report=phase=>{lastProgress=now();progress({phase,count,best,elapsed:Math.min(options.seconds,(now()-started)/1000),seconds:options.seconds});};
+  const report=phase=>{lastProgress=now();progress({phase,count,best,method,evolution:evolution?.stats(),elapsed:Math.min(options.seconds,(now()-started)/1000),seconds:options.seconds});};
   report('searching');
   while(active()){
-   let weights=seeds.shift();
+   let weights=evolution?evolution.ask():seeds.shift();
+   if(evolution&&!weights)break;
    if(!weights){
     if(elite.length&&random()<.8){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=Math.floor(random()*tuning.FEATURES.length),b=Math.floor(random()*tuning.FEATURES.length),amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
     else weights=project(Array.from({length:tuning.FEATURES.length},()=>Math.pow(random(),3)*100));
    }
    const key=weights.join(',');if(seen.has(key)){await new Promise(r=>setTimeout(r,0));continue;}seen.add(key);
    const config={...settings,weights},result=await fast(config,options.from,options.to,active);if(!current())return null;
+   if(evolution)evolution.tell(result&&eligible(result.all)?history.metrics(result.all)[objective]:-Infinity);
    if(result){count++;const candidate={settings:config,all:result.all,metrics:history.metrics(result.all)};
     if(eligible(candidate.all)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective))best=candidate;elite.push(candidate);elite.sort((a,b)=>better(a,b,objective)?-1:better(b,a,objective)?1:0);elite.length=Math.min(elite.length,8);}
    }
@@ -39,7 +44,7 @@ const WeightSearchEngine=(()=>{
    if(Math.abs(groups.all.payoutTotal-best.all.payoutTotal)>1e-7||!eligible(groups.all))throw Error('최고 후보 검산에 실패했습니다.');
    best={settings:best.settings,all:groups.all,metrics,comparison:groups.comparison};
   }
-  return {best,count,elapsed,stopped:wasStopped,objective,balanced};
+  return {best,count,elapsed,stopped:wasStopped,objective,balanced,method,evolution:evolution?.stats()};
  }
  return {run,eligible,normalize,better};
 })();
