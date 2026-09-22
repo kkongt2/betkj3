@@ -25,7 +25,7 @@ const WeightCurveEngine=(()=>{
   for(let k=settings.min-1;k<Math.min(settings.max,order.length);k++){const candidate=order[k];if(candidate!==anchor&&(partner<0||values[candidate]>values[partner]||values[candidate]===values[partner]&&entry.numbers[candidate]<entry.numbers[partner]))partner=candidate;}
   return partner<0?null:pairKey([entry.numbers[anchor],entry.numbers[partner]]);
  }
- function create(rows){
+ function create(rows,yieldTask=()=>new Promise(r=>setTimeout(r,0))){
   const entries=rows.filter(r=>r.venue==='seoul').map(prepare);
   async function curve(options,index,from,to,isCurrent=()=>true,onProgress=()=>{}){
    if(!Number.isInteger(index)||index<0||index>=tuning.FEATURES.length)throw Error('가중치 항목 확인 필요');
@@ -42,7 +42,7 @@ const WeightCurveEngine=(()=>{
      if(selected===null){point.excluded++;continue;}point.evaluated++;
      if(entry.winning.has(selected)){point.hits++;const amount=entry.winning.get(selected);if(Number.isFinite(amount)&&amount>=1){point.paidHits++;point.payoutTotal+=amount;}}
     }
-    if(ri%24===23){onProgress(Math.round((ri+1)/entries.length*100));await new Promise(resolve=>setTimeout(resolve,0));}
+    if(ri%24===23){onProgress(Math.round((ri+1)/entries.length*100));await yieldTask();}
    }
    if(!isCurrent())return null;
    return {index,from,to,points:points.map(p=>({...p,...(p.valid?history.metrics(p):{rate:null,average:null,product:null})}))};
@@ -50,7 +50,7 @@ const WeightCurveEngine=(()=>{
   async function evaluate(options,from,to,isCurrent=()=>true){
    const settings={...tuning.settings(options),...policy.normalizeRange(options)},total=settings.weights.reduce((a,b)=>a+b,0),g={total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0};
    for(let ri=0;ri<entries.length;ri++){
-    if(ri%128===127)await new Promise(resolve=>setTimeout(resolve,0));
+    if(ri%128===127)await yieldTask();
     if(!isCurrent())return null;const entry=entries[ri];if(entry.row.date<from||entry.row.date>to)continue;g.total++;
     if(!entry.valid||entry.field.length<settings.min||entry.field.length<settings.anchorRank){g.excluded++;continue;}
     const values=entry.features.map(f=>f.reduce((sum,x,j)=>sum+x*settings.weights[j],0));

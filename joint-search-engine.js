@@ -26,9 +26,9 @@ const JointSearchEngine=(()=>{
  // for the descriptive full-period search and each fold; fold feedback uses training only. Current/saved user weights are
  // allowed in the descriptive full-period search only, not in walk-forward folds.
  function proposals(options,index,random){
-  if(index===0)return options.balanced?B.project(options.settings.weights):normalize(options.settings.weights);
+  if(index===0&&!(options.island>0))return options.balanced?B.project(options.settings.weights):normalize(options.settings.weights);
   const base=T.defaults();
-  if(index===1)return options.balanced?B.project(base):normalize(base);
+  if(index===1&&!(options.island>0))return options.balanced?B.project(base):normalize(base);
   if(index%3){for(let k=0;k<5;k++){const a=Math.floor(random()*T.FEATURES.length),b=Math.floor(random()*T.FEATURES.length),n=Math.min(base[a],1+Math.floor(random()*12));base[a]-=n;base[b]+=n;}}
   else for(let i=0;i<T.FEATURES.length;i++)base[i]=Math.pow(random(),2)*100;
   return options.balanced?B.project(base):normalize(base);
@@ -37,13 +37,13 @@ const JointSearchEngine=(()=>{
   out.push([2,2,0,0,1,1,1,1,0,0,0,0],[2,-2,1,1,1,1,1,0,0,0,2,0],[-1,-1,0,2,1,1,1,0,-1,0,0,1]);
   for(let i=0;i<9;i++)out.push(Array.from({length:12},()=>Math.round(random()*6)-3));return out;
  }
- function create(rows){
+ function create(rows,yieldTask=()=>new Promise(r=>setTimeout(r,0))){
   const entries=rows.filter(r=>r.venue==='seoul').map(C.prepare);
   async function evaluate(settings,from,to,current=()=>true){
    settings={...settings,...T.settings(settings)};
    const out=[],total=settings.weights.reduce((s,x)=>s+x,0);
    for(let i=0;i<entries.length;i++){
-    if(i%96===95){await new Promise(r=>setTimeout(r,0));if(!current())return null;}
+    if(i%96===95){await yieldTask();if(!current())return null;}
     const e=entries[i];if(e.row.date<from||e.row.date>to)continue;
     const p={date:e.row.date,features:null,hit:false,payout:null};out.push(p);
     if(!e.valid||e.field.length<settings.min||e.field.length<settings.anchorRank)continue;
@@ -61,11 +61,11 @@ const JointSearchEngine=(()=>{
    return current()?out:null;
   }
   async function run(options,verify,control={}){
-   if(![40,60,80].includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>600)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
+   if(![40,60,80].includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>3600)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
    const current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{}),now=control.now||(()=>performance.now());
-   const start=now(),random=rng(913721),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(2);
+   const start=now(),random=rng((options.searchSeed??0)+913721),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(2);
    const method=G.method(options.method);
-   const scopes=method==='de'?[{year:null,search:G.create({seeds:[T.settings(options.settings).weights,T.defaults(),...(options.seeds||[])],balanced:!!options.balanced,random:rng(41821)})},...years.map(year=>({year,search:G.create({seeds:[T.defaults()],balanced:!!options.balanced,random:rng(+year+71829)})}))]:[];
+   const scopes=method==='de'?[{year:null,search:G.create({seeds:options.island>0?[]:[T.settings(options.settings).weights,T.defaults(),...(options.seeds||[])],balanced:!!options.balanced,random:rng((options.searchSeed??0)+41821)})},...years.map(year=>({year,search:G.create({seeds:options.island>0?[]:[T.defaults()],balanced:!!options.balanced,random:rng((options.searchSeed??0)+ +year+71829)})}))]:[];
    const foldBest=new Map(),bestByTarget=new Map(),targets=[40,60,80],fixedProfiles=profiles();let count=0;
    while(current()&&!stopped()&&now()-start<options.seconds*1000){
     const index=count,scope=method==='de'?scopes[index%scopes.length]:null,weights=scope?scope.search.ask():proposals(options,index,random);if(!weights)break;
@@ -92,7 +92,7 @@ const JointSearchEngine=(()=>{
     }
     if(scope)scope.search.tell(fitness);
     progress({method,evolution:scopes[0]?.search.stats(),phase:'searching',count,best:bestByTarget.get(options.target)||null,elapsed:Math.min(options.seconds,(now()-start)/1000),seconds:options.seconds});
-    await new Promise(r=>setTimeout(r,0));
+    await yieldTask();
    }
    if(!current())return null;
    const best=bestByTarget.get(options.target)||null,elapsed=Math.min(options.seconds,(now()-start)/1000);

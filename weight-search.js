@@ -8,7 +8,9 @@ const WeightSearch=(()=>{
   const el=id=>document.getElementById(id),start=el('startWeightSearch'),stop=el('stopWeightSearch'),status=el('weightSearchStatus'),result=el('weightSearchResult'),apply=el('applyWeightSearch'),save=el('saveWeightSearch');
   const labels={rate:'적중률',average:'평균 적중배당',product:'적중률 × 평균배당'};
   const methodLabels={local:'기존 혼합 탐색',de:'전역 탐색 · 차분 진화(DE)'};
-  const methodControl=el('weightSearchMethod');
+  const methodControl=el('weightSearchMethod'),parallelControl=el('weightSearchParallel');
+  try{parallelControl.checked=localStorage.getItem('betkj3-search-parallel')!=='false';}catch{}
+  const workerLabel=p=>p.workers>1?'병렬 '+p.workers+'개 작업':'단일 작업';
   try{methodControl.value=localStorage.getItem('betkj3-search-method')==='de'?'de':'local';}catch{methodControl.value='local';}
   function methodHelp(){el('weightSearchMethodHelp').textContent=methodControl.value==='de'?'후보군 12개를 여러 지점에서 시작해 교차·변이·재시작합니다. 여러 가중치를 동시에 변경하며 결과는 합계 100%, 1% 단위입니다. 우선 60~120초로 시도하세요. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다. 공동 탐색의 선별 계수는 기존 12개 후보를 비교합니다.':'좋은 후보 근처에서 1·2·5·10%를 이동하고 무작위 조합도 섞습니다. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다.';}
   methodHelp();
@@ -21,19 +23,19 @@ const WeightSearch=(()=>{
   function invalidate(message){token++;api.abort();busy=false;best=null;api.pause(false);buttons();result.textContent='';status.textContent=message;}
   function refresh(){if(snapshot&&snapshot!==key()){snapshot='';invalidate('설정 또는 자료가 바뀌었습니다. 현재 설정으로 다시 탐색하세요.');}}
   start.onclick=async()=>{
-   const seconds=Number(el('weightSearchSeconds').value);if(!Number.isInteger(seconds)||seconds<1||seconds>600){status.textContent='탐색 시간은 1~600초 정수로 입력하세요.';return;}
+   const seconds=Number(el('weightSearchSeconds').value);if(!Number.isInteger(seconds)||seconds<1||seconds>3600){status.textContent='탐색 시간은 1~3600초 정수로 입력하세요.';return;}
    if(!api.dataKey()){status.textContent='과거 자료를 불러온 뒤 시작해 주세요.';return;}
    const id=++token;snapshot=key();busy=true;best=null;buttons();api.pause(true);display(null);status.textContent='2022년 이후 자료 준비 중… (준비 시간은 탐색 시간에서 제외)';
-   try{const out=await api.run({seconds,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value},p=>{
-    if(id!==token)return;display(p.best);stop.disabled=p.phase==='verifying';status.textContent=p.phase==='verifying'?'최고 후보를 기존 통계 계산으로 검산 중…':p.elapsed.toFixed(1)+' / '+seconds+'초 · '+p.count.toLocaleString()+'개 조합 평가'+(p.evolution?' · 전체 후보군 '+p.evolution.population+'/'+p.evolution.populationSize+' · '+p.evolution.generations+'세대':'');
-   });if(id!==token)return;best=out?.best||null;display(best);status.textContent=out?(out.stopped?'중지 완료':'탐색 완료')+' · '+methodLabels[out.method||'local']+' · '+out.elapsed.toFixed(1)+'초 · '+out.count.toLocaleString()+'개 조합 평가'+(best?' · 검산 완료':' · 적중률 15%·평가 비율 40% 조건을 만족한 조합이 없습니다. 시간을 늘리거나 순위 범위를 바꿔 주세요.'):'탐색이 취소되었습니다.';
+   try{const out=await api.run({seconds,parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value},p=>{
+    if(id!==token)return;display(p.best);stop.disabled=p.phase==='verifying';status.textContent=p.phase==='preparing'?(p.fallback?'병렬 작업을 시작하지 못해 단일 작업을 준비합니다…':workerLabel(p)+' 준비 중… (준비 시간 제외)'):p.phase==='verifying'?'최고 후보를 기존 통계 계산으로 검산 중…':workerLabel(p)+' · '+p.elapsed.toFixed(1)+' / '+seconds+'초 · '+p.count.toLocaleString()+'회 평가'+(p.evolution?' · 전체 후보군 '+p.evolution.population+'/'+p.evolution.populationSize+' · '+p.evolution.generations+'세대':'');
+   });if(id!==token)return;best=out?.best||null;display(best);status.textContent=out?(out.stopped?'중지 완료':'탐색 완료')+' · '+methodLabels[out.method||'local']+' · '+workerLabel(out)+' · '+out.elapsed.toFixed(1)+'초 · '+out.count.toLocaleString()+'회 평가'+(out.failedWorkers?' · 응답 없는 작업 '+out.failedWorkers+'개 제외':'')+(best?' · 검산 완료':' · 적중률 15%·평가 비율 40% 조건을 만족한 조합이 없습니다. 시간을 늘리거나 순위 범위를 바꿔 주세요.'):'탐색이 취소되었습니다.';
    }catch(e){if(id===token){best=null;result.textContent='';status.textContent='탐색 실패: '+e.message;}}
    finally{if(id===token){busy=false;buttons();api.pause(false);}}
   };
   stop.onclick=()=>{api.stop();stop.disabled=true;status.textContent='중지 후 완료된 후보 중 최고 조합을 검산합니다…';};
   apply.onclick=()=>{if(!best)return;const selected=best; snapshot='';const saved=api.apply(selected.settings);snapshot=key();status.textContent='탐색 결과를 적용했습니다.'+(selected.settings.screening?' 선별 ON/OFF 상태는 유지됩니다. 위 경기 선별 사용을 켜면 적용한 기준으로 표시됩니다.':'')+(saved?' 이 기기의 현재 설정에 저장했습니다.':' 현재 설정 자동 저장에 실패했습니다.');};
   save.onclick=()=>{if(!best)return;try{const name='자동탐색 '+labels[el('weightSearchGoal').value]+' '+new Date().toISOString().slice(0,19).replace('T',' ');api.save(name,best.settings);status.textContent='“'+name+'” 설정을 저장했습니다. 저장한 설정에서 불러올 수 있습니다.';}catch(e){status.textContent='저장 실패: '+e.message;}};
-  for(const id of ['weightSearchMethod','weightSearchSeconds','weightSearchGoal','weightSearchBalanced','weightSearchMode','weightSearchTarget'])el(id).onchange=()=>{if(id==='weightSearchMethod'){methodHelp();try{localStorage.setItem('betkj3-search-method',methodControl.value);}catch{}}if(id==='weightSearchMode'&&el('weightSearchMode').value==='joint')el('weightSearchBalanced').checked=false;if(el('weightSearchMode').value==='joint')el('weightSearchGoal').value='product';el('weightSearchGoal').disabled=el('weightSearchMode').value==='joint';el('weightSearchTarget').disabled=el('weightSearchMode').value!=='joint';snapshot='';invalidate('탐색 조건을 변경했습니다. 시작 버튼을 눌러 주세요.');};
+  for(const id of ['weightSearchParallel','weightSearchMethod','weightSearchSeconds','weightSearchGoal','weightSearchBalanced','weightSearchMode','weightSearchTarget'])el(id).onchange=()=>{if(id==='weightSearchParallel'){try{localStorage.setItem('betkj3-search-parallel',String(parallelControl.checked));}catch{}}if(id==='weightSearchMethod'){methodHelp();try{localStorage.setItem('betkj3-search-method',methodControl.value);}catch{}}if(id==='weightSearchMode'&&el('weightSearchMode').value==='joint')el('weightSearchBalanced').checked=false;if(el('weightSearchMode').value==='joint')el('weightSearchGoal').value='product';el('weightSearchGoal').disabled=el('weightSearchMode').value==='joint';el('weightSearchTarget').disabled=el('weightSearchMode').value!=='joint';snapshot='';invalidate('탐색 조건을 변경했습니다. 시작 버튼을 눌러 주세요.');};
   buttons();return {refresh,reset:()=>{snapshot='';invalidate('자료를 다시 준비합니다. 잠시 후 탐색을 시작해 주세요.');}};
  }
  return {init};

@@ -13,7 +13,7 @@ const group=(hits,payoutTotal,evaluated=100,total=100)=>({total,evaluated,hits,e
  clock=0;stopped=false;const stop=await S.run({settings,seconds:1,objective:'rate'},async()=>{clock+=100;stopped=true;return {all:group(25,125)};},async()=>({all:group(25,125)}),{now:()=>clock,stopped:()=>stopped});assert(stop.stopped);assert.equal(stop.best.all.hits,25);
  const abort=await S.run({settings,seconds:1,objective:'rate'},async()=>{throw Error('must not run');},()=>{}, {current:()=>false});assert.equal(abort,null);
  clock=0;await assert.rejects(S.run({settings,seconds:1,objective:'rate'},async()=>{clock=1001;return {all:group(25,125)};},async()=>({all:group(26,130)}),{now:()=>clock}),/일치/);
- await assert.rejects(S.run({settings,seconds:0,objective:'rate'},()=>{},()=>{}),/1~600/);
+ await assert.rejects(S.run({settings,seconds:0,objective:'rate'},()=>{},()=>{}),/1~3600/);
  assert(!S.eligible({...group(20,100),paidHits:19}));assert(S.eligible(group(6,30,40,100)));assert(!S.eligible(group(5,30,40,100)));
  assert.deepEqual(S.normalize(Array(17).fill(1)).reduce((a,b)=>a+b),100);
  console.log('PASS search goals, exact verification, balanced/free integer weights, 15% hit/40% coverage boundaries, incomplete payout rejection, deadline, stop and abort');

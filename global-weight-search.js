@@ -47,6 +47,7 @@ const GlobalWeightSearch=(()=>{
   const stats=()=>({population:population.length,populationSize:size,generations:Math.floor(trials/size),restarts:immigrants});
   return {ask,tell,stats};
  }
- return {create,method,normalize};
+ function rng(seed){let n=seed>>>0;return ()=>((n=(Math.imul(1664525,n)+1013904223)>>>0)/4294967296);}
+ return {create,method,normalize,rng};
 })();
 if(typeof module!=='undefined')module.exports=GlobalWeightSearch;

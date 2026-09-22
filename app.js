@@ -51,7 +51,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=global-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=parallel-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2022년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
@@ -95,7 +95,7 @@ function initWeightCurves(){weightCurves=WeightCurves.init({settings:strategySet
 function abortWeightSearch(){searchRequest++;searchStopped=true;if(searchPending){searchPending.resolve(null);searchPending=null;}historyWorker?.postMessage({type:'abort-search',searchId:searchRequest});}
 function stopWeightSearch(){searchStopped=true;historyWorker?.postMessage({type:'stop-search',searchId:searchRequest});}
 async function runWeightSearch(options,progress){
- const id=++searchRequest;searchStopped=false;const config={...options,from:QplHistoryEngine.PERIOD.from,to:day().replaceAll('-','')};
+ const id=++searchRequest;searchStopped=false;const config={...options,hardware:{cores:navigator.hardwareConcurrency,memory:navigator.deviceMemory},searchSeed:Math.floor(Math.random()*4294967296),from:QplHistoryEngine.PERIOD.from,to:day().replaceAll('-','')};
  try{config.seeds=StrategyPresets.read(localStorage).map(p=>p.settings.weights);}catch{config.seeds=[];}
  if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress};historyWorker.postMessage({type:'search',searchId:id,options:config});});
  await getHistoryEngines();if(id!==searchRequest)return null;
