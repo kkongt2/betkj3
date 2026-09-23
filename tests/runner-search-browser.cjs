@@ -18,7 +18,7 @@ const server=http.createServer((req,res)=>{
 const {search}=require('../scripts/runner-search.cjs');
 (async()=>{
  const cfg={...T.settings(),anchorRank:1,min:2,max:10};
- const report=await search({schema:1,requestId:'browser-test',seconds:2,method:'de',objective:'product',parallel:true,balanced:false,joint:false,target:60,settings:cfg},rows,{runId:'123-1'});
+ let report=await search({schema:1,requestId:'browser-test',seconds:2,method:'de',objective:'product',parallel:true,balanced:false,joint:false,target:60,settings:cfg},rows,{runId:'123-1'});
  assert(report.result.best);
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']}),errors=[];
  try{
@@ -30,7 +30,7 @@ const {search}=require('../scripts/runner-search.cjs');
    if(url.startsWith('https://raw.githubusercontent.com/kkongt2/betkj3/refs/heads/runner-results/')){
     assert.equal(route.request().method(),'GET');rawRequests.push(url);
     if(!available)return route.fulfill({status:404,body:'Not found'});
-    const body=url.includes('index.json')?{schema:1,entries:[{runId:report.runId,requestId:report.request.requestId,finishedAt:report.finishedAt,method:'de',joint:false,seconds:2}]}:bad?{...report,modelVersion:'bad'}:report;
+    const body=url.includes('index.json')?{schema:1,entries:[{runId:report.runId,requestId:report.request.requestId,finishedAt:report.finishedAt,method:'de',joint:report.request.joint,seconds:2}]}:bad?{...report,modelVersion:'bad'}:report;
     return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
    }
    return route.abort();
@@ -52,6 +52,17 @@ const {search}=require('../scripts/runner-search.cjs');
   const product=await page.locator('#weightSearchResult .search-metrics strong').nth(2).innerText();assert.equal(product,report.result.best.metrics.product.toFixed(4)+'배');
   await page.locator('#applyWeightSearch').click();assert.deepEqual((await page.evaluate(()=>strategySettings())).weights,report.result.best.settings.weights);assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
   await page.locator('#saveWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('저장'));
+  // A legacy joint report has only independently trained validation folds. Import
+  // must calculate the fixed winner via the worker, and via the no-worker fallback.
+  report=await search({...payload,seconds:2,joint:true},rows,{runId:'124-1'});assert(report.result.best.joint.fixed);const expected=structuredClone(report.result.best.joint.fixed);delete report.result.best.joint.fixed;
+  for(const fallback of [false,true]){
+   if(fallback){await page.addInitScript(()=>{window.Worker=undefined;});await page.reload();await page.locator('#pairLead .lead-number').waitFor();}
+   await page.locator('#refreshRunnerSearch').click();await page.waitForFunction(()=>!document.querySelector('#refreshRunnerSearch').disabled);
+   await page.locator('#loadRunnerSearch').click();await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});
+   const text=await page.locator('#fixedYearResults').innerText();assert(text.includes('현재 최고 조합 · 2024년 이후 재계산'));assert(text.includes(expected.metrics.product.toFixed(4)+'배'));assert(!text.includes('시간 순서 검증'));
+   assert(text.includes('독립적인 미래 성능 검증은 아닙니다'));assert.equal(await page.locator('#fixedYearResults tr[data-year="2026"]').count(),1);
+   await page.locator('#applyWeightSearch').click();assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
+  }
   await page.locator('#prepareRunnerSearch').click();await page.locator('#weightSearchMinutes').fill('3');await page.locator('#weightSearchMinutes').blur();assert.equal(await page.locator('#runnerPrepared').isHidden(),true);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert(rawRequests.length>=4);assert.deepEqual(errors,[]);
   await page.locator('.weight-search').screenshot({path:'/tmp/runner-search-mobile.png'});await context.close();console.log('PASS mobile Runner prepare without local execution, reload recovery, missing/invalid result, matching result, explicit apply/save, stale request invalidation and screening OFF');

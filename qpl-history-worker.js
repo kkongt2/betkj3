@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model.js?v=minutes-1','tuning-model.js?v=minutes-1','qpl-policy.js?v=minutes-1','race-selection-model.js?v=minutes-1','qpl-history-engine.js?v=minutes-1','weight-curve-engine.js?v=minutes-1','weight-balance.js?v=minutes-1','global-weight-search.js?v=minutes-1','weight-search-engine.js?v=minutes-1','joint-search-engine.js?v=minutes-1','parallel-search.js?v=minutes-1');
+importScripts('model.js?v=fixed-years-1','tuning-model.js?v=fixed-years-1','qpl-policy.js?v=fixed-years-1','race-selection-model.js?v=fixed-years-1','qpl-history-engine.js?v=fixed-years-1','weight-curve-engine.js?v=fixed-years-1','weight-balance.js?v=fixed-years-1','global-weight-search.js?v=fixed-years-1','weight-search-engine.js?v=fixed-years-1','joint-search-engine.js?v=fixed-years-1','parallel-search.js?v=fixed-years-1');
 let ready=null,latest=0,latestCurve=0,searchId=0,searchStopped=false,searchPool=null;
 async function fetchYear(url){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
@@ -11,6 +11,13 @@ onmessage=async({data})=>{
  }
  if(data.type==='abort-search'){searchId=data.searchId;searchStopped=true;searchPool?.abort();searchPool=null;return;}
  if(data.type==='stop-search'){if(searchId===data.searchId){searchStopped=true;searchPool?.stop();}return;}
+ if(data.type==='recalculate-search'){
+  searchPool?.abort();searchPool=null;searchId=data.searchId;
+  try{const {history}=await ready;const current=()=>searchId===data.searchId;if(!current())return;
+   const result=await ParallelSearch.verify(data.result,data.options,history.evaluate,current);
+   if(current())postMessage({type:'search-result',searchId:data.searchId,result});
+  }catch(e){if(searchId===data.searchId)postMessage({type:'search-result',searchId:data.searchId,error:'현재 최고 조합 재계산 실패: '+String(e.message||e)});}return;
+ }
  if(data.type==='search'){
   searchPool?.abort();searchPool=null;searchId=data.searchId;searchStopped=false;
   try{const {rows,curves,history,joint}=await ready;if(searchId!==data.searchId)return;

@@ -51,7 +51,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=minutes-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=fixed-years-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2022년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
@@ -102,7 +102,14 @@ async function runWeightSearch(options,progress){
  const run=config.joint?(o,f,v,c)=>jointEngine.run(o,v,c):WeightSearchEngine.run;
  return run(config,curveEngine.evaluate,historyEngine.evaluate,{current:()=>id===searchRequest,stopped:()=>searchStopped,progress});
 }
-function initWeightSearch(){weightSearch=WeightSearch.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,QplHistoryEngine.PERIOD.from,QplHistoryEngine.PERIOD.comparisonFrom,day()]):'',run:runWeightSearch,abort:abortWeightSearch,stop:stopWeightSearch,pause:value=>weightCurves?.pause(value),apply:applySavedStrategy,save:(name,settings)=>{StrategyPresets.save(localStorage,name,settings);refreshPresetOptions(name);}});}
+async function recalculateRunnerSearch(report){
+ if(!qplHistory)throw Error('과거 경주 자료를 불러온 후 다시 시도해 주세요.');
+ const id=++searchRequest,options={joint:true,from:report.from,to:report.to};
+ if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress:()=>{}};historyWorker.postMessage({type:'recalculate-search',searchId:id,options,result:report.result});});
+ await getHistoryEngines();if(id!==searchRequest)return null;
+ return ParallelSearch.verify(report.result,options,historyEngine.evaluate,()=>id===searchRequest);
+}
+function initWeightSearch(){weightSearch=WeightSearch.init({settings:strategySettings,dataKey:()=>qplHistory?JSON.stringify([qplHistory.generatedAt,qplHistory.from,qplHistory.to,qplHistory.races,QplHistoryEngine.PERIOD.from,QplHistoryEngine.PERIOD.comparisonFrom,day()]):'',run:runWeightSearch,recalculate:recalculateRunnerSearch,abort:abortWeightSearch,stop:stopWeightSearch,pause:value=>weightCurves?.pause(value),apply:applySavedStrategy,save:(name,settings)=>{StrategyPresets.save(localStorage,name,settings);refreshPresetOptions(name);}});}
 
 function showQplHistory(groups){
  if(groups.screening)screeningPanel?.show(groups.screening);

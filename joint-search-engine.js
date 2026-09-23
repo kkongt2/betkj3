@@ -104,7 +104,7 @@ const JointSearchEngine=(()=>{
     if(Math.abs(p.payoutTotal-best.all.payoutTotal)>1e-7)throw Error('선별 지급배당 검산 불일치');
     best.all={...p};best.metrics=H.metrics(p);
     const summed=blank(),folds=[];for(const [year,c] of foldBest){for(const k of Object.keys(summed))summed[k]+=c.test[k];folds.push({year,train:metric(c.all),test:metric(c.test),settings:c.settings});}
-    best.joint={method,target:options.target,ratios:targets.map(target=>({target,...(bestByTarget.has(target)?metric(bestByTarget.get(target).all):{product:null,ratio:null})})),validation:{folds,all:summed,metrics:H.metrics(summed)},modelLabels:S.JOINT_LABELS};
+    best.joint={fixed:exact.fixedSelection,method,target:options.target,ratios:targets.map(target=>({target,...(bestByTarget.has(target)?metric(bestByTarget.get(target).all):{product:null,ratio:null})})),validation:{folds,all:summed,metrics:H.metrics(summed)},modelLabels:S.JOINT_LABELS};
    }
    return {best,count,elapsed,stopped:stopped(),objective:'product',balanced:!!options.balanced,method,evolution:scopes[0]?.search.stats()};
   }

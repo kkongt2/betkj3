@@ -29,6 +29,10 @@ const RunnerSearchContract=(()=>{
    if(x.request.joint){const j=b.joint;if(!j||j.target!==x.request.target||!b.settings.screening||!Array.isArray(j.ratios)||j.ratios.length!==3||!Array.isArray(j.validation?.folds)||j.validation.folds.length>50)fail();
     j.modelLabels=S.JOINT_LABELS;j.method=x.request.method;
     j.ratios=j.ratios.map(r=>{if(![40,60,80].includes(r.target))fail();return r.product===null?{target:r.target,product:null,ratio:null}:{target:r.target,...stats(r)};});
+    if(j.fixed){const v=j.fixed;if(!/^\d{8}$/.test(v.from)||!/^\d{8}$/.test(v.to)||!Array.isArray(v.years)||v.years.length>50)fail();
+     v.all=stats(v.all);v.metrics=S.metrics(v.all);const seen=new Set();v.years=v.years.map(f=>{if(!/^\d{4}$/.test(f.year)||seen.has(f.year))fail();seen.add(f.year);const all=stats(f.all);return {year:f.year,all,metrics:S.metrics(all)};});
+     for(const k of ['total','evaluated','hits','paidHits','excluded','payoutTotal'])if(Math.abs(v.years.reduce((n,f)=>n+f.all[k],0)-v.all[k])>1e-7)fail();
+    }
     j.validation.all=stats(j.validation.all);j.validation.metrics=H.metrics(j.validation.all);
     j.validation.folds=j.validation.folds.map(f=>{if(!/^\d{4}$/.test(f.year))fail();return {year:f.year,train:stats(f.train),test:stats(f.test),settings:settings(f.settings)};});
    }else delete b.joint;

@@ -22,7 +22,7 @@ const ParallelSearch=(()=>{
    }
    const all={total:0,evaluated:0,hits:0,paidHits:0,payoutTotal:0,excluded:0};for(const f of folds.values())for(const k of Object.keys(all))all[k]+=f.test[k];
    const target=options.target;ratios.set(target,{target,...best.all,...best.metrics,ratio:best.all.total?best.all.evaluated/best.all.total:null});
-   best.joint={method:options.method||'local',target,modelLabels:S.JOINT_LABELS,ratios:[40,60,80].map(target=>ratios.get(target)||{target,product:null,ratio:null}),validation:{folds:[...folds.values()].sort((a,b)=>a.year.localeCompare(b.year)),all,metrics:H.metrics(all)}};
+   best.joint={fixed:best.joint?.fixed||null,method:options.method||'local',target,modelLabels:S.JOINT_LABELS,ratios:[40,60,80].map(target=>ratios.get(target)||{target,product:null,ratio:null}),validation:{folds:[...folds.values()].sort((a,b)=>a.year.localeCompare(b.year)),all,metrics:H.metrics(all)}};
   }}
   return {best,count:valid.reduce((n,x)=>n+x.count,0),elapsed:Math.max(0,...valid.map(x=>x.elapsed||0)),stopped:valid.some(x=>x.stopped),objective,balanced:!!options.balanced,method:options.method||'local'};
  }
@@ -32,10 +32,10 @@ const ParallelSearch=(()=>{
   const exact=options.joint?g.screening.points[b.settings.screening.threshold]:g.all;
   for(const k of ['total','evaluated','hits','paidHits'])if(exact[k]!==b.all[k])throw Error('병렬 탐색 결과 검산 불일치');
   if(Math.abs(exact.payoutTotal-b.all.payoutTotal)>1e-7)throw Error('병렬 탐색 배당 검산 불일치');
-  b.all=exact;b.metrics=H.metrics(exact);if(!options.joint)b.comparison=g.comparison;
+  b.all=exact;b.metrics=H.metrics(exact);if(options.joint&&b.joint)b.joint.fixed=g.fixedSelection;if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=minutes-1'),now=()=>performance.now()}={}){
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=fixed-years-1'),now=()=>performance.now()}={}){
   let states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}

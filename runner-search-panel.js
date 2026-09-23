@@ -30,7 +30,7 @@ const RunnerSearchPanel=(()=>{
   el('refreshRunnerSearch').onclick=refresh;
   el('loadRunnerSearch').onclick=async()=>{
    const selected=entries.find(e=>e.runId===list.value);if(!selected)return;const id=++revision;el('loadRunnerSearch').disabled=true;
-   try{const raw=await read('runs/'+selected.runId+'.json');if(id!==revision)return;if(!raw||raw.runId!==selected.runId)throw Error('선택한 실행 결과를 찾지 못했습니다.');const report=RunnerSearchContract.report(raw);api.receive(report);status.textContent='Runner 결과를 불러왔습니다. '+report.from+'~'+report.to+' 자료 기준 · 완료 '+new Date(report.finishedAt).toLocaleString()+'. 아래에서 결과를 확인하고 적용·저장하세요.';}
+   try{const raw=await read('runs/'+selected.runId+'.json');if(id!==revision)return;if(!raw||raw.runId!==selected.runId)throw Error('선택한 실행 결과를 찾지 못했습니다.');const report=RunnerSearchContract.report(raw);status.textContent='현재 최고 조합의 연도별 성적을 재계산 중…';if(await api.receive(report)===false){status.textContent='설정이 변경되어 결과 불러오기를 취소했습니다.';return;}status.textContent='Runner 결과를 불러왔습니다. '+report.from+'~'+report.to+' 자료 기준 · 완료 '+new Date(report.finishedAt).toLocaleString()+'. 아래에서 결과를 확인하고 적용·저장하세요.';}
    catch(e){status.textContent='결과 불러오기 실패: '+e.message;}finally{if(id===revision)el('loadRunnerSearch').disabled=!entries.length;}
   };
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refresh();});

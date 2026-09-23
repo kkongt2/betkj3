@@ -1,8 +1,13 @@
 'use strict';
 const WeightSearch=(()=>{
+ function fixedView(v){
+  if(!v)return '<p class="hint">탐색 완료 후 현재 최고 조합의 연도별 성적을 재계산합니다.</p>';
+  const pct=x=>x===null?'—':(100*x).toFixed(2)+'%',odds=x=>x===null?'—':x.toFixed(4)+'배';
+  return '<div id="fixedYearResults"><p><b>현재 최고 조합 · 2024년 이후 재계산 · '+odds(v.metrics.product)+'</b><br>적중률 '+pct(v.metrics.rate)+' · 평균 적중배당 '+odds(v.metrics.average)+'<br>적중 '+v.all.hits+' / 평가 '+v.all.evaluated+'경주 · 실제 선택 '+pct(v.all.total?v.all.evaluated/v.all.total:null)+'</p><table class="validation-table"><thead><tr><th>평가 연도</th><th>선택 비율</th><th>적중률 × 배당</th></tr></thead><tbody>'+v.years.map(f=>'<tr data-year="'+f.year+'"><td>'+f.year+'</td><td>'+pct(f.all.total?f.all.evaluated/f.all.total:null)+'</td><td>'+odds(f.metrics.product)+'</td></tr>').join('')+'</tbody></table><p class="hint">'+(v.years.length?'위 최고 조합의 가중치·축마·상대 순위·경기 선별 기준을 모든 연도에 동일하게 적용했습니다. 연도별 실제 선택 비율은 달라질 수 있습니다.':'2024년 이후 평가할 경주 자료가 없습니다.')+' '+v.from+'~'+v.to+' 자료 기준. 해당 기간 결과도 조합 탐색에 사용했으므로 독립적인 미래 성능 검증은 아닙니다.</p></div>';
+ }
  function jointView(candidate){
-  const j=candidate.joint,v=j.validation,pct=x=>x===null?'—':(100*x).toFixed(2)+'%',odds=x=>x===null?'—':x.toFixed(4)+'배';
-  return '<p><b>목표 '+j.target+'% · 선별 기준 '+candidate.settings.screening.threshold+'점 이상</b></p><table class="validation-table"><thead><tr><th>목표 비율</th><th>실제 선택</th><th>과거 탐색 최고</th></tr></thead><tbody>'+j.ratios.map(r=>'<tr><td>'+r.target+'%</td><td>'+pct(r.ratio)+'</td><td>'+odds(r.product)+'</td></tr>').join('')+'</tbody></table><p class="hint">각 비율에서 찾은 가중치와 선별 기준은 서로 다를 수 있습니다. 적용·저장은 선택한 목표 '+j.target+'% 결과입니다. 다른 비율을 적용하려면 목표 비율을 바꾸고 다시 탐색하세요.</p><p><b>시간 순서 검증 · '+odds(v.metrics.product)+'</b><br>적중률 '+pct(v.metrics.rate)+' · 평균 적중배당 '+odds(v.metrics.average)+'<br>적중 '+v.all.hits+' / 평가 '+v.all.evaluated+'경주 · 실제 선택 '+pct(v.all.total?v.all.evaluated/v.all.total:null)+'</p><table class="validation-table"><thead><tr><th>평가 연도</th><th>선택 비율</th><th>적중률 × 배당</th></tr></thead><tbody>'+v.folds.map(f=>'<tr><td>'+f.year+'</td><td>'+pct(f.test.ratio)+'</td><td>'+odds(f.test.product)+'</td></tr>').join('')+'</tbody></table><p class="hint">'+(v.folds.length?'각 연도 시작 전 자료로 가중치·선별 기준을 정하고 해당 연도에는 고정했습니다. 평가 연도 성과는 후보 선정에 사용하지 않습니다. 연도마다 적용 모델이 달라 현재 최고 조합의 검증값은 아닙니다.':'검증을 완료한 후보가 없습니다. 학습 200경주·최소 3개 연도가 필요하며 탐색 시간이 짧으면 시간을 늘려 주세요.')+' 현재·저장 가중치는 전체 탐색에만 사용하며 시간 순서 검증에서는 제외합니다. '+(j.method==='de'?'연도별 후보군을 별도로 두고 이전 연도 성적만으로 진화시킵니다. 제한 시간은 전체 탐색과 연도별 검증에 나누어 사용합니다.':'기본 가중치와 고정 난수 후보를 사용합니다.')+' 아직 관측하지 않은 미래 실전 성과는 아닙니다.</p><details><summary>적용할 경기 선별 기준 보기</summary><table class="validation-table"><tbody>'+j.modelLabels.map((label,i)=>'<tr><td>'+label+'</td><td>'+candidate.settings.screening.coefficients[i]+'</td></tr>').join('')+'</tbody></table><p class="hint">양수는 값이 클수록, 음수는 값이 작을수록 선별 점수를 높입니다. 배당은 과거 성과 평가에만 사용하며 경기 전 선별 입력에는 사용하지 않습니다.</p></details>';
+  const j=candidate.joint,pct=x=>x===null?'—':(100*x).toFixed(2)+'%',odds=x=>x===null?'—':x.toFixed(4)+'배';
+  return '<p><b>목표 '+j.target+'% · 선별 기준 '+candidate.settings.screening.threshold+'점 이상</b></p><table class="validation-table"><thead><tr><th>목표 비율</th><th>실제 선택</th><th>과거 탐색 최고</th></tr></thead><tbody>'+j.ratios.map(r=>'<tr><td>'+r.target+'%</td><td>'+pct(r.ratio)+'</td><td>'+odds(r.product)+'</td></tr>').join('')+'</tbody></table><p class="hint">각 비율에서 찾은 가중치와 선별 기준은 서로 다를 수 있습니다. 적용·저장은 선택한 목표 '+j.target+'% 결과입니다. 다른 비율을 적용하려면 목표 비율을 바꾸고 다시 탐색하세요.</p>'+fixedView(j.fixed)+'<details><summary>적용할 경기 선별 기준 보기</summary><table class="validation-table"><tbody>'+j.modelLabels.map((label,i)=>'<tr><td>'+label+'</td><td>'+candidate.settings.screening.coefficients[i]+'</td></tr>').join('')+'</tbody></table><p class="hint">양수는 값이 클수록, 음수는 값이 작을수록 선별 점수를 높입니다. 배당은 과거 성과 평가에만 사용하며 경기 전 선별 입력에는 사용하지 않습니다.</p></details>';
  }
  function init(api){
   const el=id=>document.getElementById(id),start=el('startWeightSearch'),stop=el('stopWeightSearch'),status=el('weightSearchStatus'),result=el('weightSearchResult'),apply=el('applyWeightSearch'),save=el('saveWeightSearch');
@@ -17,10 +22,16 @@ const WeightSearch=(()=>{
   let token=0,busy=false,snapshot='',best=null;
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
   const options=()=>{const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<1||minutes>300)throw Error('탐색 시간은 1~300분 정수로 입력하세요.');return {seconds:minutes*60,parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value};};
-  const runner=RunnerSearchPanel.init({options,canPrepare:()=>!busy,receive:report=>{
-   invalidate('Runner 결과를 불러옵니다.');const o=report.request,out=report.result;
-   methodControl.value=o.method;methodHelp();el('weightSearchGoal').value=o.objective;el('weightSearchMode').value=o.joint?'joint':'all';el('weightSearchTarget').value=String(o.target);el('weightSearchGoal').disabled=o.joint;el('weightSearchTarget').disabled=!o.joint;
-   best=out.best;snapshot=key();display(best);buttons();status.textContent='Runner 탐색 완료 · '+workerLabel(out)+' · '+out.count.toLocaleString()+'회 평가 · '+(out.elapsed/60).toFixed(2)+'분 · '+(best?'검산 완료 · 적용 버튼을 누르면 반영됩니다.':'조건을 만족한 후보 없음');
+  const runner=RunnerSearchPanel.init({options,canPrepare:()=>!busy,receive:async report=>{
+   invalidate('현재 최고 조합의 연도별 성적을 재계산 중…');const id=++token,o=report.request;let out=report.result;
+   busy=true;snapshot=key();buttons();stop.disabled=true;api.pause(true);
+   try{
+    if(o.joint&&out.best)out=await api.recalculate(report);
+    if(id!==token||!out)return false;
+    methodControl.value=o.method;methodHelp();el('weightSearchGoal').value=o.objective;el('weightSearchMode').value=o.joint?'joint':'all';el('weightSearchTarget').value=String(o.target);el('weightSearchGoal').disabled=o.joint;el('weightSearchTarget').disabled=!o.joint;
+    best=out.best;display(best);status.textContent='Runner 탐색 완료 · '+workerLabel(out)+' · '+out.count.toLocaleString()+'회 평가 · '+(out.elapsed/60).toFixed(2)+'분 · '+(best?'검산 완료 · 적용 버튼을 누르면 반영됩니다.':'조건을 만족한 후보 없음');return true;
+   }catch(e){if(id===token){best=null;result.textContent='';status.textContent='Runner 결과 재계산 실패: '+e.message;}throw e;}
+   finally{if(id===token){busy=false;buttons();api.pause(false);}}
   }});
   function buttons(){start.disabled=busy;stop.disabled=!busy;apply.disabled=save.disabled=busy||!best;}
   function display(candidate){if(!candidate){result.textContent='조건을 만족한 후보가 아직 없습니다.';return;}const m=candidate.metrics,g=candidate.all,s=candidate.settings;

@@ -7,6 +7,16 @@ const QplHistoryEngine=(()=>{
  const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
  function sumYears(years,from){const g=blank();for(const [year,x] of Object.entries(years||{}))if(year>=from.slice(0,4))for(const k of Object.keys(g))g[k]+=x[k]||0;return g;}
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
+ // Evaluate the winning settings unchanged in every year. This is descriptive
+ // historical performance, separate from the independently trained validation folds.
+ function fixedSelection(results,config,from,to){
+  const start=from>'20240101'?from:'20240101',selected=results.filter(r=>r.date>=start&&r.date<=to),threshold=config.screening.threshold;
+  const summary=rows=>{const raw=screening.curve(rows).points[threshold];
+   // Remove floating-point summation noise before rounding displayed yearly odds.
+   const all={...raw,payoutTotal:Math.round(raw.payoutTotal*1e8)/1e8},m=screening.metrics(all);return {all:{...all,...m},metrics:m};};
+  const years=[...new Set(selected.map(r=>r.date.slice(0,4)))].sort().map(year=>({year,...summary(selected.filter(r=>r.date.startsWith(year)))}));
+  return {from:start,to,...summary(selected),years};
+ }
  function create(rows){
   const entries=rows.filter(r=>r.venue==='seoul').map(row=>({row,winning:new Map(row.payouts.map(p=>[key(p.numbers),p.odds]))}));
   const coverageCache=new Map();
@@ -47,7 +57,7 @@ const QplHistoryEngine=(()=>{
    if(!isCurrent())return null;
    const groups=policy.summarize(results,config,from,to),comparisonFrom=from>PERIOD.comparisonFrom?from:PERIOD.comparisonFrom;
    const comparison=policy.summarize(results,config,comparisonFrom,to);
-   return {...groups,from,to,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to),...(config.includeScreening?{screening:screening.curve(results)}:{})};
+   return {...groups,from,to,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to),...(config.includeScreening&&config.screening?{fixedSelection:fixedSelection(results,config,from,to)}:{}),...(config.includeScreening?{screening:screening.curve(results)}:{})};
   }
   return {evaluate,evaluateRow:(i,options)=>evaluateRow(entries[i],{...tuning.settings(options),...policy.normalizeRange(options)})};
  }
@@ -73,6 +83,6 @@ const QplHistoryEngine=(()=>{
   if(rows.length!==manifest.races||new Set(rows.map(r=>[r.date,r.venue,r.race].join(':'))).size!==rows.length)throw Error('전체 통계 경주 수 확인 필요');
   return rows;
  }
- return {create,metrics,load,PERIOD,sumYears};
+ return {create,metrics,load,PERIOD,sumYears,fixedSelection};
 })();
 if(typeof module!=='undefined')module.exports=QplHistoryEngine;
