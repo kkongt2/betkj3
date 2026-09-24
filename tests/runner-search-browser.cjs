@@ -38,6 +38,7 @@ const {search}=require('../scripts/runner-search.cjs');
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
   await page.locator('#weightSearchMinutes').fill('301');await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('1~300분'));
   await page.locator('#weightSearchMinutes').fill('300');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,18000);
+  await page.selectOption('#runnerSearchDuration','86400');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,86400);await page.selectOption('#runnerSearchDuration','current');
   await page.selectOption('#weightSearchMethod','de');await page.locator('#weightSearchMinutes').fill('2');await page.locator('#weightSearchBalanced').uncheck();
   const before=await page.evaluate(()=>strategySettings());
   await page.locator('#prepareRunnerSearch').click();await page.locator('#runnerSearchRequest').waitFor();const payload=JSON.parse(await page.locator('#runnerSearchRequest').inputValue());assert.equal(payload.seconds,120);assert.equal(payload.method,'de');assert.deepEqual(payload.settings.weights,before.weights);
@@ -65,6 +66,6 @@ const {search}=require('../scripts/runner-search.cjs');
   }
   await page.locator('#prepareRunnerSearch').click();await page.locator('#weightSearchMinutes').fill('3');await page.locator('#weightSearchMinutes').blur();assert.equal(await page.locator('#runnerPrepared').isHidden(),true);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert(rawRequests.length>=4);assert.deepEqual(errors,[]);
-  await page.locator('.weight-search').screenshot({path:'/tmp/runner-search-mobile.png'});await context.close();console.log('PASS mobile Runner prepare without local execution, reload recovery, missing/invalid result, matching result, explicit apply/save, stale request invalidation and screening OFF');
+  await page.locator('.weight-search').screenshot({path:'/tmp/runner-search-mobile.png'});await context.close();console.log('PASS mobile Runner prepare including 1-day budget without local execution, reload recovery, missing/invalid result, matching result, explicit apply/save, stale request invalidation and screening OFF');
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});
