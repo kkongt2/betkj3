@@ -2,7 +2,7 @@
 const RunnerSearchPanel=(()=>{
  const base='https://raw.githubusercontent.com/kkongt2/betkj3/refs/heads/runner-results/';
  function init(api){
-  const el=id=>document.getElementById(id),status=el('runnerSearchStatus'),requestBox=el('runnerSearchRequest'),list=el('runnerSearchResults');
+  const el=id=>document.getElementById(id),status=el('runnerSearchStatus'),requestBox=el('runnerSearchRequest'),list=el('runnerSearchResults'),duration=s=>s>=86400&&s%86400===0?(s/86400)+'일':Number((s/60).toFixed(2))+'분';
   let requestId='',loading=false,revision=0,entries=[];
   try{requestId=localStorage.getItem('betkj3-runner-request')||'';}catch{}
   function changed(){if(!requestBox.hidden){requestBox.hidden=true;el('runnerPrepared').hidden=true;status.textContent='조건이 바뀌었습니다. Runner 탐색 준비를 다시 눌러 주세요.';}}
@@ -21,7 +21,7 @@ const RunnerSearchPanel=(()=>{
   async function refresh(){
    if(loading)return;loading=true;el('refreshRunnerSearch').disabled=true;
    try{const data=await read('index.json');entries=data?.schema===1&&Array.isArray(data.entries)?data.entries.filter(e=>/^\d+(?:-\d+)?$/.test(e.runId)&&Number.isFinite(Date.parse(e.finishedAt))).slice(0,30):[];
-    list.replaceChildren();for(const e of entries){const option=document.createElement('option');option.value=e.runId;option.textContent=new Date(e.finishedAt).toLocaleString()+' · '+(e.joint?'공동':'전체')+' · '+(e.method==='de'?'DE':'혼합')+' · '+Number((e.seconds/60).toFixed(2))+'분'+(e.requestId===requestId?' · 내 최근 요청':'');list.append(option);}
+    list.replaceChildren();for(const e of entries){const option=document.createElement('option');option.value=e.runId;option.textContent=new Date(e.finishedAt).toLocaleString()+' · '+(e.joint?'공동':'전체')+' · '+(e.method==='de'?'DE':'혼합')+' · '+duration(e.seconds)+(e.requestId===requestId?' · 내 최근 요청':'');list.append(option);}
     const own=entries.find(e=>e.requestId===requestId);if(own)list.value=own.runId;
     el('loadRunnerSearch').disabled=!entries.length;
     status.textContent=own?'최근 요청의 완료 결과가 있습니다. 결과 불러오기를 누르세요.':requestId?'최근 요청의 완료 결과는 아직 없습니다. GitHub에서 실행 여부·진행·실패 상태를 확인하세요.':entries.length?'완료된 결과를 선택해 불러오세요.':'아직 저장된 Runner 결과가 없습니다.';
