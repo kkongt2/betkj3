@@ -1,7 +1,7 @@
 name: Verify Runner weight search
 on:
   push:
-    branches: ['feature/runner-search']
+    branches: ['feature/runner-search', 'feature/runner-long-search']
 permissions:
   contents: write
 jobs:
