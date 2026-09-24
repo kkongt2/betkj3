@@ -13,7 +13,7 @@ const WeightSearch=(()=>{
   const el=id=>document.getElementById(id),start=el('startWeightSearch'),stop=el('stopWeightSearch'),status=el('weightSearchStatus'),result=el('weightSearchResult'),apply=el('applyWeightSearch'),save=el('saveWeightSearch');
   const labels={rate:'적중률',average:'평균 적중배당',product:'적중률 × 평균배당'};
   const methodLabels={local:'기존 혼합 탐색',de:'전역 탐색 · 차분 진화(DE)'};
-  const methodControl=el('weightSearchMethod'),parallelControl=el('weightSearchParallel');
+  const methodControl=el('weightSearchMethod'),parallelControl=el('weightSearchParallel'),runnerDuration=el('runnerSearchDuration');
   try{parallelControl.checked=localStorage.getItem('betkj3-search-parallel')!=='false';}catch{}
   const workerLabel=p=>p.workers>1?'병렬 '+p.workers+'개 작업':'단일 작업';
   try{methodControl.value=localStorage.getItem('betkj3-search-method')==='de'?'de':'local';}catch{methodControl.value='local';}
@@ -22,7 +22,8 @@ const WeightSearch=(()=>{
   let token=0,busy=false,snapshot='',best=null;
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
   const options=()=>{const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<1||minutes>300)throw Error('탐색 시간은 1~300분 정수로 입력하세요.');return {seconds:minutes*60,parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value};};
-  const runner=RunnerSearchPanel.init({options,canPrepare:()=>!busy,receive:async report=>{
+  const runnerOptions=()=>{const out=options(),choice=runnerDuration?.value||'current';if(choice==='current')return out;const seconds=Number(choice);if(![86400,172800].includes(seconds))throw Error('Runner 탐색 시간을 확인해 주세요.');return {...out,seconds};};
+  const runner=RunnerSearchPanel.init({options:runnerOptions,canPrepare:()=>!busy,receive:async report=>{
    invalidate('현재 최고 조합의 연도별 성적을 재계산 중…');const id=++token,o=report.request;let out=report.result;
    busy=true;snapshot=key();buttons();stop.disabled=true;api.pause(true);
    try{
@@ -52,6 +53,7 @@ const WeightSearch=(()=>{
   stop.onclick=()=>{api.stop();stop.disabled=true;status.textContent='중지 후 완료된 후보 중 최고 조합을 검산합니다…';};
   apply.onclick=()=>{if(!best)return;const selected=best; snapshot='';const saved=api.apply(selected.settings);snapshot=key();status.textContent='탐색 결과를 적용했습니다.'+(selected.settings.screening?' 선별 ON/OFF 상태는 유지됩니다. 위 경기 선별 사용을 켜면 적용한 기준으로 표시됩니다.':'')+(saved?' 이 기기의 현재 설정에 저장했습니다.':' 현재 설정 자동 저장에 실패했습니다.');};
   save.onclick=()=>{if(!best)return;try{const name='자동탐색 '+labels[el('weightSearchGoal').value]+' '+new Date().toISOString().slice(0,19).replace('T',' ');api.save(name,best.settings);status.textContent='“'+name+'” 설정을 저장했습니다. 저장한 설정에서 불러올 수 있습니다.';}catch(e){status.textContent='저장 실패: '+e.message;}};
+  if(runnerDuration)runnerDuration.onchange=()=>runner.changed();
   for(const id of ['weightSearchParallel','weightSearchMethod','weightSearchMinutes','weightSearchGoal','weightSearchBalanced','weightSearchMode','weightSearchTarget'])el(id).onchange=()=>{runner.changed();if(id==='weightSearchParallel'){try{localStorage.setItem('betkj3-search-parallel',String(parallelControl.checked));}catch{}}if(id==='weightSearchMethod'){methodHelp();try{localStorage.setItem('betkj3-search-method',methodControl.value);}catch{}}if(id==='weightSearchMode'&&el('weightSearchMode').value==='joint')el('weightSearchBalanced').checked=false;if(el('weightSearchMode').value==='joint')el('weightSearchGoal').value='product';el('weightSearchGoal').disabled=el('weightSearchMode').value==='joint';el('weightSearchTarget').disabled=el('weightSearchMode').value!=='joint';snapshot='';invalidate('탐색 조건을 변경했습니다. 시작 버튼을 눌러 주세요.');};
   buttons();return {refresh,reset:()=>{snapshot='';invalidate('자료를 다시 준비합니다. 잠시 후 탐색을 시작해 주세요.');}};
  }
