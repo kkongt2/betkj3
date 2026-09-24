@@ -21,7 +21,7 @@ const all={total:100,evaluated:100,hits:25,paidHits:25,payoutTotal:125,excluded:
  const request={schema:1,requestId:'minutes-test',...options,joint:false,parallel:true,method:'de',target:60};
  const report={schema:1,modelVersion:T.VERSION,featureCount:21,request,runId:'1-1',from:options.from,to:options.to,finishedAt:new Date().toISOString(),result:{count:0,elapsed:18000,workers:1,best:null}};
  assert.equal(R.report(report).result.elapsed,18000);assert.throws(()=>R.report({...report,result:{...report.result,elapsed:18001}}));
- assert.equal(R.request({...request,seconds:5}).seconds,5,'old Runner results remain readable');
- const workflow=fs.readFileSync('.github/workflows/runner-search.yml','utf8'),timeout=+workflow.match(/timeout-minutes: (\d+)/)[1];assert(timeout>300&&timeout<=360);
- console.log('PASS 300-minute ordinary/DE/joint deadlines, five-hour parallel timer, Runner result boundaries, legacy results and job timeout headroom');
+ assert.equal(R.request({...request,seconds:5}).seconds,5,'old Runner results remain readable');assert.equal(R.request({...request,seconds:86400}).seconds,86400);assert.equal(R.request({...request,seconds:172800}).seconds,172800);assert.throws(()=>R.request({...request,seconds:172801}));
+ const workflow=fs.readFileSync('.github/workflows/runner-search.yml','utf8'),timeout=+workflow.match(/timeout-minutes: (\d+)/)[1];assert(timeout>300&&timeout<=360);assert(workflow.includes('search10:'));assert(workflow.includes('fromJSON(inputs.request).seconds > 162000'));assert(workflow.includes('runner-search-state-10'));
+ console.log('PASS 300-minute local deadlines, five-hour segment timers, 1/2-day Runner chaining, legacy results and job timeout headroom');
 })().catch(e=>{console.error(e);process.exitCode=1;});
