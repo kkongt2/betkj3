@@ -1,1 +1,511 @@
-{"schema":1,"scope":"seoul","year":"2021","races":786,"from":"20210108","to":"20211226"}
+{
+  "schema": 1,
+  "scope": "seoul",
+  "year": "2021",
+  "races": 786,
+  "reports": 85,
+  "from": "20210108",
+  "to": "20211226",
+  "unavailable": [
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 5,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 9,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 10,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 11,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210108",
+      "venue": "seoul",
+      "race": 12,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 5,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 11,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 12,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210115",
+      "venue": "seoul",
+      "race": 13,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 5,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 10,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 11,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 12,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 13,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 14,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210122",
+      "venue": "seoul",
+      "race": 15,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 5,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 9,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 10,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 11,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 13,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 14,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210129",
+      "venue": "seoul",
+      "race": 15,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210205",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210205",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210205",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210205",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210814",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210814",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210814",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210814",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210814",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 5,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 9,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210815",
+      "venue": "seoul",
+      "race": 10,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210821",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210821",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210821",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210822",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210822",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210822",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210828",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210828",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210829",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210829",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210829",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210829",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210829",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210904",
+      "venue": "seoul",
+      "race": 1,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210904",
+      "venue": "seoul",
+      "race": 2,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210904",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210905",
+      "venue": "seoul",
+      "race": 3,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210905",
+      "venue": "seoul",
+      "race": 4,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210905",
+      "venue": "seoul",
+      "race": 5,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210905",
+      "venue": "seoul",
+      "race": 6,
+      "reason": "Missing pair dividends"
+    },
+    {
+      "date": "20210905",
+      "venue": "seoul",
+      "race": 7,
+      "reason": "Missing pair dividends"
+    }
+  ],
+  "download_errors": [],
+  "source": "kkongt2/timeline training/history-v7.jsonl.gz",
+  "payoutVersion": 2,
+  "markets": [
+    "place",
+    "pair",
+    "trio"
+  ]
+}

@@ -1,1 +1,18 @@
-{"schema":1,"scope":"seoul","year":"2022","races":968,"from":"20220108","to":"20221225"}
+{
+  "schema": 1,
+  "scope": "seoul",
+  "year": "2022",
+  "races": 968,
+  "reports": 96,
+  "from": "20220108",
+  "to": "20221225",
+  "unavailable": [],
+  "download_errors": [],
+  "source": "kkongt2/timeline training/history-v7.jsonl.gz",
+  "payoutVersion": 2,
+  "markets": [
+    "place",
+    "pair",
+    "trio"
+  ]
+}
