@@ -32,7 +32,7 @@ def dividends(block,kind,expected):
     else:
         raise ValueError('Unknown dividend kind')
     if not match:raise ValueError('Missing '+kind+' dividends')
-    value=match[1].strip();pattern=''.join([r'([①-⑳])\\s*']*size)+r'(\d+(?:\.\d+)?)'
+    value=match[1].strip();pattern=''.join([r'([①-⑳])\s*']*size)+r'(\d+(?:\.\d+)?)'
     result=[];seen=set()
     for parts in re.findall(pattern,value):
         ns=sorted(circles[c] for c in parts[:-1]);odds=float(parts[-1]);key=tuple(ns)
