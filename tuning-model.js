@@ -41,14 +41,15 @@ const TuningModel=(()=>{
   return {date:base.date,venue:base.venue,race:base.race_no,k:base.k,models:base.models,
    horses:base.horses.map(h=>[+h.number,base.places.find(p=>+p.numbers[0]===+h.number).prob,h.quality,engine.score(h,field).features,h.weighted_features||null,h.weighted_support||null,h.weighted_v3_features||null,packedSupport(h.weighted_v3_support)]),
    pairs:base.pairs.map(p=>[...p.numbers.map(Number),p.prob]),starters:base.official_result?.starters||null,
-   settled:base.official_result?.pair?.status==='confirmed'&&!!base.official_result.pair.payouts?.length,payouts:base.official_result?.pair?.payouts||[]};
+   settled:base.official_result?.pair?.status==='confirmed'&&!!base.official_result.pair.payouts?.length,payouts:base.official_result?.pair?.payouts||[],
+   trioSettled:base.official_result?.trio?.status==='confirmed'&&!!base.official_result.trio.payouts?.length,trioPayouts:base.official_result?.trio?.payouts||[]};
  }
  function unpack(row){
   const horses=row.horses.map(([number,prob,quality,tuningFeatures,weighted_features,weighted_support,weighted_v3_features,weighted_v3_support])=>({number,name:String(number),prob,quality,tuningFeatures,weighted_features,weighted_support,weighted_v3_features,weighted_v3_support}));
   return {date:row.date,venue:row.venue,race_no:row.race,k:row.k,horses,models:row.models,mode:'accuracy',reasons:[],
    places:horses.map(h=>({numbers:[h.number],names:[h.name],prob:h.prob,quality:h.quality})).sort((a,b)=>b.prob-a.prob),
    pairs:row.pairs.map(([a,b,prob])=>({numbers:[a,b],names:[String(a),String(b)],prob})),
-   official_result:{starters:row.starters,pair:{status:row.settled?'confirmed':'pending',payouts:row.payouts}}};
+   official_result:{starters:row.starters,pair:{status:row.settled?'confirmed':'pending',payouts:row.payouts||[]},trio:{status:row.trioSettled?'confirmed':'pending',payouts:row.trioPayouts||[]}}};
  }
  return {FEATURES,VERSION,featureValues,label,weightsFor,defaults,validWeights,settings,apply,pack,unpack};
 })();
