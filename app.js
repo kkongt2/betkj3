@@ -4,6 +4,13 @@ const pct=x=>(x*100).toFixed(1)+'%',names={seoul:'서울'},KEY='betkj3-predictio
 let races=[],source=null,current=null,ranked=null,venue='seoul',manual=false,requestId=0,advancedReport=null;
 const day=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 let selectionRequest=0;
+const BET_STRATEGY_KEY='betkj3-bet-strategy';
+const BET_STRATEGIES={
+ 'qpl-single':{title:'복연승',rule:'1축 + 상대 1두 · 1조합',overview:'복연승 1조합',help:'현재 방식 · 축마와 동반입상확률이 가장 높은 상대 1두를 선택합니다.'},
+ 'qpl-anchor2':{title:'복연승',rule:'1축 + 상대 2두 · 2조합',overview:'복연승 2조합',help:'같은 축마에 동반입상확률이 높은 상대 2두를 붙여 2조합을 구매합니다.'},
+ 'trio-box4':{title:'삼복승',rule:'4두 박스 · 4조합',overview:'삼복승 4두 박스',help:'연승확률 분석 상위 4두를 고르고 그중 3두씩 묶은 4개 삼복승 조합을 모두 구매합니다.'}
+};
+let betStrategy='qpl-single';
 
 let partnerRange=Betkj3Policy.normalizeRange(),tuningSettings=TuningModel.settings(),qplHistory=null,historyRequest=0;
 let historyWorker=null,historyEngine=null,historyEvaluation=0,historyTimer=null;
@@ -14,7 +21,18 @@ const raceAnalysisCache=new WeakMap();
 let syncTuningControls=()=>{},refreshPresetOptions=()=>{};
 const strategySettings=()=>({...tuningSettings,...partnerRange,...(tuningSettings.screening?{screening:{...tuningSettings.screening,threshold:(screeningPanel?.value()??tuningSettings.screening.threshold)}}:{})});
 const anchorLabel=()=> '연승확률 분석 '+(tuningSettings.anchorRank||1)+'위';
-function syncStrategyHelp(){$('#rangeHelp').textContent='현재 설정: '+anchorLabel()+' 축마 + 연승확률 분석 '+partnerRange.min+'~'+partnerRange.max+'위에서 1마리 선택 · 이 기기에 자동 저장';}
+const strategyMeta=()=>BET_STRATEGIES[betStrategy]||BET_STRATEGIES['qpl-single'];
+function syncStrategyHelp(){
+ const range=$('#rangeHelp');if(range)range.textContent='현재 설정: '+anchorLabel()+' 축마 + 연승확률 분석 '+partnerRange.min+'~'+partnerRange.max+'위 상대 후보 · 이 기기에 자동 저장';
+ const help=$('#betStrategyHelp');if(help)help.textContent=strategyMeta().help+' 가중치 탐색·위 과거 통계는 기존 복연승 1축+상대1두 기준입니다.';
+ const overview=$('#overviewBetStrategyLabel');if(overview)overview.textContent='연승 1마리 · '+strategyMeta().overview;
+}
+function initBetStrategy(){
+ try{const saved=localStorage.getItem(BET_STRATEGY_KEY);if(BET_STRATEGIES[saved])betStrategy=saved;}catch{}
+ const select=$('#betStrategy');if(!select)return;select.value=betStrategy;
+ select.onchange=()=>{betStrategy=BET_STRATEGIES[select.value]?select.value:'qpl-single';try{localStorage.setItem(BET_STRATEGY_KEY,betStrategy);}catch{}syncStrategyHelp();if(current)render();else renderOverview();};
+ syncStrategyHelp();
+}
 function initPartnerRange(){
  try{partnerRange=Betkj3Policy.normalizeRange(JSON.parse(localStorage.getItem('betkj3-partner-range')||'{}'));}catch{}
  const options=Array.from({length:19},(_,i)=>'<option value="'+(i+2)+'">'+(i+2)+'위</option>').join('');
@@ -33,6 +51,61 @@ function initPartnerRange(){
  }
  $('#partnerMin').onchange=()=>update('min');$('#partnerMax').onchange=()=>update('max');
  $('#retryQplHistory').onclick=loadQplHistory;sync();
+}
+
+function strategySelection(r){
+ if(betStrategy==='trio-box4'){
+  const box=[...(r.horses||[])].sort((a,b)=>(b.prob||0)-(a.prob||0)||(+a.number)-(+b.number)).slice(0,4);
+  if(box.length<4)return {ready:false,kind:'trio',reason:'삼복승 4두 박스에는 출전마 4두 이상이 필요합니다.'};
+  const combos=[];for(let i=0;i<box.length-2;i++)for(let j=i+1;j<box.length-1;j++)for(let k=j+1;k<box.length;k++)combos.push({numbers:[box[i].number,box[j].number,box[k].number],names:[box[i].name,box[j].name,box[k].name]});
+  return {ready:true,kind:'trio',box,combos};
+ }
+ const p=r.qplPolicy;if(p?.status!=='ready')return {ready:false,kind:'pair',reason:p?.reason||'복연승 조합 선정 불가'};
+ const need=betStrategy==='qpl-anchor2'?2:1,candidates=(p.candidates||[]).filter(x=>x.pick&&Number.isFinite(x.pick.prob)).slice(0,need);
+ if(candidates.length<need)return {ready:false,kind:'pair',reason:'선택한 분석 순위 범위에 상대 '+need+'두를 만들 수 없습니다. 범위를 넓혀 주세요.'};
+ return {ready:true,kind:'pair',anchor:p.anchor,candidates,picks:candidates.map(x=>x.pick)};
+}
+function officialTop3(r){
+ const m=r.official_result?.pair;if(m?.status!=='confirmed'||!Array.isArray(m.payouts))return [];
+ return [...new Set(m.payouts.flatMap(x=>x.numbers||[]).map(Number))].filter(Number.isFinite).slice(0,3);
+}
+function trioComboHit(r,numbers){const top=officialTop3(r);return top.length===3&&top.every(n=>numbers.map(Number).includes(n))&&numbers.map(Number).every(n=>top.includes(n));}
+function trioBoxHit(r,numbers){const top=officialTop3(r);return top.length===3&&top.every(n=>numbers.map(Number).includes(n));}
+function compactPairResultHTML(r,numbers){
+ const m=r.official_result?.pair;if(m?.status!=='confirmed')return '';
+ const hit=matchingPayout(m,numbers);return hit?'<span class="hit-badge">✓ 적중 · '+Number(hit.odds).toFixed(1)+'배</span>':'<small class="hint">미적중</small>';
+}
+function strategyLeadHTML(r,s){
+ if(!s.ready)return '<p class="hint">'+esc(s.reason)+'</p>';
+ if(betStrategy==='qpl-single')return pickHTML(s.picks[0],r,'pair',true);
+ const hold=timingReasons(r).length>0,status=hold?'확인 필요 · 후보 제공':'구매 후보';
+ if(betStrategy==='qpl-anchor2'){
+  const partners=s.candidates.map(x=>x.partner);
+  return '<div class="status '+(hold?'hold':'')+'">'+status+'</div><div class="lead-number">'+s.anchor.number+' 축</div><p class="lead-name">상대 '+partners.map(x=>x.number).join(' · ')+'번</p><div class="qpl-policy"><b>총 2조합</b>'+s.candidates.map(x=>'<span>'+s.anchor.number+' – '+x.partner.number+' · 동반입상 '+pct(x.pick.prob)+' · 손익분기 약 '+(breakEvenOdds(x.pick.prob)||'—')+'배 '+compactPairResultHTML(r,x.pick.numbers)+'</span>').join('')+'<small>상대는 현재 분석 순위 범위에서 동반입상확률 상위 2두를 선택합니다.</small></div><p class="hint">경기 선별 점수와 과거 최적화 통계는 기존 복연승 단일조합 기준입니다.</p>';
+ }
+ const nums=s.box.map(x=>x.number),names=s.box.map(x=>esc(x.name));
+ const result=officialTop3(r).length===3?(trioBoxHit(r,nums)?'<span class="hit-badge">✓ 4두 박스 적중</span>':'<small class="hint">4두 박스 미적중</small>'):'';
+ return '<div class="status '+(hold?'hold':'')+'">'+status+'</div><div class="lead-number">'+nums.join(' – ')+'</div><p class="lead-name">'+names.join(' · ')+'</p><div class="qpl-policy"><b>삼복승 4두 박스 · 총 4조합</b><span>연승확률 분석 상위 4두를 사용합니다.</span>'+result+'<small>현재 데이터에는 삼복승 확정배당이 없어 조합 확률·손익분기배당은 표시하지 않습니다.</small></div>';
+}
+function strategyListHTML(r,s){
+ if(!s.ready)return '<p class="hint">'+esc(s.reason)+'</p>';
+ if(betStrategy==='qpl-single')return '<p class="hint">복연승은 현재 기준을 통과한 한 조합만 표시합니다.</p>';
+ if(betStrategy==='qpl-anchor2')return '<p class="hint">축마는 동일하고 상대마마다 한 장씩, 총 2조합입니다.</p>'+s.candidates.map(x=>'<div class="candidate"><span><b>'+x.pick.numbers.join(' – ')+'</b> '+x.pick.names.map(esc).join(' · ')+' '+compactPairResultHTML(r,x.pick.numbers)+'</span><span class="candidate-metrics"><span class="candidate-probability-label">추정 동반입상</span>'+probabilityHTML(x.pick.prob)+'</span></div>').join('');
+ return '<p class="hint">아래 4개 삼복승 조합을 모두 같은 금액으로 구매하면 4두 박스입니다.</p>'+s.combos.map(x=>'<div class="candidate"><span><b>'+x.numbers.join(' – ')+'</b> '+x.names.map(esc).join(' · ')+(trioComboHit(r,x.numbers)?' <span class="hit-badge">✓ 적중</span>':'')+'</span><span class="candidate-metrics"><span class="candidate-probability-label">삼복승</span><span class="break-even">1조합</span></span></div>').join('');
+}
+function strategyOverviewCell(r,card,hasPair){
+ const s=strategySelection(r),meta=strategyMeta();
+ if(!s.ready)return '<span><small>'+esc(meta.title)+'</small><small>'+esc(s.reason)+'</small></span>';
+ if(betStrategy==='qpl-single'){
+  const x=s.picks[0];return '<span><small>복연승</small><b>'+x.numbers.join(' – ')+'</b>'+hitHTML(card,'pair',x.numbers)+'<small>'+probabilityHTML(x.prob)+'</small>'+(hasPair?'<small class="selected-tag">선별 '+r.selectivePicks.pair.numbers.join('–')+'</small>':'')+screeningBadge(r)+'<small class="policy-tag">'+anchorLabel()+' + 분석 '+r.qplPolicy.partner.rank+'위</small>'+officialResultHTML(card,'pair',x.numbers,'overview')+'</span>';
+ }
+ if(betStrategy==='qpl-anchor2')return '<span><small>복연승 · 1축+상대2두</small><b>'+s.picks.map(x=>x.numbers.join('–')).join(' / ')+'</b><small>'+s.picks.map(x=>pct(x.prob)).join(' / ')+'</small></span>';
+ const nums=s.box.map(x=>x.number);return '<span><small>삼복승 · 4두 박스</small><b>'+nums.join(' – ')+'</b>'+(officialTop3(card).length===3?(trioBoxHit(card,nums)?'<small class="hit-badge">✓ 적중</small>':'<small>미적중</small>'):'')+'<small>4조합</small></span>';
+}
+function strategyModeHelp(){
+ if(betStrategy==='qpl-anchor2')return '연승과 복연승 모두 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 순위를 기준으로 합니다. '+anchorLabel()+'에 분석 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률 상위 2두를 붙여 2조합을 만듭니다.';
+ if(betStrategy==='trio-box4')return '삼복승 4두 박스는 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 상위 4두를 선택해 3두 조합 4개를 만듭니다. 삼복승 자체 확률이나 배당은 현재 모델에 사용하지 않습니다.';
+ return '연승과 복연승 모두 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 순위를 기준으로 합니다. 복연승은 '+anchorLabel()+' + 분석 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률이 가장 높은 조합입니다.';
 }
 async function loadQplHistory(){
  const id=++historyRequest;$('#retryQplHistory').hidden=true;
@@ -219,7 +292,7 @@ function horseDetailHTML(h){
  return '<details class="horse-detail"><summary>최근 5경주 흐름 · 자료 개수</summary><p class="hint">오래된 경주 → 직전 경주 · '+s.starts+'/5경주 확보</p><div class="table-scroll"><table class="validation-table"><thead><tr><th>경주일</th><th>착순 / 두수</th><th>두수 보정</th><th>보정 기록</th></tr></thead><tbody>'+recent+'</tbody></table></div><p class="hint">착순 추세 '+(Number.isFinite(d.finishTrend)?signed(d.finishTrend*100)+'점/경주':'자료 부족')+' · 기록 추세 '+(Number.isFinite(d.speedTrend)?signed(d.speedTrend)+'초/경주':'자료 부족')+'<br>착순 변동 '+(Number.isFinite(d.finishStd)?num(d.finishStd*100)+'점':'자료 부족')+' · 기록 변동 '+(Number.isFinite(d.speedStd)?num(d.speedStd)+'초':'자료 부족')+'</p><p class="hint">추세는 양수일수록 개선, 변동은 작을수록 안정적입니다. 추세는 자료 수에 따라 0 쪽으로 보정합니다. 보정 기록은 이전 기준 기록보다 빠를수록 높습니다.</p><p class="hint">'+esc(conditions)+'<br>조건 변화는 참고 정보이며 유불리를 일괄 가산하지 않습니다.</p><div class="table-scroll"><table class="validation-table"><thead><tr><th>지표</th><th>점수</th><th>근거</th><th>상태</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="hint">같은 50점이어도 실제 관측값과 대체값을 구분합니다. 근거 수가 적으면 해당 점수의 근거도 제한적입니다. 지표마다 기간과 조건이 다릅니다. 기수·조교사는 이전 365일, 상대 레이팅은 현재 출전마 수, 출전 간격은 이전 간격 수입니다. 추가 지표는 가중치가 0%면 추천 점수에 반영되지 않습니다.</p></details>';
 }
 
-function render(){if(!current)return;ranked=analyzeForSite(current);const r=ranked;$('#analysis').hidden=false;$('#raceTitle').textContent=(names[r.venue]||r.venue_name||'직접 입력')+' '+r.race_no+'R';$('#raceMeta').textContent=[r.date,r.title,manual?'직접 입력 / 데모':''].filter(Boolean).join(' · ');$('#horseCount').textContent=r.horses.length+'두';$('#placeRule').textContent=r.k+'착 이내';$('#modeHelp').textContent='연승과 복연승 모두 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 순위를 기준으로 합니다. 복연승은 '+anchorLabel()+' + 분석 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률이 가장 높은 조합입니다.';const warning=timingReasons(r);if(tuningSettings.modelMode==='custom'&&r.horses.some(h=>!h.weighted_v3_features))warning.push('수정 지표 전적 자료가 없는 말은 중립값으로 계산합니다.');$('#raceWarning').hidden=!warning.length;$('#raceWarning').textContent=warning.join(' · ');$('#placeLead').innerHTML=pickHTML(r.places[0],r,'place',true);$('#pairLead').innerHTML=pickHTML(r.pairs[0],r,'pair',true);$('#placeList').innerHTML=r.places.slice(1,5).map(x=>pickHTML(x,r,'place')).join('');$('#pairList').innerHTML='<p class="hint">복연승은 새 기준을 통과한 한 조합만 표시합니다.</p>';$('#horses').innerHTML=r.horses.map(h=>`<div class="horse"><strong>${h.number} ${esc(h.name)} · ${probabilityHTML(h.prob)}</strong><p class="hint">${h.reasons.map(esc).join(' · ')}</p><p class="hint">레이팅 ${esc(h.rating??'—')} · 부담 ${esc(h.burden??'—')}kg · 마체중 ${esc(h.horse_weight??'미발표')} · 데이터 ${Math.round(h.quality*100)}%</p>${horseDetailHTML(h)}</div>`).join('');$('#savePrediction').disabled=!r.pairs.length||manual||!Number.isFinite(start(r))||start(r)<=Date.now()||warning.length>0;renderOverview();}
+function render(){if(!current)return;ranked=analyzeForSite(current);const r=ranked;$('#analysis').hidden=false;$('#raceTitle').textContent=(names[r.venue]||r.venue_name||'직접 입력')+' '+r.race_no+'R';$('#raceMeta').textContent=[r.date,r.title,manual?'직접 입력 / 데모':''].filter(Boolean).join(' · ');$('#horseCount').textContent=r.horses.length+'두';$('#placeRule').textContent=r.k+'착 이내';$('#modeHelp').textContent=strategyModeHelp();const warning=timingReasons(r);if(tuningSettings.modelMode==='custom'&&r.horses.some(h=>!h.weighted_v3_features))warning.push('수정 지표 전적 자료가 없는 말은 중립값으로 계산합니다.');$('#raceWarning').hidden=!warning.length;$('#raceWarning').textContent=warning.join(' · ');$('#placeLead').innerHTML=pickHTML(r.places[0],r,'place',true);const strategy=strategySelection(r),meta=strategyMeta();$('#betStrategyTitle').textContent=meta.title;$('#betStrategyRule').textContent=meta.rule;$('#pairLead').innerHTML=strategyLeadHTML(r,strategy);$('#placeList').innerHTML=r.places.slice(1,5).map(x=>pickHTML(x,r,'place')).join('');$('#pairList').innerHTML=strategyListHTML(r,strategy);$('#horses').innerHTML=r.horses.map(h=>`<div class="horse"><strong>${h.number} ${esc(h.name)} · ${probabilityHTML(h.prob)}</strong><p class="hint">${h.reasons.map(esc).join(' · ')}</p><p class="hint">레이팅 ${esc(h.rating??'—')} · 부담 ${esc(h.burden??'—')}kg · 마체중 ${esc(h.horse_weight??'미발표')} · 데이터 ${Math.round(h.quality*100)}%</p>${horseDetailHTML(h)}</div>`).join('');$('#savePrediction').disabled=betStrategy!=='qpl-single'||!strategy.ready||manual||!Number.isFinite(start(r))||start(r)<=Date.now()||warning.length>0;if(betStrategy!=='qpl-single')$('#saveStatus').textContent='새 구매 방식은 추천·과거 적중표시를 지원합니다. 내 예측 기록 저장은 기존 복연승 1축+상대1두에서만 지원합니다.';renderOverview();}
 function select(r,isManual=false){if(r.venue!=='seoul')throw Error('서울 경주만 분석할 수 있습니다.');current=r;manual=isManual;if(names[r.venue])setVenue(r.venue);const d=String(r.date||'');if(/^\d{8}$/.test(d))$('#date').value=d.slice(0,4)+'-'+d.slice(4,6)+'-'+d.slice(6,8);if(r.race_no)$('#raceNo').value=r.race_no;$('#saveStatus').textContent='경주·추천 기준별 최초 기록을 보존합니다.';renderSelectors();render();}
 async function fetchJSON(url,timeoutMs=8000){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
@@ -251,7 +324,7 @@ function renderOverview(){
    if(screened)selected++;
    if(screeningEnabled()&&$('#screeningOnly').checked&&!screened)return '';
    const cell=kind=>{const x=kind==='place'?r.places[0]:r.pairs[0];if(!x)return '<span><small>복연승</small><small>'+esc(r.qplPolicy?.reason||'분석 순위 확인 필요')+'</small>'+officialResultHTML(card,kind,null,'overview')+'</span>';return '<span><small>'+(kind==='place'?'연승':'복연승')+'</small><b>'+x.numbers.join(' – ')+'</b>'+hitHTML(card,kind,x.numbers)+'<small>'+probabilityHTML(x.prob)+'</small>'+(has(kind)?'<small class="selected-tag">선별 '+r.selectivePicks[kind].numbers.join('–')+'</small>':'')+(kind==='pair'?screeningBadge(r)+'<small class="policy-tag">'+anchorLabel()+' + 분석 '+r.qplPolicy.partner.rank+'위</small>':'')+officialResultHTML(card,kind,x.numbers,'overview')+'</span>'};
-   return '<div class="overview-row '+(!manual&&current?.date===r.date&&+current?.race_no===+r.race_no?'active':'')+'" data-overview-race="'+Number(r.race_no)+'"><button type="button" class="overview-select" data-overview-race="'+Number(r.race_no)+'" aria-label="'+Number(r.race_no)+'경주 선택"><b>'+Number(r.race_no)+'R</b><small>'+esc(r.start_time||'')+'</small></button>'+cell('place')+cell('pair')+'</div>';
+   return '<div class="overview-row '+(!manual&&current?.date===r.date&&+current?.race_no===+r.race_no?'active':'')+'" data-overview-race="'+Number(r.race_no)+'"><button type="button" class="overview-select" data-overview-race="'+Number(r.race_no)+'" aria-label="'+Number(r.race_no)+'경주 선택"><b>'+Number(r.race_no)+'R</b><small>'+esc(r.start_time||'')+'</small></button>'+cell('place')+strategyOverviewCell(r,card,has('pair'))+'</div>';
   }catch{return '<p class="hint">'+Number(card.race_no)+'R · 출전정보 확인 필요</p>'}
  }).join('');
  const enabled=['place','pair'].some(k=>advancedReport?.policies?.[k]?.approved);
@@ -306,7 +379,7 @@ async function fetchPublicJSON(path){
  }
  throw Error('불러오기 실패');
 }
-initPartnerRange();initTuning();initScreening();initWeightCurves();initStrategyPresets();initWeightSearch();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
+initBetStrategy();initPartnerRange();initTuning();initScreening();initWeightCurves();initStrategyPresets();initWeightSearch();RollingPanel.init(applySavedStrategy);Top5Panel.init(applySavedStrategy,()=>refreshPresetOptions());loadQplHistory();renderHistory();load().then(ok=>{if(!ok)return;const future=races.filter(x=>start(x)>Date.now()).sort((a,b)=>start(a)-start(b));if(future[0])select(future[0]);else showSelected()});
 // Expire selection badges even when the user keeps the page open across the start time.
 if(typeof setInterval==='function')setInterval(()=>{if(current)render();},60000);
 document.addEventListener?.('visibilitychange',()=>{if(!document.hidden&&current)render();});
