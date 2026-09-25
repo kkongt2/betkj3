@@ -12,8 +12,10 @@ from history_payouts import dividends,parse_place_quotes
 def main():
     p=argparse.ArgumentParser();p.add_argument('--year',required=True);args=p.parse_args();year=args.year
     target=Path('history')/(year+'.jsonl.gz');coverage=Path('history')/(year+'-coverage.json')
-    if target.exists() and coverage.exists() and json.loads(coverage.read_text()).get('scope')=='seoul':
-        print('Preserved completed year',year,json.loads(coverage.read_text()),flush=True);return
+    if target.exists() and coverage.exists():
+        info=json.loads(coverage.read_text())
+        if info.get('scope')=='seoul' and info.get('payoutVersion')==2:
+            print('Preserved completed year',year,info,flush=True);return
     rows=[json.loads(line) for line in gzip.decompress(Path('_seed/training/history-v7.jsonl.gz').read_bytes()).splitlines()]
     rows=[r for r in rows if r.get('venue')=='seoul']
     cutoff=min(p.stem for p in Path('data/calendar').glob('????????.json'))
@@ -64,6 +66,7 @@ def main():
                     if error:raise ValueError('Official report unavailable: '+error)
                     winners=[h['number'] for h in sorted(r['horses'],key=lambda h:h['finish'])[:3]]
                     result['pair']=dividends(block,'pair',[tuple(sorted(p)) for p in combinations(winners,2)])
+                    result['trio']=dividends(block,'trio',[tuple(sorted(winners))])
                     result['place']=dividends(block,'place',[(n,) for n in r['place_winners']]);result['status']='confirmed'
                     quotes=parse_place_quotes(block)
                     if {q['numbers'][0] for q in quotes}!=set(ns):raise ValueError('Incomplete final place odds')
@@ -75,6 +78,6 @@ def main():
     if len(output)!=len(selected):raise RuntimeError('Incomplete historical expansion')
     target.parent.mkdir(parents=True,exist_ok=True)
     target.write_bytes(gzip.compress(''.join(json.dumps(x,ensure_ascii=False,separators=(',',':'))+'\n' for x in output).encode(),mtime=0))
-    info={'schema':1,'scope':'seoul','year':year,'races':len(output),'reports':len(reports),'from':min((x['race']['date'] for x in output),default=None),'to':max((x['race']['date'] for x in output),default=None),'unavailable':issues,'download_errors':errors,'source':'kkongt2/timeline training/history-v7.jsonl.gz'}
+    info={'schema':1,'scope':'seoul','year':year,'races':len(output),'reports':len(reports),'from':min((x['race']['date'] for x in output),default=None),'to':max((x['race']['date'] for x in output),default=None),'unavailable':issues,'download_errors':errors,'source':'kkongt2/timeline training/history-v7.jsonl.gz','payoutVersion':2,'markets':['place','pair','trio']}
     coverage.write_text(json.dumps(info,ensure_ascii=False,indent=2));print('Completed',year,len(output),'races',len(issues),'unavailable',flush=True)
 if __name__=='__main__':main()
