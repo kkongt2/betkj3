@@ -23,9 +23,16 @@ def dividends(block,kind,expected):
     heading=re.search(r'배당률\s+단:',block)
     if not heading:raise ValueError('Missing dividend heading')
     tail=block[heading.end():]
-    match=re.search(r'\s연:\s*(.*?)\s+복:',tail,re.S) if kind=='place' else re.search(r'복연:\s*([^\r\n]+)',tail)
+    if kind=='place':
+        match=re.search(r'\s연:\s*(.*?)\s+복:',tail,re.S);size=1
+    elif kind=='pair':
+        match=re.search(r'복연:\s*(.*?)(?=\s+삼복:|\r?\n|$)',tail,re.S);size=2
+    elif kind=='trio':
+        match=re.search(r'삼복:\s*(.*?)(?=\s+삼쌍:|\r?\n|$)',tail,re.S);size=3
+    else:
+        raise ValueError('Unknown dividend kind')
     if not match:raise ValueError('Missing '+kind+' dividends')
-    value=match[1].strip();pattern=r'([①-⑳])\s*(\d+(?:\.\d+)?)' if kind=='place' else r'([①-⑳])\s*([①-⑳])\s*(\d+(?:\.\d+)?)'
+    value=match[1].strip();pattern=''.join([r'([①-⑳])\\s*']*size)+r'(\d+(?:\.\d+)?)'
     result=[];seen=set()
     for parts in re.findall(pattern,value):
         ns=sorted(circles[c] for c in parts[:-1]);odds=float(parts[-1]);key=tuple(ns)
