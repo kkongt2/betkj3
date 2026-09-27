@@ -56,29 +56,30 @@ const QplHistoryEngine=(()=>{
     const analyzed=tuning.apply(tuning.unpack(entry.row),config),prob=new Map(analyzed.places.map(p=>[+p.numbers[0],p.prob]));
     entry.custom={...entry.row,horses:entry.row.horses.filter(h=>prob.has(h[0])).map(h=>[h[0],prob.get(h[0]),...h.slice(2)]),pairs:analyzed.pairs.map(p=>[...p.numbers,p.prob])};entry.signature=signature;
    }
-   const result=policy.apply(tuning.unpack(signature==='existing'?entry.row:entry.custom),null,config);
+   const base=tuning.unpack(signature==='existing'?entry.row:entry.custom);
+   const result=policy.apply(base,null,config);result.allPairs=base.pairs;
    let ready=false,settled=false,hit=false,payout=null,candidates=[];
    if(mode==='trio-box4'){
     const box=(result.horses||[]).slice().sort((a,b)=>(b.prob||0)-(a.prob||0)||(+a.number)-(+b.number)).slice(0,4);
     ready=box.length===4;settled=entry.row.trioSettled===true&&entry.trioWinning.size>0;
     if(ready){
      const combos=[];for(let i=0;i<2;i++)for(let j=i+1;j<3;j++)for(let k=j+1;k<4;k++)combos.push([box[i].number,box[j].number,box[k].number]);
-     const paid=combos.map(ns=>entry.trioWinning.get(key(ns))).filter(Number.isFinite);
-     hit=paid.length>0;if(hit)payout=paid.reduce((a,b)=>a+b,0)/combos.length;
+     const paid=combos.filter(ns=>entry.trioWinning.has(key(ns))).map(ns=>entry.trioWinning.get(key(ns)));
+     hit=paid.length>0;if(hit&&paid.every(Number.isFinite))payout=paid.reduce((a,b)=>a+b,0)/combos.length;
      candidates=combos.map(ns=>({pick:{numbers:ns,prob:null},hit:entry.trioWinning.has(key(ns)),payout:entry.trioWinning.get(key(ns))??null}));
     }
    }else{
     const p=result.qplPolicy,need=mode==='qpl-anchor2'?2:1,chosen=p?.status==='ready'?(p.candidates||[]).filter(x=>x.pick&&Number.isFinite(x.pick.prob)).slice(0,need):[];
     ready=chosen.length===need;settled=entry.row.settled===true&&entry.winning.size>0;
     if(ready){
-     candidates=chosen.map(x=>{const amount=entry.winning.get(key(x.pick.numbers));return {partner:x.partner,pick:{numbers:x.pick.numbers,prob:x.pick.prob},hit:Number.isFinite(amount),payout:Number.isFinite(amount)?amount:null};});
-     const paid=candidates.filter(x=>x.hit).map(x=>x.payout);hit=paid.length>0;if(hit)payout=paid.reduce((a,b)=>a+b,0)/need;
+     candidates=chosen.map(x=>{const amount=entry.winning.get(key(x.pick.numbers));return {partner:x.partner,pick:{numbers:x.pick.numbers,prob:x.pick.prob},hit:entry.winning.has(key(x.pick.numbers)),payout:Number.isFinite(amount)?amount:null};});
+     const paid=candidates.filter(x=>x.hit).map(x=>x.payout);hit=paid.length>0;if(hit&&paid.every(Number.isFinite))payout=paid.reduce((a,b)=>a+b,0)/need;
     }
    }
    let screen;
-   const includeScreening=config.includeScreening&&mode==='qpl-single';
+   const includeScreening=config.includeScreening;
    if(includeScreening){
-    const screenKey=signature+':'+config.anchorRank+':'+config.min+':'+config.max+':'+JSON.stringify(config.screening);
+    const screenKey=mode+':'+signature+':'+config.anchorRank+':'+config.min+':'+config.max+':'+JSON.stringify(config.screening);
     if(entry.screenKey!==screenKey){entry.screen=screening.score(result,config);entry.screenKey=screenKey;}
     screen=entry.screen;
    }
@@ -86,7 +87,7 @@ const QplHistoryEngine=(()=>{
     ...(includeScreening?{screening:screen}:{}),candidates};
   }
   async function evaluate(options,from,to,isCurrent=()=>true,onProgress=()=>{}){
-   const mode=modeOf(options),includeScreening=options.includeScreening===true&&mode==='qpl-single';
+   const mode=modeOf(options),includeScreening=options.includeScreening===true;
    const config={...tuning.settings(options),...policy.normalizeRange(options),betStrategy:mode,includeScreening},results=[];
    for(let i=0;i<entries.length;i++){
     if(!isCurrent())return null;

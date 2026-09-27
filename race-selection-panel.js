@@ -25,7 +25,7 @@ const RaceSelectionPanel=(()=>{
   try{enabled=localStorage.getItem('betkj3-screening-enabled')==='true';}catch{}
   function sync(){
    toggle.checked=enabled;
-   const model=api.model?.();document.querySelector('#screeningModelInfo').textContent=model?'공동 탐색 선별 모델 · 목표 '+model.target+'% · 축마/상대마 격차, 출전 두수, 전적 및 마체중 자료 등 12개 지표. 점수는 적중확률이 아닙니다. 엄격도를 조절하면 목표 비율과 달라질 수 있습니다.':'기존 고정 규칙 모델 · 조합 안정성 35%, 전적 충실도 25%, 경쟁마 격차 25%, 동반입상확률 우위 15%. 공동 탐색 결과를 적용하면 별도 선별 기준으로 전환됩니다.';
+   const model=api.model?.();document.querySelector('#screeningModelInfo').textContent=model?'공동 탐색 선별 모델 · 목표 '+model.target+'% · 축마/상대마 격차, 출전 두수, 전적 및 마체중 자료 등 12개 지표. 점수는 적중확률이 아닙니다. 엄격도를 조절하면 목표 비율과 달라질 수 있습니다.':'고정 규칙 모델 · 구매마 전체의 선정 안정성 35%, 전적 충실도 25%, 경쟁마 격차 25%, 동반입상확률 우위 15%. 복수 조합은 구성 말 쌍의 지표를 평균하며 삼복승은 상위 4두의 6쌍을 사용합니다. 점수는 적중확률이 아닙니다.';
    document.querySelector('#screeningControls').hidden=!enabled;
    document.querySelector('#screeningToggleStatus').textContent=enabled?'ON · 경기 선별 사용 중':'OFF · 경기 선별을 사용하지 않습니다.';
    document.querySelector('#screeningOnlyControl').hidden=!enabled;

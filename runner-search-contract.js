@@ -8,6 +8,7 @@ const RunnerSearchContract=(()=>{
  function settings(s){
   if(!s||!T.validWeights(s.weights)||s.weights.length!==T.FEATURES.length||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)fail();
   if(s.screening&&!S.jointConfig(s.screening))fail();
+  if(s.betStrategy!==undefined&&!['qpl-single','qpl-anchor2','trio-box4'].includes(s.betStrategy))fail();
   return {...T.settings(s),anchorRank:s.anchorRank,min:s.min,max:s.max};
  }
  function request(x){

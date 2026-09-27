@@ -10,7 +10,7 @@ const TuningModel=(()=>{
   const weights=validWeights(candidate)?FEATURES.map((_,i)=>candidate[i]??0):defaults();
   const selection=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
   const screening=selection.jointConfig(s.screening);
-  return {anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...(screening?{screening}:{})};
+  return {betStrategy:['qpl-single','qpl-anchor2','trio-box4'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...(screening?{screening}:{})};
  }
  const label=()=> '서울 최근 5경주 가중치 ('+FEATURES.length+'개)';
  function featureValues(values){return FEATURES.map((_,i)=>Number.isFinite(values?.[i])?values[i]:.5);}

@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model.js?v=fixed-years-1','tuning-model.js?v=fixed-years-1','qpl-policy.js?v=fixed-years-1','race-selection-model.js?v=fixed-years-1','qpl-history-engine.js?v=fixed-years-1','weight-curve-engine.js?v=fixed-years-1','weight-balance.js?v=fixed-years-1','global-weight-search.js?v=fixed-years-1','weight-search-engine.js?v=fixed-years-1','joint-search-engine.js?v=fixed-years-1');
+importScripts('model.js?v=multi-strategy-2','tuning-model.js?v=multi-strategy-2','qpl-policy.js?v=multi-strategy-2','race-selection-model.js?v=multi-strategy-2','qpl-history-engine.js?v=multi-strategy-2','weight-curve-engine.js?v=multi-strategy-2','weight-balance.js?v=multi-strategy-2','global-weight-search.js?v=multi-strategy-2','weight-search-engine.js?v=multi-strategy-2','joint-search-engine.js?v=multi-strategy-2');
 let prepared=null,stopped=false;
 // MessageChannel gives stop messages a turn without the nested-timer 4 ms clamp.
 const channel=new MessageChannel(),queue=[];channel.port1.onmessage=()=>queue.shift()?.();

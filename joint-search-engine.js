@@ -8,7 +8,7 @@ const JointSearchEngine=(()=>{
  const G=typeof module!=='undefined'?require('./global-weight-search.js'):GlobalWeightSearch;
  const blank=()=>({total:0,evaluated:0,hits:0,paidHits:0,payoutTotal:0,excluded:0});
  const metric=g=>({...g,...H.metrics(g),ratio:g.total?g.evaluated/g.total:null});
- function add(g,p){g.evaluated++;if(p.hit){g.hits++;if(Number.isFinite(p.payout)&&p.payout>=1){g.paidHits++;g.payoutTotal+=p.payout;}}}
+ function add(g,p){g.evaluated++;if(p.hit){g.hits++;if(Number.isFinite(p.payout)&&p.payout>=0){g.paidHits++;g.payoutTotal+=p.payout;}}}
  function aggregate(items,threshold){const g=blank();g.total=items.length;for(const p of items)if(p.score!==null&&p.score>=threshold)add(g,p);g.excluded=g.total-g.evaluated;return g;}
  function calibrate(items,target){
   const bins=Array.from({length:100},blank);let eligible=0;
@@ -38,7 +38,7 @@ const JointSearchEngine=(()=>{
   for(let i=0;i<9;i++)out.push(Array.from({length:12},()=>Math.round(random()*6)-3));return out;
  }
  function create(rows,yieldTask=()=>new Promise(r=>setTimeout(r,0))){
-  const entries=rows.filter(r=>r.venue==='seoul').map(C.prepare);
+  const entries=rows.filter(r=>r.venue==='seoul').map(C.prepare),multiHistory=H.create(rows);
   async function evaluate(settings,from,to,current=()=>true){
    settings={...settings,...T.settings(settings)};
    const out=[],total=settings.weights.reduce((s,x)=>s+x,0);
@@ -46,6 +46,11 @@ const JointSearchEngine=(()=>{
     if(i%96===95){await yieldTask();if(!current())return null;}
     const e=entries[i];if(e.row.date<from||e.row.date>to)continue;
     const p={date:e.row.date,features:null,hit:false,payout:null};out.push(p);
+    if(settings.betStrategy!=='qpl-single'){
+     const outcome=multiHistory.evaluateRow(i,settings);if(!outcome.ready||!outcome.settled)continue;
+     const P=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy,base=T.apply(T.unpack(e.row),settings),result=P.apply(base,null,settings);result.allPairs=base.pairs;
+     p.features=S.strategyFeatures(result,settings);p.hit=outcome.hit;p.payout=outcome.payout;continue;
+    }
     if(!e.valid||e.field.length<settings.min||e.field.length<settings.anchorRank)continue;
     const raw=e.features.map(f=>f.reduce((s,x,j)=>s+x*settings.weights[j],0));
     const pair=C.pick(e,settings,raw,total);if(!pair)continue;

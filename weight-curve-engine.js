@@ -26,10 +26,19 @@ const WeightCurveEngine=(()=>{
   return partner<0?null:pairKey([entry.numbers[anchor],entry.numbers[partner]]);
  }
  function create(rows,yieldTask=()=>new Promise(r=>setTimeout(r,0))){
-  const entries=rows.filter(r=>r.venue==='seoul').map(prepare);
+  const entries=rows.filter(r=>r.venue==='seoul').map(prepare),multiHistory=history.create(rows);
   async function curve(options,index,from,to,isCurrent=()=>true,onProgress=()=>{}){
    if(!Number.isInteger(index)||index<0||index>=tuning.FEATURES.length)throw Error('가중치 항목 확인 필요');
    const settings={...tuning.settings(options),...policy.normalizeRange(options)},others=settings.weights.reduce((s,x,i)=>s+(i===index?0:x),0);
+   if(settings.betStrategy!=='qpl-single'){
+    const points=[];for(let value=0;value<=100;value++){
+     if(!isCurrent())return null;
+     const valid=others+value>0,config={...settings,weights:settings.weights.map((w,j)=>j===index?value:w)};
+     const g=valid?await multiHistory.evaluate(config,from,to,isCurrent):null;
+     if(valid&&!g)return null;
+     points.push({value,valid,...(g?g.all:{}),...(g?history.metrics(g.all):{rate:null,average:null,product:null})});onProgress(Math.round((value+1)/101*100));
+    }return {index,from,to,points};
+   }
    const points=Array.from({length:101},(_,value)=>({value,valid:others+value>0,total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0}));
    const configs=points.map(p=>({...settings,weights:settings.weights.map((x,i)=>i===index?p.value:x)}));
    for(let ri=0;ri<entries.length;ri++){
@@ -48,6 +57,9 @@ const WeightCurveEngine=(()=>{
    return {index,from,to,points:points.map(p=>({...p,...(p.valid?history.metrics(p):{rate:null,average:null,product:null})}))};
   }
   async function evaluate(options,from,to,isCurrent=()=>true){
+   if(options.betStrategy&&options.betStrategy!=='qpl-single'){
+    const result=await multiHistory.evaluate(options,from,to,isCurrent);return result?{all:result.all,metrics:history.metrics(result.all)}:null;
+   }
    const settings={...tuning.settings(options),...policy.normalizeRange(options)},total=settings.weights.reduce((a,b)=>a+b,0),g={total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0};
    for(let ri=0;ri<entries.length;ri++){
     if(ri%128===127)await yieldTask();

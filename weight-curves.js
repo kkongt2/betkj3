@@ -16,7 +16,7 @@ const WeightCurves=(()=>{
  function init(api){
   const details=document.querySelector('#weightDetails'),roots=Array.from({length:TuningModel.FEATURES.length},(_,i)=>document.querySelector('#weight-curve-'+i));
   let active=null,timer=null,paused=false;const visible=new Set(),cache=new Map();
-  const key=(i,s)=>JSON.stringify([api.dataKey(),s.anchorMode,s.anchorRank??1,s.min,s.max,s.weights.map((x,j)=>j===i?null:x)]);
+  const key=(i,s)=>JSON.stringify([api.dataKey(),s.betStrategy,s.anchorMode,s.anchorRank??1,s.min,s.max,s.weights.map((x,j)=>j===i?null:x)]);
   const placeholder=(i,message)=>{roots[i].setAttribute('aria-busy','true');roots[i].innerHTML='<p class="curve-title">적중률 × 평균배당 변화</p><p class="curve-empty">'+esc(message)+'</p>';};
   function show(i){const s=api.settings(),c=cache.get(i);if(c?.key===key(i,s)){roots[i].innerHTML=view(c.result,s,i);roots[i].setAttribute('aria-busy','false');return true;}return false;}
   function schedule(){clearTimeout(timer);timer=setTimeout(pump,180);}

@@ -30,7 +30,41 @@ const RaceSelectionModel=(()=>{
  }
  function strictness(value){return Number.isFinite(+value)?Math.max(0,Math.min(100,Math.round(+value))):0;}
  function qualifies(result,value){const threshold=strictness(value);return result?.available===true&&threshold<100&&(threshold===0||result.score>=threshold);}
+ function strategyPairs(result,settings){
+  if(settings.betStrategy==='trio-box4'){
+   const box=result.horses.slice().sort((a,b)=>b.prob-a.prob||a.number-b.number).slice(0,4);
+   if(box.length!==4)return [];
+   const pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){
+    const numbers=[box[i].number,box[j].number],pick=(result.allPairs||result.pairs).find(p=>pairKey(p.numbers)===pairKey(numbers));
+    if(!pick)return [];pairs.push({pick,anchor:box[i],partner:box[j]});
+   }return pairs;
+  }
+  const p=result.qplPolicy,need=settings.betStrategy==='qpl-anchor2'?2:1;
+  const picks=p?.status==='ready'?(p.candidates||[]).filter(x=>x.pick&&Number.isFinite(x.pick.prob)).slice(0,need):[];
+  return picks.length===need?picks.map(x=>({...x,anchor:p.anchor})):[];
+ }
+ function strategyFeatures(result,settings){
+  const pairs=strategyPairs(result,settings),features=pairs.map(p=>jointFeatures(result.horses,settings.weights,p.anchor.number,p.partner.number));
+  return pairs.length&&features.every(Boolean)?JOINT_LABELS.map((_,j)=>mean(features.map(f=>f[j]))):null;
+ }
  function score(result,settings){
+  if(settings.betStrategy&&settings.betStrategy!=='qpl-single'){
+   const pairs=strategyPairs(result,settings);if(!pairs.length)return {version:VERSION,available:false,score:null};
+   const joint=jointConfig(settings.screening),features=strategyFeatures(result,settings);
+   if(joint)return {version:JOINT_VERSION,available:!!features,score:features?jointScore(features,joint.coefficients):null};
+   const scores=pairs.map(p=>score({...result,pairs:[p.pick],qplPolicy:{status:'ready',anchor:p.anchor,partner:p.partner}},{...settings,betStrategy:'qpl-single',screening:null}));
+   const field=result.horses,weights=settings.weights,total=weights.reduce((a,b)=>a+b,0),fieldFeatures=field.map(h=>values(h,weights));
+   const raw=fieldFeatures.map(f=>f.reduce((s,x,j)=>s+x*weights[j]/total,0));
+   const selected=pairKey([...new Set(pairs.flatMap(p=>p.pick.numbers))]);let same=0,trials=0;
+   for(let j=0;j<weights.length;j++)if(weights[j]>0)for(const factor of [-.2,.2]){
+    const changed=raw.map((v,i)=>v+fieldFeatures[i][j]*weights[j]/total*factor),order=field.map((_,i)=>i).sort((a,b)=>changed[b]-changed[a]||field[a].number-field[b].number);
+    const anchor=order[(settings.anchorRank||1)-1],chosen=settings.betStrategy==='trio-box4'?order.slice(0,4):[anchor,...order.slice(settings.min-1,settings.max).filter(i=>i!==anchor).slice(0,2)];
+    trials++;if(chosen.every(i=>i!==undefined)&&pairKey(chosen.map(i=>field[i].number))===selected)same++;
+   }
+   const stability=(trials?same/trials:0)*clamp((Math.max(...raw)-Math.min(...raw))/.1);
+   const components={stability,...Object.fromEntries(['completeness','gap','advantage'].map(k=>[k,mean(scores.map(s=>s.components[k]))]))};
+   return {version:VERSION,available:true,score:Math.round(100000*(.35*stability+.25*components.completeness+.25*components.gap+.15*components.advantage))/1000,components};
+  }
   const pair=result.pairs?.[0],policy=result.qplPolicy;
   if(policy?.status!=='ready'||!pair)return {version:VERSION,available:false,score:null};
   const joint=jointConfig(settings.screening);
@@ -81,9 +115,9 @@ const RaceSelectionModel=(()=>{
   const blank=()=>({evaluated:0,hits:0,paidHits:0,payoutTotal:0});
   const buckets=Array.from({length:100},blank);let eligible=0;
   for(const row of rows){
-   const pick=row.candidates[0];if(!row.settled||!pick||!row.screening?.available)continue;
+   const pick=Object.prototype.hasOwnProperty.call(row,'hit')?row:row.candidates[0];if(!row.settled||row.ready===false||!pick||!row.screening?.available)continue;
    eligible++;const b=buckets[Math.min(99,Math.floor(row.screening.score))];b.evaluated++;
-   if(pick.hit){b.hits++;if(Number.isFinite(pick.payout)&&pick.payout>=1){b.paidHits++;b.payoutTotal+=pick.payout;}}
+   if(pick.hit){b.hits++;if(Number.isFinite(pick.payout)&&pick.payout>=0){b.paidHits++;b.payoutTotal+=pick.payout;}}
   }
   const running=blank(),points=Array(101);
   for(let value=100;value>=0;value--){
@@ -93,6 +127,6 @@ const RaceSelectionModel=(()=>{
   }
   return {version:VERSION,total:rows.length,eligible,unavailable:rows.length-eligible,points};
  }
- return {VERSION,JOINT_VERSION,JOINT_LABELS,jointConfig,jointFeatures,jointScore,strictness,qualifies,score,metrics,curve};
+ return {VERSION,JOINT_VERSION,JOINT_LABELS,strategyPairs,strategyFeatures,jointConfig,jointFeatures,jointScore,strictness,qualifies,score,metrics,curve};
 })();
 if(typeof module!=='undefined')module.exports=RaceSelectionModel;

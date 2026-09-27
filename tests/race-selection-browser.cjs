@@ -12,7 +12,7 @@ const server=http.createServer((req,res)=>{
  if(json){res.setHeader('Content-Type','application/json');res.end(JSON.stringify(json));return;}
  const file=path.resolve(root,p==='/'?'index.html':'.'+p);
  if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){res.statusCode=404;res.end();return;}
- res.setHeader('Content-Type',file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.json')?'application/json':'text/html');res.end(fs.readFileSync(file));
+ res.setHeader('Content-Type',file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.json')?'application/json':'text/html');let content=fs.readFileSync(file);if(file.endsWith('/app.js'))content=content.toString().replace('run:runWeightSearch,','run:(o,p)=>runWeightSearch({...o,seconds:2},p),');res.end(content);
 });
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']}),errors=[];
@@ -75,10 +75,10 @@ const server=http.createServer((req,res)=>{
   await page.locator('#resetWeights').click();
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
   await page.selectOption('#weightSearchMode','joint');await page.selectOption('#weightSearchTarget','60');
-  await page.locator('#weightSearchSeconds').fill('1');
+  await page.locator('#weightSearchMinutes').fill('1');
   await page.locator('#startWeightSearch').click();
   await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});
-  assert((await page.locator('#weightSearchResult').innerText()).includes('시간 순서 검증'));
+  assert((await page.locator('#weightSearchResult').innerText()).includes('현재 최고 조합'));
   const product=await page.locator('#weightSearchResult .search-metrics strong').nth(2).innerText();
   await page.locator('#applyWeightSearch').click();
   assert.equal(await page.locator('#screeningEnabled').isChecked(),false,'apply preserves OFF');

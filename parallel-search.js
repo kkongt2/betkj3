@@ -35,7 +35,7 @@ const ParallelSearch=(()=>{
   b.all=exact;b.metrics=H.metrics(exact);if(options.joint&&b.joint)b.joint.fixed=g.fixedSelection;if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=fixed-years-1'),now=()=>performance.now()}={}){
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=multi-strategy-2'),now=()=>performance.now()}={}){
   let states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}
