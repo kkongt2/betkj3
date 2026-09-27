@@ -4,9 +4,9 @@
   "version": "user-weighted-seoul-last5-v2",
   "policyVersion": "betkj3-configurable-anchor-v3",
   "generatedAt": "2026-09-19T01:05:49.407Z",
-  "sourceRaces": 5606,
+  "sourceRaces": 5627,
   "from": "20240101",
-  "to": "20260913",
+  "to": "20260920",
   "minimumCoverageRatio": 0.4,
   "search": {
     "weightCandidates": 16283,
@@ -226,11 +226,11 @@
       },
       "selected": {
         "total": 283,
-        "evaluated": 259,
-        "hits": 15,
-        "excluded": 24,
-        "paidHits": 15,
-        "payoutTotal": 190.49999999999997
+        "evaluated": 249,
+        "hits": 14,
+        "excluded": 34,
+        "paidHits": 14,
+        "payoutTotal": 185.89999999999998
       }
     },
     {
@@ -554,7 +554,7 @@
     {
       "from": "20260701",
       "to": "20261001",
-      "through": "20260913",
+      "through": "20260920",
       "partial": true,
       "months": 36,
       "trainFrom": "20230701",
@@ -596,31 +596,31 @@
         "payoutTotal": 306.20000000000005
       },
       "selected": {
-        "total": 212,
-        "evaluated": 179,
-        "hits": 14,
-        "excluded": 33,
-        "paidHits": 14,
-        "payoutTotal": 189.20000000000002
+        "total": 233,
+        "evaluated": 199,
+        "hits": 15,
+        "excluded": 34,
+        "paidHits": 15,
+        "payoutTotal": 196.3
       }
     }
   ],
   "selected": {
     "all": {
-      "total": 2812,
-      "evaluated": 2749,
+      "total": 2833,
+      "evaluated": 2759,
       "hits": 269,
-      "excluded": 63,
+      "excluded": 74,
       "paidHits": 269,
-      "payoutTotal": 1915.6000000000001
+      "payoutTotal": 1918.1000000000001
     },
     "metrics": {
-      "rate": 0.09785376500545653,
-      "average": 7.121189591078068,
-      "product": 0.6968352128046563
+      "rate": 0.09749909387459224,
+      "average": 7.130483271375465,
+      "product": 0.6952156578470461
     },
-    "maxDrawdown": 876.6000000000003,
-    "netUnits": -833.3999999999999
+    "maxDrawdown": 871.2000000000003,
+    "netUnits": -840.8999999999999
   },
   "recordComparison": [
     {
@@ -745,17 +745,17 @@
     "months": 36,
     "retrospective": {
       "all": {
-        "total": 5606,
-        "evaluated": 5034,
-        "hits": 359,
-        "excluded": 572,
-        "paidHits": 359,
-        "payoutTotal": 4145.9000000000015
+        "total": 5627,
+        "evaluated": 5044,
+        "hits": 360,
+        "excluded": 583,
+        "paidHits": 360,
+        "payoutTotal": 4153.000000000002
       },
       "metrics": {
-        "rate": 0.0713150576082638,
-        "average": 11.54846796657382,
-        "product": 0.8235796583234012
+        "rate": 0.07137192704203013,
+        "average": 11.536111111111117,
+        "product": 0.8233544805709758
       }
     }
   },
@@ -767,5 +767,7 @@
     "qpl-history-years/2025.json": "cd2816ad95b0bc649cd7c6c2f1288f504a2f87ba6b3b8379804becbddaf9e35e",
     "qpl-history-years/2026.json": "6c02d867272633ac5f847667d5ad7d90626b696116a0e1bbacd8c12bd97958b4"
   },
-  "note": "서울 경주만 사용하여 각 분기 직전 3개월로 가중치·학습기간·기록 방식을 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 서울 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 연승확률 분석 순위 기준 사후 재계산입니다. 지급배당은 성과 계산에만 사용합니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다."
+  "note": "서울 경주만 사용하여 각 분기 직전 3개월로 가중치·학습기간·기록 방식을 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 서울 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 연승확률 분석 순위 기준 사후 재계산입니다. 지급배당은 성과 계산에만 사용합니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다.",
+  "refreshedAt": "2026-09-27T12:36:22.519Z",
+  "recordComparisonNote": "기록 방식별 비교는 최초 탐색 당시 자료 기준이며, 선택 조합 성적은 현재 자료로 재계산합니다."
 }
