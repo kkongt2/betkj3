@@ -4,9 +4,12 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-VERSION='weighted-seoul-last5-v2'
-FIT_TO='20230930'
+VERSION='weighted-seoul-trainer22-v1'
+SOURCE_FROM='20220101'
+EVALUATION_FROM='20230101'
+FIT_TO='20221231'
 FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency','mean_finish5','finish_trend','speed_trend','speed_last','finish_consistency']
+FEATURES.append('trainer_form')
 def day(s):return datetime.strptime(s,'%Y%m%d').toordinal()
 def avg(xs,default=None):return sum(xs)/len(xs) if xs else default
 def clip(x,a,b):return max(a,min(b,x))
@@ -46,6 +49,13 @@ class History:
                 p=[x for x in self.people[(r['venue'],kind,clean_person(h.get(kind)))] if d-365<=x['day']<d]
                 people.append(smooth(p,d,lambda x:x['residual'],0,30) if p else None)
                 people_counts.append(len(p))
+            trainer_history=[x for x in self.people[(r['venue'],'trainer',clean_person(h.get('trainer')))] if d-365<=x['day']<d]
+            trainer_recent=[x for x in trainer_history if x['day']>=d-90]
+            trainer_baseline=[x for x in trainer_history if x['day']<d-90]
+            # Disjoint windows of ability-adjusted performance; shrink toward zero.
+            trainer_form=None
+            if clean_person(h.get('trainer')) and len(trainer_recent)>=20 and len(trainer_baseline)>=50:
+                trainer_form=sum(x['residual'] for x in trainer_recent)/(len(trainer_recent)+30)-sum(x['residual'] for x in trainer_baseline)/(len(trainer_baseline)+30)
             comparable=last and h.get('burden') and last.get('burden') and grade(r.get('grade')) is not None and grade(r.get('grade'))==last.get('grade') and h.get('rating',0)>0 and abs(h['rating']-last['rating'])<=3
             burden=clip(last['burden']-h['burden'],-5,5) if comparable else None
             own_body=[x['body'] for x in hist[-10:] if x.get('body') and x['placed']]
@@ -66,11 +76,14 @@ class History:
             forms=[x['form'] for x in recent]
             values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency,avg(forms,.5),trend(recent,'form'),trend(recent,'speed'),last.get('speed') if last else None,-statistics.pstdev(forms) if len(forms)>=3 else None]
             available=[v is not None for v in values]
+            values.append(trainer_form);available.append(trainer_form is not None)
             for i in (0,1,4,16):available[i]=bool(recent)
             available[2]=bool(near)
             margin_count=sum(x.get('margin') is not None for x in recent)
             counts=[len(recent),len(recent),len(near),len(ratings) if rating is not None else 0,len(recent),*people_counts,int(bool(comparable)),len(own_body),len(gaps[-10:]),len(records),margin_count,len(opp),len(records),len(records),len(records),len(recent),len(forms),len(records),int(values[19] is not None),len(forms)]
+            counts.append(len(trainer_recent)+len(trainer_baseline))
             details={
+                'trainerForm':{'recentStarts':len(trainer_recent),'baselineStarts':len(trainer_baseline),'value':trainer_form},
                 'version':'last5-detail-v1','counts':counts,
                 'recent':[{'date':datetime.fromordinal(x['day']).strftime('%Y%m%d'),'finish':x['finish'],'fieldSize':x['fieldSize'],'form':x['form'],'speed':x.get('speed'),'distance':x['distance'],'grade':x.get('grade')} for x in recent],
                 'finishTrend':values[17],'speedTrend':values[18],'lastSpeed':values[19],
@@ -82,7 +95,7 @@ class History:
             result[str(h['number'])]={'available':available,'raw':values,'starts':len(recent),'distanceStarts':len(near),'meanFinish':avg([x['finish'] for x in recent]),'meanFinishScore':avg(forms),'fieldSizes':[x['fieldSize'] for x in recent],'recordStarts':len(records),'marginStarts':margin_count,'through':datetime.fromordinal(last['day']).strftime('%Y%m%d') if last else None,'detail':details}
         return result
     def add_day(self,rs):
-        rs=[r for r in rs if r.get('venue')=='seoul']
+        rs=[r for r in rs if r.get('venue')=='seoul' and r['date']>=SOURCE_FROM]
         # Compute all baselines before updating any horse/person/track pool that day.
         pending=[];time_updates=[]
         for r in rs:
@@ -119,7 +132,7 @@ def read_seed():
     source=[json.loads(x) for x in gzip.decompress(p.read_bytes()).splitlines()]
     extra=Path('history/weighted-source.jsonl.gz')
     if extra.exists():source += [json.loads(x) for x in gzip.decompress(extra.read_bytes()).splitlines()]
-    return { (r['date'],r['venue'],r['race_no']):r for r in source if r.get('venue')=='seoul'}
+    return { (r['date'],r['venue'],r['race_no']):r for r in source if r.get('venue')=='seoul' and r['date']>=SOURCE_FROM}
 def read_targets():
     out={}
     for p in sorted(Path('history').glob('[0-9][0-9][0-9][0-9].jsonl.gz')):
@@ -129,17 +142,18 @@ def read_targets():
         for r in json.loads(p.read_text())['races']:out[(r['date'],r['venue'],r['race_no'])]=r
     for r in json.loads(Path('data/latest.json').read_text()).get('races',[]):
         out.setdefault((r['date'],r['venue'],r['race_no']),r)
-    return {k:r for k,r in out.items() if r.get('venue')=='seoul'}
+    return {k:r for k,r in out.items() if r.get('venue')=='seoul' and r['date']>=EVALUATION_FROM}
 def main():
     source=read_seed();targets=read_targets()
     # Recover only tail dates absent from the maintained seed. No invented outcome data.
     sys.path.insert(0,'_seed/scripts/model-research')
-    from collect_v7 import parse_report
-    from collect import get
     meets={'seoul':1};errors=[];extra=[]
     for venue,meet in meets.items():
         last=max((k[0] for k in source if k[1]==venue),default='')
         dates=sorted({r['date'] for r in targets.values() if r['venue']==venue and r['date']>last and r.get('official_result',{}).get('status')=='confirmed'})
+        if dates:
+            from collect_v7 import parse_report
+            from collect import get
         for date in dates:
             url=f'https://race.kra.co.kr/dbdata/fileDownLoad.do?fn=chollian/{venue}/jungbo/rcresult/{date}dacom11.rpt&meet={meet}'
             try:
@@ -150,13 +164,20 @@ def main():
             except Exception as e:errors.append({'date':date,'venue':venue,'error':str(e)})
     previous=Path('history/weighted-source.jsonl.gz')
     if previous.exists():extra += [json.loads(x) for x in gzip.decompress(previous.read_bytes()).splitlines()]
-    uniq={(r['date'],r['venue'],r['race_no']):r for r in extra if r.get('venue')=='seoul'}
+    uniq={(r['date'],r['venue'],r['race_no']):r for r in extra if r.get('venue')=='seoul' and r['date']>=SOURCE_FROM}
     previous.write_bytes(gzip.compress(''.join(json.dumps(uniq[k],ensure_ascii=False,separators=(',',':'))+'\n' for k in sorted(uniq)).encode(),mtime=0))
     by_source=defaultdict(list);by_target=defaultdict(list)
     for r in source.values():by_source[r['date']].append(r)
     for k,r in targets.items():by_target[r['date']].append((k,r))
     history=History();snapshots={};raw_train=[[] for _ in FEATURES];coverage=[0]*len(FEATURES);observed_coverage=[0]*len(FEATURES);horse_count=0
     for date in sorted(set(by_source)|set(by_target)):
+        # 2022 calibrates feature scales and supplies prior records only.
+        # It never produces probabilities, evaluation rows or search outcomes.
+        if date<=FIT_TO:
+            for r in by_source[date]:
+                for x in history.features(r).values():
+                    for i,v in enumerate(x['raw']):
+                        if v is not None:raw_train[i].append(v)
         for k,r in by_target[date]:
             features=history.features(r);snapshots[k]={'date':r['date'],'venue':r['venue'],'race':r['race_no'],'version':VERSION,'historyThrough':history.through or None,'horses':features}
             for x in features.values():
@@ -167,7 +188,7 @@ def main():
                         coverage[i]+=1
                         if date<=FIT_TO:raw_train[i].append(v)
         history.add_day(by_source[date])
-    scaler={'scope':'seoul','version':VERSION,'fitThrough':FIT_TO,'features':FEATURES,'mean':[avg(x,0) for x in raw_train],'std':[max(statistics.pstdev(x),1e-4) if len(x)>1 else 1 for x in raw_train]}
+    scaler={'scope':'seoul','version':VERSION,'sourceFrom':SOURCE_FROM,'evaluationFrom':EVALUATION_FROM,'fitThrough':FIT_TO,'features':FEATURES,'mean':[avg(x,0) for x in raw_train],'std':[max(statistics.pstdev(x),1e-4) if len(x)>1 else 1 for x in raw_train]}
     for snap in snapshots.values():
         for x in snap['horses'].values():
             x['features']=[round(.5+clip((v-scaler['mean'][i])/scaler['std'][i],-3,3)/6,10) if v is not None else .5 for i,v in enumerate(x.pop('raw'))]
@@ -185,10 +206,11 @@ def main():
         p.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':')))
     Path('data/weighted-v3-scaler.json').write_text(json.dumps(scaler,separators=(',',':')))
     report={'schema':1,'scope':'seoul','version':VERSION,'sourceRaces':len(source),'targetRaces':len(snapshots),'horseStarts':horse_count,'historyThrough':history.through,
-            'fitThrough':FIT_TO,'coverage':dict(zip(FEATURES,coverage)),'observedCoverage':dict(zip(FEATURES,observed_coverage)),'fallbackCoverage':dict(zip(FEATURES,[horse_count-x for x in observed_coverage])),'coverageDefinition':'coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions','tailDownloadErrors':errors,
+            'sourceFrom':SOURCE_FROM,'evaluationFrom':EVALUATION_FROM,'fitThrough':FIT_TO,'coverage':dict(zip(FEATURES,coverage)),'observedCoverage':dict(zip(FEATURES,observed_coverage)),'fallbackCoverage':dict(zip(FEATURES,[horse_count-x for x in observed_coverage])),'coverageDefinition':'coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions','tailDownloadErrors':errors,
             'marginDefinition':'Previous race time minus winner time, seconds normalized to 1200m; not lengths',
             'speedDefinition':'Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral',
             'recentDefinition':'Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included','meanFinishDefinition':'Arithmetic mean of (fieldSize-finish)/(fieldSize-1) over the same previous five starts; nonfinish is clipped to zero',
+            'trainerFormDefinition':'90-day mean ability-adjusted placing residual vs preceding 275 days; minimum 20/50 starts; each mean shrunk by 30 neutral starts; earlier dates only',
             'currentResultInputs':False,'sameDayResultsInputs':False}
     Path('data/weighted-v3-coverage.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps(report,ensure_ascii=False),flush=True)

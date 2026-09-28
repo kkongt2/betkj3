@@ -27,7 +27,7 @@ const server=http.createServer((req,res)=>{
   for(const mode of ['qpl-anchor2','trio-box4','qpl-single']){
    await page.selectOption('#betStrategy',mode);
    await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
-   const cfg=await page.evaluate(()=>strategySettings()),g=await H.create(rows).evaluate({...cfg,includeScreening:true},'20220101','20260920');
+   const cfg=await page.evaluate(()=>strategySettings()),g=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');
    assert.equal(cfg.betStrategy,mode);assert.equal(await page.locator('#screeningProduct').innerText(),g.screening.points[0].product.toFixed(4)+'배');
    assert((await page.locator('#pairLead').innerText()).includes('배'));
    assert.equal(await page.locator('#raceOverview .screening-badge').count(),12);

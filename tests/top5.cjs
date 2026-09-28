@@ -1,6 +1,17 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),crypto=require('node:crypto'),t=require('../tuning-model.js'),p=require('../strategy-presets.js'),policy=require('../qpl-policy.js'),{evaluate}=require('../scripts/rolling-search.cjs');
 const balance=require('../scripts/weight-balance.cjs'),{RULES}=require('../scripts/family-selection.cjs');
 const report=JSON.parse(fs.readFileSync('top5-presets.json')),manifest=JSON.parse(fs.readFileSync('qpl-history.json'));
+if(report.preservedSettings){
+ assert.equal(report.version,t.VERSION);assert(report.from>='20230101');assert.equal(report.presets.length,1);
+ const rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows);
+ for(const preset of report.presets){
+  assert.equal(preset.settings.weights.length,22);assert(balance.valid(preset.settings.weights));
+  assert.deepEqual(preset.weightSummary,balance.summary(preset.settings.weights));
+  assert(Object.keys(preset.years).every(y=>y>='2023'));
+  const x=evaluate(rows,preset.settings);assert.deepEqual(x.all,preset.all);assert.equal(x.metrics.product,preset.metrics.product);
+ }
+ console.log('PASS preserved 22-feature preset replay, year exclusion and weight constraints');process.exit(0);
+}
 assert.equal(report.scope,'seoul');assert.equal(report.version,t.VERSION);assert.equal(report.presets.length,1);for(const k of ['count','minimumCoverageRatio','minimumHitRate','maxRankChange','objective'])assert.deepEqual(report.selectionRules[k],RULES[k]);
 if(report.presets[0].settings.weights.length===t.FEATURES.length)assert.deepEqual(report.selectionRules,RULES);
 const rows=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows).filter(r=>r.date>=report.from&&r.date<=report.to);

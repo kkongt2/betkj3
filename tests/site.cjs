@@ -66,7 +66,7 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(!nodes['#overviewStatus'].textContent.includes('선별'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('100.0%'));
  assert(!nodes['#qplHistoryStats'].innerHTML.includes('2021.01.08'));
- assert(nodes['#qplHistoryStats'].innerHTML.includes('2023년 이후 비교'));
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('2024년 이후 비교'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('실제 전적 확보'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('미확인'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('1경주'));
@@ -87,7 +87,7 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  const previous=vm.runInContext('ranked.places[0].prob',sandbox);
  nodes['#weight-0'].value='34';nodes['#weight-0'].oninput();await flush();
  assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
- assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-seoul-last5-v2');
+ assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-seoul-trainer22-v1');
  assert.notEqual(vm.runInContext('ranked.places[0].prob',sandbox),previous);
  assert(nodes['#qplHistoryStats'].innerHTML.includes('서울 최근 5경주 가중치'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('적중률 × 평균배당'));

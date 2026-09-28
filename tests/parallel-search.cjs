@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const P=require('../parallel-search.js'),W=require('../weight-search-engine.js'),J=require('../joint-search-engine.js'),H=require('../qpl-history-engine.js'),C=require('../weight-curve-engine.js'),T=require('../tuning-model.js');
-const options={seconds:1,objective:'product',settings:{...T.settings(),min:2,max:10},from:'20220101',to:'20261231',hardware:{cores:4,memory:8}};
+const options={seconds:1,objective:'product',settings:{...T.settings(),min:2,max:10},from:'20230101',to:'20261231',hardware:{cores:4,memory:8}};
 const group=(payout=120)=>({total:100,evaluated:100,hits:25,paidHits:25,payoutTotal:payout,excluded:0});
 const candidate=payout=>({settings:options.settings,all:group(payout),metrics:H.metrics(group(payout))});
 const output=(payout,count=1)=>({best:candidate(payout),count,elapsed:.5});

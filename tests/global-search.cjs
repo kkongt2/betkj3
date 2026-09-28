@@ -8,7 +8,7 @@ const settings={...T.settings(),min:2,max:10};
  for(const balanced of [false,true]){
   const optimizer=G.create({seeds:[T.defaults()],balanced,random:rng(87)}),seen=new Set();let initial=-Infinity,best=-Infinity,wide=false,last;
   for(let n=0;n<250;n++){
-   const w=optimizer.ask();assert(w);assert.equal(w.length,21);assert.equal(w.reduce((a,b)=>a+b),100);assert(w.every(x=>Number.isInteger(x)&&x>=0&&x<=100));if(balanced)assert(B.valid(w));
+   const w=optimizer.ask();assert(w);assert.equal(w.length,22);assert.equal(w.reduce((a,b)=>a+b),100);assert(w.every(x=>Number.isInteger(x)&&x>=0&&x<=100));if(balanced)assert(B.valid(w));
    const key=w.join(',');assert(!seen.has(key));seen.add(key);
    if(n>=12&&last&&w.filter((v,i)=>v!==last[i]).length>2)wide=true;last=w;
    const fitness=-w.reduce((s,x,i)=>s+(x-(i===0?100:0))**2,0);if(n<12)initial=Math.max(initial,fitness);best=Math.max(best,fitness);optimizer.tell(fitness);
@@ -27,9 +27,9 @@ const settings={...T.settings(),min:2,max:10};
  const abort=await W.run({settings,method:'de',seconds:1,objective:'product'},()=>{throw Error('must not evaluate');},()=>{},{current:()=>false});assert.equal(abort,null);
  // More than twelve proposals PER fold forces feedback-driven evolution. Altering
  // held-out payouts must not change the fold's training choice or training score.
- const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.filter(s=>/202[234]/.test(s.url)).flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows.slice(0,120));
- async function run(data){let count=0;return J.create(data).run({settings,method:'de',seconds:600,target:60,balanced:false,from:'20220101',to:'20241231'},H.create(data).evaluate,{stopped:()=>count>=54,progress:p=>{count=p.count;}});}
- const a=await run(rows),changed=structuredClone(rows);for(const r of changed)if(r.date.startsWith('2024'))r.payouts=r.payouts.map(x=>({...x,odds:x.odds*2}));const b=await run(changed);
+ const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.filter(s=>/202[345]/.test(s.url)).flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows.slice(0,120));
+ async function run(data){let count=0;return J.create(data).run({settings,method:'de',seconds:600,target:60,balanced:false,from:'20230101',to:'20251231'},H.create(data).evaluate,{stopped:()=>count>=54,progress:p=>{count=p.count;}});}
+ const a=await run(rows),changed=structuredClone(rows);for(const r of changed)if(r.date.startsWith('2025'))r.payouts=r.payouts.map(x=>({...x,odds:x.odds*2}));const b=await run(changed);
  assert(a.evolution.generations>0);assert(a.best?.joint.validation.folds.length===1);const af=a.best.joint.validation.folds[0],bf=b.best.joint.validation.folds[0];
  assert.deepEqual(af.settings,bf.settings);assert.deepEqual(af.train,bf.train);assert.equal(bf.test.payoutTotal,af.test.payoutTotal*2);
  assert.equal(a.best.joint.method,'de');

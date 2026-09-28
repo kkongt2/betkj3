@@ -3,7 +3,7 @@ const QplHistoryEngine=(()=>{
  const tuning=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
  const screening=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
- const PERIOD={from:'20220101',comparisonFrom:'20230101'};
+ const PERIOD={from:'20230101',comparisonFrom:'20240101'};
  const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
  const modeOf=o=>['qpl-single','qpl-anchor2','trio-box4'].includes(o?.betStrategy)?o.betStrategy:'qpl-single';

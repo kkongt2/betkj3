@@ -1,6 +1,6 @@
 const fs=require('node:fs'),zlib=require('node:zlib');
 function inputs(){
- const rows=new Map(),add=race=>race.venue==='seoul'&&rows.set([race.date,race.venue,race.race_no].join(':'),{race,market:null});
+ const rows=new Map(),add=race=>race.venue==='seoul'&&race.date>='20230101'&&rows.set([race.date,race.venue,race.race_no].join(':'),{race,market:null});
  if(fs.existsSync('history'))for(const file of fs.readdirSync('history').filter(f=>/^\d{4}\.jsonl\.gz$/.test(f)).sort()){
   for(const line of zlib.gunzipSync(fs.readFileSync('history/'+file)).toString().trim().split('\n').filter(Boolean)){
    const x=JSON.parse(line);add(x.race);

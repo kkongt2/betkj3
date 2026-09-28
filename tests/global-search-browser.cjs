@@ -32,9 +32,9 @@ const server=http.createServer((req,res)=>{
    assert((await page.locator('#weightSearchStatus').innerText()).includes('차분 진화'));
    const found=await page.locator('#weightSearchResult .search-metrics strong').nth(2).innerText();
    await page.locator('#applyWeightSearch').click();const cfg=await page.evaluate(()=>strategySettings());
-   assert.equal(cfg.weights.length,21);assert.equal(cfg.weights.reduce((s,x)=>s+x),100);
+   assert.equal(cfg.weights.length,22);assert.equal(cfg.weights.reduce((s,x)=>s+x),100);
    assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
-   const evaluated=await H.create(rows).evaluate({...cfg,includeScreening:true},'20220101','20260920');
+   const evaluated=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');
    const metric=mode==='joint'?evaluated.screening.points[cfg.screening.threshold]:H.metrics(evaluated.all);assert.equal(found,metric.product.toFixed(4)+'배');
    if(mode==='joint'){assert((await page.locator('#weightSearchResult').innerText()).includes('현재 최고 조합 · 2024년 이후 재계산'));assert(cfg.screening);}
    await page.locator('#saveWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('저장'));

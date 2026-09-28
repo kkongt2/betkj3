@@ -13,14 +13,14 @@ def card(r):
 def main():
     data=Path('data'); counts={}
     for p in (data/'calendar').glob('????????.json'):
-        d=json.loads(p.read_text());d['races']=[card(r) for r in d.get('races',[]) if r.get('venue')=='seoul']
+        d=json.loads(p.read_text());d['races']=[card(r) for r in d.get('races',[]) if r.get('venue')=='seoul' and r.get('date','')>='20230101']
         if not d['races']:p.unlink();continue
         d['venue']='seoul';d['scope']='seoul';counts[p.stem]=len(d['races']);write(p,d)
-    p=data/'latest.json';d=json.loads(p.read_text());d['races']=[card(r) for r in d.get('races',[]) if r.get('venue')=='seoul']
+    p=data/'latest.json';d=json.loads(p.read_text());d['races']=[card(r) for r in d.get('races',[]) if r.get('venue')=='seoul' and r.get('date','')>='20230101']
     latest={}
     for r in d['races']:latest[r['date']]=latest.get(r['date'],0)+1
     dates=set(counts)|set(latest)
-    dates.update(x['date'] for x in d.get('calendar',[]) if 'seoul' in x.get('venues',[]))
+    dates.update(x['date'] for x in d.get('calendar',[]) if 'seoul' in x.get('venues',[]) and x['date']>='20230101')
     d['calendar']=[{'date':date,'venues':['seoul'],'races':counts.get(date,latest.get(date,0))} for date in sorted(dates)]
     d['scope']='seoul';d['status']='서울 경주 전용';write(p,d)
     for p in (data/'market-odds').glob('*.json'):

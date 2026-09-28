@@ -28,7 +28,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await page.locator('.screening-badge').count(),0);
   assert.equal(await page.locator('#raceOverview .overview-row').count(),races.length);
   await page.locator('#screeningEnabled').check();await page.locator('#screeningProduct').waitFor();await page.locator('#pairLead .screening-badge').waitFor();
-  const config=await page.evaluate(()=>strategySettings());const expected=await H.create(rows).evaluate({...config,includeScreening:true},'20220101','20260920');
+  const config=await page.evaluate(()=>strategySettings());const expected=await H.create(rows).evaluate({...config,includeScreening:true},'20230101','20260920');
   const beforePair=await page.locator('#pairLead .lead-number').innerText(),beforeCount=await page.evaluate(()=>window.__evaluations);
   for(const level of [0,25,50,75,100,60]){
    await page.locator('#screeningStrictness').evaluate((n,v)=>{n.value=String(v);n.dispatchEvent(new Event('input'));},level);
@@ -59,11 +59,11 @@ const server=http.createServer((req,res)=>{
   await page.locator('#screeningOnly').uncheck();
   await page.selectOption('#anchorRank','3');await page.selectOption('#partnerMin','2');await page.selectOption('#partnerMax','6');
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
-  const config2=await page.evaluate(()=>strategySettings()),expected2=await H.create(rows).evaluate({...config2,includeScreening:true},'20220101','20260920');
+  const config2=await page.evaluate(()=>strategySettings()),expected2=await H.create(rows).evaluate({...config2,includeScreening:true},'20230101','20260920');
   assert.equal(await page.locator('#screeningProduct').innerText(),expected2.screening.points[50].product.toFixed(4)+'배');
   await page.locator('#weight-0').evaluate(n=>{n.value='60';n.dispatchEvent(new Event('input'));});
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
-  const config3=await page.evaluate(()=>strategySettings()),expected3=await H.create(rows).evaluate({...config3,includeScreening:true},'20220101','20260920');
+  const config3=await page.evaluate(()=>strategySettings()),expected3=await H.create(rows).evaluate({...config3,includeScreening:true},'20230101','20260920');
   assert.equal(await page.locator('#screeningProduct').innerText(),expected3.screening.points[50].product.toFixed(4)+'배');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile width overflow');
   await page.locator('.race-screening').screenshot({path:path.join(process.env.SCREENING_SCREENSHOT_DIR||'/tmp','screening-'+(fallback?'fallback':'worker')+'.png')});

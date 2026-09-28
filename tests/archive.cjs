@@ -1,7 +1,7 @@
 const fs=require('node:fs'),assert=require('node:assert/strict'),model=require('../model.js'),policy=require('../qpl-policy.js'),tuning=require('../tuning-model.js'),engine=require('../qpl-history-engine.js');
 const manifest=JSON.parse(fs.readFileSync('qpl-history.json'));assert.equal(manifest.schema,3);assert.equal(manifest.policyVersion,policy.VERSION);
 const history={rows:manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows)};assert.equal(history.rows.length,manifest.races);assert.equal(manifest.scope,'seoul');assert(history.rows.every(r=>r.venue==='seoul'));
-if(fs.existsSync('history/2021.jsonl.gz')){assert(manifest.from.startsWith('2021'));assert(history.rows.length>4000);}
+assert(manifest.from.startsWith('2023'));assert(history.rows.length>3500);assert(history.rows.every(r=>r.date>='20230101'));
 const index=new Map(history.rows.map((r,i)=>[[r.date,r.venue,r.race].join(':'),i])),evaluator=engine.create(history.rows);
 const settings=[{min:3,max:4},{min:2,max:4,anchorRank:2},{min:3,max:6,anchorRank:3,modelMode:'custom',weights:tuning.defaults()},{min:2,max:4,modelMode:'custom',weights:[0,0,0,100,0,0,0,0,0,0]},{min:3,max:6,modelMode:'custom',weights:[1,1,1,1,1,1,1,1,1,1]}];
 const totals=settings.map(()=>({evaluated:0,hits:0,payoutTotal:0}));let count=0;

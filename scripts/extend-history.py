@@ -17,7 +17,7 @@ def main():
         if info.get('scope')=='seoul' and info.get('payoutVersion')==2:
             print('Preserved completed year',year,info,flush=True);return
     rows=[json.loads(line) for line in gzip.decompress(Path('_seed/training/history-v7.jsonl.gz').read_bytes()).splitlines()]
-    rows=[r for r in rows if r.get('venue')=='seoul']
+    rows=[r for r in rows if r.get('venue')=='seoul' and r['date']>='20220101']
     cutoff=min(p.stem for p in Path('data/calendar').glob('????????.json'))
     selected=[r for r in rows if r['date'].startswith(year) and r['date']<cutoff]
     grouped=defaultdict(list)

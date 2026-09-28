@@ -31,8 +31,8 @@ for(let k=0;k<=100;k++){
 }
 (async()=>{
  const races=Array.from({length:25},(_,i)=>fixture(i));const packed=races.map(r=>T.pack(M.analyze(r)));
- const engine=H.create(packed),plain=await engine.evaluate(config,'20220101','20260920');
- const full=await engine.evaluate({...config,includeScreening:true},'20220101','20260920');
+ const engine=H.create(packed),plain=await engine.evaluate(config,'20230101','20260920');
+ const full=await engine.evaluate({...config,includeScreening:true},'20230101','20260920');
  assert.deepEqual(full.all,plain.all);
  const baseline=full.screening.points[0];assert.equal(baseline.evaluated,plain.all.evaluated);assert.equal(baseline.hits,plain.all.hits);assert(Math.abs(baseline.product-H.metrics(plain.all).product)<1e-12);
  // Independently calculate selected outcomes directly from the public race path.
@@ -42,12 +42,12 @@ for(let k=0;k<=100;k++){
   const p=full.screening.points[level];assert.equal(p.evaluated,count);assert.equal(p.hits,hits);assert.equal(p.product,count?returns/count:null);
  }
  const alt={...config,anchorRank:3,min:2,max:5,weights:Array.from({length:17},(_,i)=>i===1?100:0),includeScreening:true};
- assert.deepEqual((await engine.evaluate(alt,'20220101','20260920')).screening,(await H.create(packed).evaluate(alt,'20220101','20260920')).screening,'changed weights/ranges must invalidate screening cache');
- assert.deepEqual((await engine.evaluate({...config,includeScreening:true},'20220101','20260920')).screening,full.screening);
- const cancelled=await engine.evaluate({...config,includeScreening:true},'20220101','20260920',()=>false);assert.equal(cancelled,null);
+ assert.deepEqual((await engine.evaluate(alt,'20230101','20260920')).screening,(await H.create(packed).evaluate(alt,'20230101','20260920')).screening,'changed weights/ranges must invalidate screening cache');
+ assert.deepEqual((await engine.evaluate({...config,includeScreening:true},'20230101','20260920')).screening,full.screening);
+ const cancelled=await engine.evaluate({...config,includeScreening:true},'20230101','20260920',()=>false);assert.equal(cancelled,null);
  if(process.argv.includes('--archive')){
   const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),archive=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows);
-  const start=Date.now(),g=await H.create(archive).evaluate({...config,includeScreening:true},'20220101','20260920');
+  const start=Date.now(),g=await H.create(archive).evaluate({...config,includeScreening:true},'20230101','20260920');
   assert.equal(g.all.evaluated,g.screening.points[0].evaluated);assert.equal(g.all.hits,g.screening.points[0].hits);assert(Math.abs(H.metrics(g.all).product-g.screening.points[0].product)<1e-10);
   console.log(JSON.stringify({milliseconds:Date.now()-start,total:g.all.total,points:[0,25,50,75,100].map(k=>g.screening.points[k])}));
  }
