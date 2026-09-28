@@ -1,1 +1,25 @@
-{"schema":1,"scope":"seoul","year":"2023","races":1040,"from":"20230107","to":"20231231"}
+{
+  "schema": 1,
+  "scope": "seoul",
+  "year": "2023",
+  "races": 1040,
+  "reports": 100,
+  "from": "20230107",
+  "to": "20231231",
+  "unavailable": [
+    {
+      "date": "20231217",
+      "venue": "seoul",
+      "race": 8,
+      "reason": "Dividend winners mismatch"
+    }
+  ],
+  "download_errors": [],
+  "source": "kkongt2/timeline training/history-v7.jsonl.gz",
+  "payoutVersion": 2,
+  "markets": [
+    "place",
+    "pair",
+    "trio"
+  ]
+}
