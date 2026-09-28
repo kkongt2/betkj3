@@ -2,6 +2,10 @@
 const fs=require('node:fs'),path=require('node:path'),os=require('node:os'),crypto=require('node:crypto'),{Worker}=require('node:worker_threads');
 const Contract=require('../runner-search-contract.js'),P=require('../parallel-search.js'),H=require('../qpl-history-engine.js'),T=require('../tuning-model.js');
 const SEGMENT_SECONDS=18000;
+function nextSegmentSeconds(total,elapsed=0,cap=SEGMENT_SECONDS){
+ if(!Number.isInteger(cap)||cap<1||cap>SEGMENT_SECONDS)throw Error('Runner segment must be 1~18,000 seconds.');
+ return Math.max(0,Math.min(cap,total-elapsed));
+}
 function checkpoint(previous,request,metadata){
  if(!previous)return null;
  const report=Contract.report(previous);
@@ -14,8 +18,7 @@ async function search(request,rows,metadata={}){
  const previous=checkpoint(metadata.previous,request,metadata),done=previous?.result.elapsed||0,remaining=request.seconds-done;
  if(remaining<=0)return previous;
  const cap=metadata.segmentSeconds===undefined?SEGMENT_SECONDS:metadata.segmentSeconds;
- if(!Number.isInteger(cap)||cap<1||cap>SEGMENT_SECONDS)throw Error('Runner segment must be 1~18,000 seconds.');
- const segmentSeconds=Math.min(cap,remaining),cores=os.availableParallelism?.()||os.cpus().length,workers=request.parallel?Math.min(8,cores):1;
+ const segmentSeconds=nextSegmentSeconds(request.seconds,done,cap),cores=os.availableParallelism?.()||os.cpus().length,workers=request.parallel?Math.min(8,cores):1;
  const priorBest=previous?.result.best||null,runtimeSettings=priorBest?.settings||request.settings;
  const options={...request,seconds:segmentSeconds,settings:runtimeSettings,seeds:[request.settings.weights,...(priorBest?[priorBest.settings.weights]:[])],from:H.PERIOD.from,to:metadata.to||new Date().toISOString().slice(0,10).replaceAll('-',''),searchSeed:crypto.randomBytes(4).readUInt32LE()};
  const pool=P.create({makeWorker:()=>{
@@ -51,4 +54,4 @@ async function main(){
  console.log('RUNNER_RESULT',JSON.stringify({runId:report.runId,segments:report.result.segments,count:report.result.count,workers:report.result.workers,elapsed:report.result.elapsed,product:report.result.best?.metrics.product}));
 }
 if(require.main===module)main().catch(e=>{console.error(e.message);process.exitCode=1;});
-module.exports={search,SEGMENT_SECONDS};
+module.exports={search,SEGMENT_SECONDS,nextSegmentSeconds};

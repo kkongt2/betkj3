@@ -75,7 +75,7 @@ const server=http.createServer((req,res)=>{
   await page.locator('#resetWeights').click();
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
   await page.selectOption('#weightSearchMode','joint');await page.selectOption('#weightSearchTarget','60');
-  await page.locator('#weightSearchMinutes').fill('1');
+  await page.locator('#weightSearchMinutes').fill('10');
   await page.locator('#startWeightSearch').click();
   await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});
   assert((await page.locator('#weightSearchResult').innerText()).includes('현재 최고 조합'));

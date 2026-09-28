@@ -25,7 +25,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await page.locator('#weightSearchMethod').inputValue(),'local');
   await page.selectOption('#weightSearchMethod','de');assert((await page.locator('#weightSearchMethodHelp').innerText()).includes('전역 최적해 보장 아님'));
   await page.reload();await page.locator('#pairLead .lead-number').waitFor();assert.equal(await page.locator('#weightSearchMethod').inputValue(),'de');
-  await page.locator('#weightSearchMinutes').fill('1');
+  await page.locator('#weightSearchMinutes').fill('10');
   for(const mode of ['all','joint']){
    await page.selectOption('#weightSearchMode',mode);
    await page.locator('#startWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});

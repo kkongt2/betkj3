@@ -22,25 +22,25 @@ const server=http.createServer((req,res)=>{
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{Object.defineProperty(navigator,'hardwareConcurrency',{get:()=>4});Object.defineProperty(navigator,'deviceMemory',{get:()=>8});});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
-  assert.equal(await page.locator('#weightSearchParallel').isChecked(),true);assert.equal(await page.locator('#weightSearchMinutes').getAttribute('max'),'300');
-  await page.locator('#weightSearchMinutes').fill('301');await page.locator('#startWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('1~300분'));
+  assert.equal(await page.locator('#weightSearchParallel').isChecked(),true);assert.equal(await page.locator('#weightSearchMinutes').getAttribute('max'),'1440');
+  await page.locator('#weightSearchMinutes').fill('1450');await page.locator('#startWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('10~1,440분'));
   for(const method of ['local','de'])for(const mode of ['all','joint']){
-   await page.selectOption('#weightSearchMethod',method);await page.selectOption('#weightSearchMode',mode);await page.locator('#weightSearchMinutes').fill('1');
+   await page.selectOption('#weightSearchMethod',method);await page.selectOption('#weightSearchMode',mode);await page.locator('#weightSearchMinutes').fill('10');
    await page.locator('#startWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});
-   assert.equal(await page.evaluate(()=>window.__requestedSearchSeconds),60);const status=await page.locator('#weightSearchStatus').innerText();assert(status.includes('병렬 3개 작업'),status);assert(status.includes('검산 완료'));console.log(method,mode,status);
+   assert.equal(await page.evaluate(()=>window.__requestedSearchSeconds),600);const status=await page.locator('#weightSearchStatus').innerText();assert(status.includes('병렬 3개 작업'),status);assert(status.includes('검산 완료'));console.log(method,mode,status);
    const found=await page.locator('#weightSearchResult .search-metrics strong').nth(2).innerText();await page.locator('#applyWeightSearch').click();const cfg=await page.evaluate(()=>strategySettings());
    const evaluated=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');const metric=mode==='joint'?evaluated.screening.points[cfg.screening.threshold]:H.metrics(evaluated.all);assert.equal(found,metric.product.toFixed(4)+'배');
    assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
   }
-  await page.locator('#weightSearchMinutes').fill('300');await page.locator('#startWeightSearch').click();
-  await page.waitForFunction(()=>document.querySelector('#weightSearchStatus').textContent.includes('/ 300분'));
-  assert.equal(await page.evaluate(()=>window.__requestedSearchSeconds),18000);await page.locator('#stopWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#startWeightSearch').disabled,{},{timeout:30000});assert((await page.locator('#weightSearchStatus').innerText()).includes('중지 완료'));
+  await page.locator('#weightSearchMinutes').fill('1440');await page.locator('#startWeightSearch').click();
+  await page.waitForFunction(()=>document.querySelector('#weightSearchStatus').textContent.includes('/ 1440분'));
+  assert.equal(await page.evaluate(()=>window.__requestedSearchSeconds),86400);await page.locator('#stopWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#startWeightSearch').disabled,{},{timeout:30000});assert((await page.locator('#weightSearchStatus').innerText()).includes('중지 완료'));
   await page.locator('#startWeightSearch').click();await page.locator('#weightSearchParallel').uncheck();assert.equal(await page.locator('#applyWeightSearch').isDisabled(),true);
   await page.reload();await page.locator('#pairLead .lead-number').waitFor();assert.equal(await page.locator('#weightSearchParallel').isChecked(),false);
-  await page.locator('#weightSearchMinutes').fill('1');await page.locator('#startWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});assert((await page.locator('#weightSearchStatus').innerText()).includes('단일 작업'));
+  await page.locator('#weightSearchMinutes').fill('10');await page.locator('#startWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});assert((await page.locator('#weightSearchStatus').innerText()).includes('단일 작업'));
   await page.locator('#weightSearchParallel').check();await context.route('**/search-island-worker.js*',r=>r.abort());
   await page.locator('#startWeightSearch').click();await page.waitForFunction(()=>!document.querySelector('#applyWeightSearch').disabled,{},{timeout:60000});assert((await page.locator('#weightSearchStatus').innerText()).includes('단일 작업'));
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.locator('.weight-search').screenshot({path:'/tmp/parallel-search-mobile.png'});
-  await context.close();assert.deepEqual(errors,[]);console.log('PASS mobile parallel local/DE all/joint, exact parity, 300-minute start/stop, option persistence, cancellation, worker-failure fallback and screening OFF');
+  await context.close();assert.deepEqual(errors,[]);console.log('PASS mobile parallel local/DE all/joint, exact parity, 1440-minute start/stop, option persistence, cancellation, worker-failure fallback and screening OFF');
  }finally{await browser.close();server.close();}
 })().catch(e=>{console.error(e);server.close();process.exitCode=1});

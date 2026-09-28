@@ -36,12 +36,17 @@ const {search}=require('../scripts/runner-search.cjs');
    return route.abort();
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
-  await page.locator('#weightSearchMinutes').fill('301');await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('1~300분'));
-  await page.locator('#weightSearchMinutes').fill('300');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,18000);
+  const minutes=page.locator('#weightSearchMinutes');
+  assert.equal(await minutes.getAttribute('min'),'10');assert.equal(await minutes.getAttribute('max'),'1440');assert.equal(await minutes.getAttribute('step'),'10');assert.equal(await minutes.inputValue(),'10');
+  for(const invalid of ['1','9','15','1441','1450']){await minutes.fill(invalid);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('10~1,440분'));}
+  await minutes.fill('10');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,600);
+  assert.equal(await page.locator('#runnerSearchDuration option[value="172800"]').count(),0);
+
+  await page.locator('#weightSearchMinutes').fill('1440');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,86400);
   await page.selectOption('#runnerSearchDuration','86400');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,86400);await page.selectOption('#runnerSearchDuration','current');
-  await page.selectOption('#weightSearchMethod','de');await page.locator('#weightSearchMinutes').fill('2');await page.locator('#weightSearchBalanced').uncheck();
+  await page.selectOption('#weightSearchMethod','de');await page.locator('#weightSearchMinutes').fill('20');await page.locator('#weightSearchBalanced').uncheck();
   const before=await page.evaluate(()=>strategySettings());
-  await page.locator('#prepareRunnerSearch').click();await page.locator('#runnerSearchRequest').waitFor();const payload=JSON.parse(await page.locator('#runnerSearchRequest').inputValue());assert.equal(payload.seconds,120);assert.equal(payload.method,'de');assert.deepEqual(payload.settings.weights,before.weights);
+  await page.locator('#prepareRunnerSearch').click();await page.locator('#runnerSearchRequest').waitFor();const payload=JSON.parse(await page.locator('#runnerSearchRequest').inputValue());assert.equal(payload.seconds,1200);assert.equal(payload.method,'de');assert.deepEqual(payload.settings.weights,before.weights);
   assert.equal(await page.locator('#startWeightSearch').isDisabled(),false,'prepare must not launch local search');
   assert.equal(await page.locator('#runnerWorkflowLink').getAttribute('href'),'https://github.com/kkongt2/betkj3/actions/workflows/runner-search.yml');report.request=payload;
   await page.locator('#refreshRunnerSearch').click();await page.waitForFunction(()=>!document.querySelector('#refreshRunnerSearch').disabled);assert.equal(await page.locator('#loadRunnerSearch').isDisabled(),true);
@@ -64,7 +69,7 @@ const {search}=require('../scripts/runner-search.cjs');
    assert(text.includes('독립적인 미래 성능 검증은 아닙니다'));assert.equal(await page.locator('#fixedYearResults tr[data-year="2026"]').count(),1);
    await page.locator('#applyWeightSearch').click();assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
   }
-  await page.locator('#prepareRunnerSearch').click();await page.locator('#weightSearchMinutes').fill('3');await page.locator('#weightSearchMinutes').blur();assert.equal(await page.locator('#runnerPrepared').isHidden(),true);
+  await page.locator('#prepareRunnerSearch').click();await page.locator('#weightSearchMinutes').fill('30');await page.locator('#weightSearchMinutes').blur();assert.equal(await page.locator('#runnerPrepared').isHidden(),true);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert(rawRequests.length>=4);assert.deepEqual(errors,[]);
   await page.locator('.weight-search').screenshot({path:'/tmp/runner-search-mobile.png'});await context.close();console.log('PASS mobile Runner prepare including 1-day budget without local execution, reload recovery, missing/invalid result, matching result, explicit apply/save, stale request invalidation and screening OFF');
  }finally{await browser.close();server.close();}

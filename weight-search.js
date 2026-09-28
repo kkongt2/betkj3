@@ -17,12 +17,12 @@ const WeightSearch=(()=>{
   try{parallelControl.checked=localStorage.getItem('betkj3-search-parallel')!=='false';}catch{}
   const workerLabel=p=>p.workers>1?'병렬 '+p.workers+'개 작업':'단일 작업';
   try{methodControl.value=localStorage.getItem('betkj3-search-method')==='de'?'de':'local';}catch{methodControl.value='local';}
-  function methodHelp(){el('weightSearchMethodHelp').textContent=methodControl.value==='de'?'후보군 12개를 여러 지점에서 시작해 교차·변이·재시작합니다. 여러 가중치를 동시에 변경하며 결과는 합계 100%, 1% 단위입니다. 우선 1~2분으로 시도하세요. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다. 공동 탐색의 선별 계수는 기존 12개 후보를 비교합니다.':'좋은 후보 근처에서 1·2·5·10%를 이동하고 무작위 조합도 섞습니다. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다.';}
+  function methodHelp(){el('weightSearchMethodHelp').textContent=methodControl.value==='de'?'후보군 12개를 여러 지점에서 시작해 교차·변이·재시작합니다. 여러 가중치를 동시에 변경하며 결과는 합계 100%, 1% 단위입니다. 우선 10~20분으로 시도하세요. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다. 공동 탐색의 선별 계수는 기존 12개 후보를 비교합니다.':'좋은 후보 근처에서 1·2·5·10%를 이동하고 무작위 조합도 섞습니다. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다.';}
   methodHelp();
   let token=0,busy=false,snapshot='',best=null;
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
-  const options=()=>{const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<1||minutes>300)throw Error('탐색 시간은 1~300분 정수로 입력하세요.');return {seconds:minutes*60,parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value};};
-  const runnerOptions=()=>{const out=options(),choice=runnerDuration?.value||'current';if(choice==='current')return out;const seconds=Number(choice);if(![86400,172800].includes(seconds))throw Error('Runner 탐색 시간을 확인해 주세요.');return {...out,seconds};};
+  const options=()=>{const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<10||minutes>1440||minutes%10!==0)throw Error('탐색 시간은 10~1,440분 범위에서 10분 단위로 입력하세요.');return {seconds:minutes*60,parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value};};
+  const runnerOptions=()=>{const out=options(),choice=runnerDuration?.value||'current';if(choice==='current')return out;const seconds=Number(choice);if(![86400].includes(seconds))throw Error('Runner 탐색 시간을 확인해 주세요.');return {...out,seconds};};
   const runner=RunnerSearchPanel.init({options:runnerOptions,canPrepare:()=>!busy,receive:async report=>{
    invalidate('현재 최고 조합의 연도별 성적을 재계산 중…');const id=++token,o=report.request;let out=report.result;
    busy=true;snapshot=key();buttons();stop.disabled=true;api.pause(true);
@@ -41,7 +41,7 @@ const WeightSearch=(()=>{
   function invalidate(message){token++;api.abort();busy=false;best=null;api.pause(false);buttons();result.textContent='';status.textContent=message;}
   function refresh(){runner.changed();if(snapshot&&snapshot!==key()){snapshot='';invalidate('설정 또는 자료가 바뀌었습니다. 현재 설정으로 다시 탐색하세요.');}}
   start.onclick=async()=>{
-   const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<1||minutes>300){status.textContent='탐색 시간은 1~300분 정수로 입력하세요.';return;}const seconds=minutes*60;
+   const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<10||minutes>1440||minutes%10!==0){status.textContent='탐색 시간은 10~1,440분 범위에서 10분 단위로 입력하세요.';return;}const seconds=minutes*60;
    if(!api.dataKey()){status.textContent='과거 자료를 불러온 뒤 시작해 주세요.';return;}
    const id=++token;snapshot=key();busy=true;best=null;buttons();api.pause(true);display(null);status.textContent='2023년 이후 자료 준비 중… (준비 시간은 탐색 시간에서 제외)';
    try{const out=await api.run({seconds,parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value},p=>{
