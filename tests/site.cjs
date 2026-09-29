@@ -20,7 +20,11 @@ const venues=['seoul','busan','jeju'].map(venue=>({...node(),dataset:{venue}}));
 const savedData=new Map([['betkj3-screening-strictness','75']]);
 const requested=[];
 const rollingFile=JSON.parse(fs.readFileSync('rolling-report.json'));
-const sandbox={console,Intl,Date,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,
+// Keep the archived fixture within the app's one-year calendar window regardless
+// of when CI runs. Explicit dates still use the native constructor and UTC helpers.
+const testNow=Date.parse('2026-09-20T12:00:00+09:00');
+class TestDate extends Date {constructor(...args){super(...(args.length?args:[testNow]));}static now(){return testNow;}}
+const sandbox={console,Intl,Date:TestDate,Math,Number,Set,Map,JSON,Array,String,Error,Infinity,AbortController,setTimeout,clearTimeout,
  document:{addEventListener(){},getElementById:id=>nodes['#'+id]||null,querySelector:s=>nodes[s]||null,querySelectorAll:()=>venues},
  localStorage:{getItem:k=>savedData.get(k)||null,setItem:(k,v)=>savedData.set(k,v)},
  fetch:async url=>{requested.push(String(url));return {ok:true,json:async()=>{
