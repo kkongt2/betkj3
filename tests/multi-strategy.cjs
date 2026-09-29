@@ -15,6 +15,10 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
   const jg=await h.evaluate(jc,'20230101','20261231');assert.equal(S.jointScore(joint[0].features,jc.screening.coefficients),S.score(live,jc).score);assert.equal(jg.fixedSelection.metrics.product,expected);
   assert.equal(Presets.config(cfg).betStrategy,betStrategy);
   assert.equal(Runner.request({schema:1,requestId:'test',seconds:60,method:'local',objective:'product',joint:false,balanced:true,parallel:false,target:40,settings:cfg}).settings.betStrategy,betStrategy);
+  let count=0;
+  const found=await J.create([row],()=>Promise.resolve()).run({settings:cfg,method:'de',target:40,seconds:60,from:'20230101',to:'20261231'},h.evaluate,{stopped:()=>count>=90,progress:p=>{count=p.count;}});
+  assert.equal(found.best.metrics.product,expected);assert.equal(found.best.settings.betStrategy,betStrategy);
+  assert.equal(found.best.joint.optimizer,'alternating-v1');assert(found.evolution.generations>0);
  }
  const cfg={...T.settings({betStrategy:'trio-box4'}),min:20,max:20,includeScreening:true};
  assert.equal((await H.create([row]).evaluate(cfg,'20230101','20261231')).all.evaluated,1,'trio ignores partner range');

@@ -36,7 +36,7 @@ const server=http.createServer((req,res)=>{
    assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
    const evaluated=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');
    const metric=mode==='joint'?evaluated.screening.points[cfg.screening.threshold]:H.metrics(evaluated.all);assert.equal(found,metric.product.toFixed(4)+'배');
-   if(mode==='joint'){assert((await page.locator('#weightSearchResult').innerText()).includes('현재 최고 조합 · 2024년 이후 재계산'));assert(cfg.screening);}
+   if(mode==='joint'){const text=await page.locator('#weightSearchResult').innerText();assert(text.includes('현재 최고 조합 · 2024년 이후 재계산'));assert(text.includes('교대 최적화 결과'));assert(cfg.screening);}
    await page.locator('#saveWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('저장'));
    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'mobile overflow');
   }

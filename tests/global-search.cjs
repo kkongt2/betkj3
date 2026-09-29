@@ -28,7 +28,7 @@ const settings={...T.settings(),min:2,max:10};
  // More than twelve proposals PER fold forces feedback-driven evolution. Altering
  // held-out payouts must not change the fold's training choice or training score.
  const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.filter(s=>/202[345]/.test(s.url)).flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows.slice(0,120));
- async function run(data){let count=0;return J.create(data).run({settings,method:'de',seconds:600,target:60,balanced:false,from:'20230101',to:'20251231'},H.create(data).evaluate,{stopped:()=>count>=54,progress:p=>{count=p.count;}});}
+ async function run(data){let count=0;return J.create(data).run({settings,method:'de',seconds:600,target:60,balanced:false,from:'20230101',to:'20251231'},H.create(data).evaluate,{stopped:()=>count>=160,progress:p=>{count=p.count;}});}
  const a=await run(rows),changed=structuredClone(rows);for(const r of changed)if(r.date.startsWith('2025'))r.payouts=r.payouts.map(x=>({...x,odds:x.odds*2}));const b=await run(changed);
  assert(a.evolution.generations>0);assert(a.best?.joint.validation.folds.length===1);const af=a.best.joint.validation.folds[0],bf=b.best.joint.validation.folds[0];
  assert.deepEqual(af.settings,bf.settings);assert.deepEqual(af.train,bf.train);assert.equal(bf.test.payoutTotal,af.test.payoutTotal*2);

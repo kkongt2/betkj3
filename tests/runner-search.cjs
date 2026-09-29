@@ -10,11 +10,13 @@ const request={schema:1,requestId:'runner-test',seconds:1,method:'de',objective:
  for(const joint of [false,true]){
   report=await search({...request,joint},rows,{runId:'123-1'});assert(report.result.workers>=1);assert(report.result.count>0);assert(report.result.best);
   const b=report.result.best,g=await H.create(rows).evaluate({...b.settings,includeScreening:joint},report.from,report.to);assert.equal(b.metrics.product,H.metrics(joint?g.screening.points[b.settings.screening.threshold]:g.all).product);
+  if(joint)assert.equal(b.joint.optimizer,'alternating-v1');
  }
- const chainedRequest={...request,seconds:2};
+ const chainedRequest={...request,joint:true,seconds:2,settings:report.result.best.settings};
  const first=await search(chainedRequest,rows,{runId:'125-1',segmentSeconds:1});
  const resumed=await search(chainedRequest,rows,{runId:'125-1',segmentSeconds:1,previous:first});
  assert.equal(first.result.elapsed,1);assert.equal(resumed.result.elapsed,2);assert.equal(resumed.result.segments,2);assert(resumed.result.count>=first.result.count);assert(resumed.result.best);
+ assert.equal(resumed.result.best.joint.optimizer,'alternating-v1');assert(resumed.result.best.metrics.product>=first.result.best.metrics.product-1e-12);
  assert.throws(()=>Contract.report({...report,modelVersion:'old-model'}));
  const malicious=structuredClone(report);malicious.result.best.settings.weights[0]='<img>';assert.throws(()=>Contract.report(malicious));
  // Publish in a disposable bare repository; preserve existing results and create a

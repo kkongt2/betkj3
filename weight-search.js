@@ -7,7 +7,7 @@ const WeightSearch=(()=>{
  }
  function jointView(candidate){
   const j=candidate.joint,pct=x=>x===null?'—':(100*x).toFixed(2)+'%',odds=x=>x===null?'—':x.toFixed(4)+'배';
-  return '<p><b>목표 '+j.target+'% · 선별 기준 '+candidate.settings.screening.threshold+'점 이상</b></p><table class="validation-table"><thead><tr><th>목표 비율</th><th>실제 선택</th><th>과거 탐색 최고</th></tr></thead><tbody>'+j.ratios.map(r=>'<tr><td>'+r.target+'%</td><td>'+pct(r.ratio)+'</td><td>'+odds(r.product)+'</td></tr>').join('')+'</tbody></table><p class="hint">각 비율에서 찾은 가중치와 선별 기준은 서로 다를 수 있습니다. 적용·저장은 선택한 목표 '+j.target+'% 결과입니다. 다른 비율을 적용하려면 목표 비율을 바꾸고 다시 탐색하세요.</p>'+fixedView(j.fixed)+'<details><summary>적용할 경기 선별 기준 보기</summary><table class="validation-table"><tbody>'+j.modelLabels.map((label,i)=>'<tr><td>'+label+'</td><td>'+candidate.settings.screening.coefficients[i]+'</td></tr>').join('')+'</tbody></table><p class="hint">양수는 값이 클수록, 음수는 값이 작을수록 선별 점수를 높입니다. 배당은 과거 성과 평가에만 사용하며 경기 전 선별 입력에는 사용하지 않습니다.</p></details>';
+  return (j.optimizer==='alternating-v1'?'<p class="hint">가중치 ↔ 경기 선별 조건 교대 최적화 결과</p>':'')+'<p><b>목표 '+j.target+'% · 선별 기준 '+candidate.settings.screening.threshold+'점 이상</b></p><table class="validation-table"><thead><tr><th>목표 비율</th><th>실제 선택</th><th>과거 탐색 최고</th></tr></thead><tbody>'+j.ratios.map(r=>'<tr><td>'+r.target+'%</td><td>'+pct(r.ratio)+'</td><td>'+odds(r.product)+'</td></tr>').join('')+'</tbody></table><p class="hint">각 비율에서 찾은 가중치와 선별 기준은 서로 다를 수 있습니다. 적용·저장은 선택한 목표 '+j.target+'% 결과입니다. 다른 비율을 적용하려면 목표 비율을 바꾸고 다시 탐색하세요.</p>'+fixedView(j.fixed)+'<details><summary>적용할 경기 선별 기준 보기</summary><table class="validation-table"><tbody>'+j.modelLabels.map((label,i)=>'<tr><td>'+label+'</td><td>'+candidate.settings.screening.coefficients[i]+'</td></tr>').join('')+'</tbody></table><p class="hint">양수는 값이 클수록, 음수는 값이 작을수록 선별 점수를 높입니다. 배당은 과거 성과 평가에만 사용하며 경기 전 선별 입력에는 사용하지 않습니다.</p></details>';
  }
  function init(api){
   const el=id=>document.getElementById(id),start=el('startWeightSearch'),stop=el('stopWeightSearch'),status=el('weightSearchStatus'),result=el('weightSearchResult'),apply=el('applyWeightSearch'),save=el('saveWeightSearch');
@@ -17,7 +17,7 @@ const WeightSearch=(()=>{
   try{parallelControl.checked=localStorage.getItem('betkj3-search-parallel')!=='false';}catch{}
   const workerLabel=p=>p.workers>1?'병렬 '+p.workers+'개 작업':'단일 작업';
   try{methodControl.value=localStorage.getItem('betkj3-search-method')==='de'?'de':'local';}catch{methodControl.value='local';}
-  function methodHelp(){el('weightSearchMethodHelp').textContent=methodControl.value==='de'?'후보군 12개를 여러 지점에서 시작해 교차·변이·재시작합니다. 여러 가중치를 동시에 변경하며 결과는 합계 100%, 1% 단위입니다. 우선 10~20분으로 시도하세요. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다. 공동 탐색의 선별 계수는 기존 12개 후보를 비교합니다.':'좋은 후보 근처에서 1·2·5·10%를 이동하고 무작위 조합도 섞습니다. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다.';}
+  function methodHelp(){el('weightSearchMethodHelp').textContent=methodControl.value==='de'?'후보군 12개를 여러 지점에서 시작해 교차·변이·재시작합니다. 여러 가중치를 동시에 변경하며 결과는 합계 100%, 1% 단위입니다. 우선 10~20분으로 시도하세요. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다. 공동 탐색은 가중치를 고정해 선별 계수·엄격도를 조정한 뒤, 선별 조건을 고정해 가중치를 조정하는 과정을 반복합니다.':'좋은 후보 근처에서 1·2·5·10%를 이동하고 무작위 조합도 섞습니다. 전역 최적해 보장 아님 · 선택한 순위 범위와 균형 제한 안에서 탐색합니다. 공동 탐색은 선별 계수·엄격도 조정과 가중치 조정을 번갈아 반복합니다.';}
   methodHelp();
   let token=0,busy=false,snapshot='',best=null;
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
