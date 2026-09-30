@@ -72,12 +72,12 @@
       }
     ]
   },
-  "generatedAt": "2026-09-30T14:21:25+09:00",
+  "generatedAt": "2026-09-30T21:38:26+09:00",
   "from": "20230107",
-  "to": "20260920",
-  "sourceRaces": 3873,
+  "to": "20261005",
+  "sourceRaces": 3904,
   "minimumCoverageRatio": 0.4,
-  "minimumEvaluated": 1550,
+  "minimumEvaluated": 1562,
   "presets": [
     {
       "rank": 1,
@@ -114,10 +114,10 @@
         "max": 8
       },
       "all": {
-        "total": 3873,
+        "total": 3904,
         "evaluated": 3872,
         "hits": 790,
-        "excluded": 1,
+        "excluded": 32,
         "paidHits": 790,
         "payoutTotal": 3034.1999999999966
       },
@@ -147,10 +147,10 @@
           "payoutTotal": 774.1000000000008
         },
         "2026": {
-          "total": 759,
+          "total": 790,
           "evaluated": 759,
           "hits": 156,
-          "excluded": 0,
+          "excluded": 31,
           "paidHits": 156,
           "payoutTotal": 571.7000000000002
         }
@@ -202,7 +202,7 @@
           }
         ]
       },
-      "coverage": 0.9997418022205009
+      "coverage": 0.9918032786885246
     }
   ],
   "note": "기존 프리셋 가중치를 유지하고 2023년 이후 자료로 성적을 재계산했습니다. 2022년은 전적 참조와 척도 설정에만 사용하며 2021년은 제외합니다. 새 가중치는 0%로 추가하며 재탐색 결과가 아닙니다."
