@@ -13,7 +13,7 @@ const RunnerSearchContract=(()=>{
  }
  function request(x){
   if(!x||x.schema!==1||typeof x.requestId!=='string'||!/^[-a-zA-Z0-9]{1,64}$/.test(x.requestId))fail();
-  if(!Number.isInteger(x.seconds)||x.seconds<1||x.seconds>MAX_RUNNER_SECONDS||!['local','de'].includes(x.method)||!['rate','average','product'].includes(x.objective)||typeof x.joint!=='boolean'||typeof x.balanced!=='boolean'||typeof x.parallel!=='boolean'||![40,60,80].includes(x.target))fail();
+  if(!Number.isInteger(x.seconds)||x.seconds<1||x.seconds>MAX_RUNNER_SECONDS||!['local','de'].includes(x.method)||!['rate','average','product'].includes(x.objective)||typeof x.joint!=='boolean'||typeof x.balanced!=='boolean'||typeof x.parallel!=='boolean'||!S.JOINT_TARGETS.includes(x.target))fail();
   return {schema:1,requestId:x.requestId,seconds:x.seconds,method:x.method,objective:x.joint?'product':x.objective,joint:x.joint,balanced:x.balanced,parallel:x.parallel,target:x.target,settings:settings(x.settings)};
  }
  function stats(g){
@@ -28,9 +28,12 @@ const RunnerSearchContract=(()=>{
   if(r.best){const b=r.best;b.settings=settings(b.settings);b.all=stats(b.all);b.metrics=H.metrics(b.all);
    if(!b.all.evaluated||b.all.hits!==b.all.paidHits||b.metrics.rate<.15)fail();
    if(b.comparison){b.comparison.all=stats(b.comparison.all);b.comparison.metrics=H.metrics(b.comparison.all);}
-   if(x.request.joint){const j=b.joint;if(!j||j.target!==x.request.target||!b.settings.screening||!Array.isArray(j.ratios)||j.ratios.length!==3||!Array.isArray(j.validation?.folds)||j.validation.folds.length>50)fail();
+   if(x.request.joint){const j=b.joint;if(!j||j.target!==x.request.target||!b.settings.screening||!Array.isArray(j.ratios)||![3,4].includes(j.ratios.length)||!Array.isArray(j.validation?.folds)||j.validation.folds.length>50)fail();
+    // Old reports contain only 40/60/80. Keep them readable without inventing a 50% result.
+    const ratioTargets=j.ratios.map(r=>r?.target).sort((a,b)=>a-b).join(',');
+    if(!['40,60,80',S.JOINT_TARGETS.join(',')].includes(ratioTargets)||!j.ratios.some(r=>r.target===x.request.target))fail();
     j.modelLabels=S.JOINT_LABELS;j.method=x.request.method;
-    j.ratios=j.ratios.map(r=>{if(![40,60,80].includes(r.target))fail();return r.product===null?{target:r.target,product:null,ratio:null}:{target:r.target,...stats(r)};});
+    j.ratios=j.ratios.map(r=>{if(!S.JOINT_TARGETS.includes(r.target))fail();return r.product===null?{target:r.target,product:null,ratio:null}:{target:r.target,...stats(r)};});
     if(j.fixed){const v=j.fixed;if(!/^\d{8}$/.test(v.from)||!/^\d{8}$/.test(v.to)||!Array.isArray(v.years)||v.years.length>50)fail();
      v.all=stats(v.all);v.metrics=S.metrics(v.all);const seen=new Set();v.years=v.years.map(f=>{if(!/^\d{4}$/.test(f.year)||seen.has(f.year))fail();seen.add(f.year);const all=stats(f.all);return {year:f.year,all,metrics:S.metrics(all)};});
      for(const k of ['total','evaluated','hits','paidHits','excluded','payoutTotal'])if(Math.abs(v.years.reduce((n,f)=>n+f.all[k],0)-v.all[k])>1e-7)fail();

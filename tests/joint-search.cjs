@@ -6,7 +6,7 @@ const rows=m.shards.filter(s=>s.url.includes('2023')||s.url.includes('2024')||s.
 const settings={...T.settings(),min:2,max:10};
 (async()=>{
  const e=J.create(rows),points=await e.evaluate(settings,'20230101','20251231');
- const coefficients=J.profiles()[1],screening={version:S.JOINT_VERSION,coefficients,threshold:50,target:60},cfg={...settings,screening};
+ const coefficients=J.profiles()[1],screening={version:S.JOINT_VERSION,coefficients,threshold:50,target:50},cfg={...settings,screening};
  for(let i=0;i<rows.length;i+=17){const result=P.apply(T.apply(T.unpack(rows[i]),cfg),null,cfg),s=S.score(result,cfg);if(points[i].features)assert.equal(S.jointScore(points[i].features,coefficients),s.score);}
  const scored=points.map(p=>({...p,score:p.features?S.jointScore(p.features,coefficients):null}));
  const fit=J.calibrate(scored,60);assert(fit);assert(fit.all.evaluated>=Math.ceil(rows.length*.6));
@@ -27,7 +27,7 @@ const settings={...T.settings(),min:2,max:10};
  // preserve horse weights; weight updates must preserve BOTH screening components.
  const sample=rows.filter((r,i)=>i%3===0),trace=[],opts={settings,method:'local',seconds:600,target:60,balanced:false,from:'20230101',to:'20251231'};
  let steps=0;
- const alternated=await J.create(sample,()=>Promise.resolve()).run(opts,H.create(sample).evaluate,{stopped:()=>steps>=120,progress:p=>{steps=p.count;},onStep:s=>trace.push(structuredClone(s))});
+ const alternated=await J.create(sample,()=>Promise.resolve()).run(opts,H.create(sample).evaluate,{stopped:()=>steps>=150,progress:p=>{steps=p.count;},onStep:s=>trace.push(structuredClone(s))});
  const scopes=new Map();let screeningChanged=false,weightsChanged=false;
  for(const step of trace){
   const key=step.year+'-'+step.target,prior=scopes.get(key);scopes.set(key,step);

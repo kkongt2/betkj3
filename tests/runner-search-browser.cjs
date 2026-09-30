@@ -60,7 +60,7 @@ const {search}=require('../scripts/runner-search.cjs');
   await page.locator('#saveWeightSearch').click();assert((await page.locator('#weightSearchStatus').innerText()).includes('저장'));
   // A legacy joint report has only independently trained validation folds. Import
   // must calculate the fixed winner via the worker, and via the no-worker fallback.
-  report=await search({...payload,seconds:2,joint:true},rows,{runId:'124-1'});assert(report.result.best.joint.fixed);const expected=structuredClone(report.result.best.joint.fixed);delete report.result.best.joint.fixed;
+  report=await search({...payload,seconds:2,joint:true,target:50},rows,{runId:'124-1'});assert(report.result.best.joint.fixed);assert.equal(report.result.best.settings.screening.target,50);const expected=structuredClone(report.result.best.joint.fixed);delete report.result.best.joint.fixed;
   for(const fallback of [false,true]){
    if(fallback){await page.addInitScript(()=>{window.Worker=undefined;});await page.reload();await page.locator('#pairLead .lead-number').waitFor();}
    await page.locator('#refreshRunnerSearch').click();await page.waitForFunction(()=>!document.querySelector('#refreshRunnerSearch').disabled);

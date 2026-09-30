@@ -16,7 +16,7 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
   assert.equal(Presets.config(cfg).betStrategy,betStrategy);
   assert.equal(Runner.request({schema:1,requestId:'test',seconds:60,method:'local',objective:'product',joint:false,balanced:true,parallel:false,target:40,settings:cfg}).settings.betStrategy,betStrategy);
   let count=0;
-  const found=await J.create([row],()=>Promise.resolve()).run({settings:cfg,method:'de',target:40,seconds:60,from:'20230101',to:'20261231'},h.evaluate,{stopped:()=>count>=90,progress:p=>{count=p.count;}});
+  const found=await J.create([row],()=>Promise.resolve()).run({settings:cfg,method:'de',target:40,seconds:60,from:'20230101',to:'20261231'},h.evaluate,{stopped:()=>count>=120,progress:p=>{count=p.count;}});
   assert.equal(found.best.metrics.product,expected);assert.equal(found.best.settings.betStrategy,betStrategy);
   assert.equal(found.best.joint.optimizer,'alternating-v1');assert(found.evolution.generations>0);
  }

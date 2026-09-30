@@ -8,9 +8,10 @@ const RaceSelectionModel=(()=>{
  const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
  const pairKey=a=>a.map(Number).sort((a,b)=>a-b).join('-');
  const JOINT_VERSION='joint-selection-v1';
+ const JOINT_TARGETS=Object.freeze([40,50,60,80]);
  const JOINT_LABELS=['축마 점수 우위','상대마 점수 우위','두 말 점수 차이','출전 두수','축마 전적 충실도','상대마 전적 충실도','마체중 자료 충실도','기수·조교사 자료 충실도','두 말 평균 점수','전체 점수 분산','축마 우위 × 상대마 경합','마체중 점수 × 자료 존재'];
  function jointConfig(s){
-  if(!s||s.version!==JOINT_VERSION||!Array.isArray(s.coefficients)||s.coefficients.length!==JOINT_LABELS.length||!s.coefficients.every(x=>Number.isFinite(x)&&Math.abs(x)<=10)||!s.coefficients.some(x=>x!==0)||!Number.isInteger(s.threshold)||s.threshold<0||s.threshold>100||![40,60,80].includes(s.target))return null;
+  if(!s||s.version!==JOINT_VERSION||!Array.isArray(s.coefficients)||s.coefficients.length!==JOINT_LABELS.length||!s.coefficients.every(x=>Number.isFinite(x)&&Math.abs(x)<=10)||!s.coefficients.some(x=>x!==0)||!Number.isInteger(s.threshold)||s.threshold<0||s.threshold>100||!JOINT_TARGETS.includes(s.target))return null;
   return {version:JOINT_VERSION,coefficients:s.coefficients.slice(),threshold:s.threshold,target:s.target};
  }
  // Only pre-race horse features, support flags and selected horse numbers enter here.
@@ -127,6 +128,6 @@ const RaceSelectionModel=(()=>{
   }
   return {version:VERSION,total:rows.length,eligible,unavailable:rows.length-eligible,points};
  }
- return {VERSION,JOINT_VERSION,JOINT_LABELS,strategyPairs,strategyFeatures,jointConfig,jointFeatures,jointScore,strictness,qualifies,score,metrics,curve};
+ return {VERSION,JOINT_VERSION,JOINT_TARGETS,JOINT_LABELS,strategyPairs,strategyFeatures,jointConfig,jointFeatures,jointScore,strictness,qualifies,score,metrics,curve};
 })();
 if(typeof module!=='undefined')module.exports=RaceSelectionModel;

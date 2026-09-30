@@ -88,10 +88,10 @@ const JointSearchEngine=(()=>{
    return current()?out:null;
   }
   async function run(options,verify,control={}){
-   if(![40,60,80].includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>86400)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
+   if(!S.JOINT_TARGETS.includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>86400)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
    const current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{}),now=control.now||(()=>performance.now());
    const start=now(),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(2);
-   const method=G.method(options.method),targets=[40,60,80],bestByTarget=new Map(),foldBest=new Map();
+   const method=G.method(options.method),targets=S.JOINT_TARGETS,bestByTarget=new Map(),foldBest=new Map();
    const baseSettings={...T.settings(options.settings),min:options.settings.min,max:options.settings.max};delete baseSettings.screening;
    const savedScreen=S.jointConfig(options.settings.screening),initialProfiles=profiles();
    const project=w=>options.balanced?B.project(w):normalize(w);

@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model.js?v=alternating-search-1','tuning-model.js?v=alternating-search-1','qpl-policy.js?v=alternating-search-1','race-selection-model.js?v=alternating-search-1','qpl-history-engine.js?v=alternating-search-1','weight-curve-engine.js?v=alternating-search-1','weight-balance.js?v=alternating-search-1','global-weight-search.js?v=alternating-search-1','weight-search-engine.js?v=alternating-search-1','joint-search-engine.js?v=alternating-search-1','parallel-search.js?v=alternating-search-1');
+importScripts('model.js?v=selection50-1','tuning-model.js?v=selection50-1','qpl-policy.js?v=selection50-1','race-selection-model.js?v=selection50-1','qpl-history-engine.js?v=selection50-1','weight-curve-engine.js?v=selection50-1','weight-balance.js?v=selection50-1','global-weight-search.js?v=selection50-1','weight-search-engine.js?v=selection50-1','joint-search-engine.js?v=selection50-1','parallel-search.js?v=selection50-1');
 let ready=null,latest=0,latestCurve=0,searchId=0,searchStopped=false,searchPool=null;
 async function fetchYear(url){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);
