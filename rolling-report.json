@@ -710,30 +710,30 @@
       },
       "selected": {
         "total": 31,
-        "evaluated": 25,
-        "hits": 0,
-        "excluded": 6,
-        "paidHits": 0,
-        "payoutTotal": 0
+        "evaluated": 31,
+        "hits": 1,
+        "excluded": 0,
+        "paidHits": 1,
+        "payoutTotal": 11.8
       }
     }
   ],
   "selected": {
     "all": {
       "total": 2864,
-      "evaluated": 2727,
-      "hits": 232,
-      "excluded": 137,
-      "paidHits": 232,
-      "payoutTotal": 1923.6000000000001
+      "evaluated": 2733,
+      "hits": 233,
+      "excluded": 131,
+      "paidHits": 233,
+      "payoutTotal": 1935.4
     },
     "metrics": {
-      "rate": 0.08507517418408507,
-      "average": 8.291379310344828,
-      "product": 0.7053905390539054
+      "rate": 0.08525429930479327,
+      "average": 8.306437768240343,
+      "product": 0.7081595316502012
     },
     "maxDrawdown": 849.6999999999999,
-    "netUnits": -803.3999999999999
+    "netUnits": -797.5999999999999
   },
   "recordComparison": [
     {
@@ -864,16 +864,16 @@
     "retrospective": {
       "all": {
         "total": 3904,
-        "evaluated": 3566,
-        "hits": 289,
-        "excluded": 338,
-        "paidHits": 289,
-        "payoutTotal": 3776.8000000000006
+        "evaluated": 3572,
+        "hits": 290,
+        "excluded": 332,
+        "paidHits": 290,
+        "payoutTotal": 3788.600000000001
       },
       "metrics": {
-        "rate": 0.08104318564217611,
-        "average": 13.068512110726646,
-        "product": 1.0591138530566462
+        "rate": 0.08118701007838745,
+        "average": 13.064137931034486,
+        "product": 1.0606382978723405
       }
     }
   },
@@ -884,6 +884,6 @@
     "qpl-history-years/2026.json": "4a8e1ebad99f4ac6592506bf60f73ad39201efa971368245febdd75ed48e80fe"
   },
   "note": "서울 경주만 사용하여 각 분기 직전 3개월로 가중치·학습기간·기록 방식을 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 서울 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 연승확률 분석 순위 기준 사후 재계산입니다. 지급배당은 성과 계산에만 사용합니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다.",
-  "refreshedAt": "2026-10-06T00:14:29.294Z",
+  "refreshedAt": "2026-10-06T06:38:24.131Z",
   "recordComparisonNote": "기록 방식별 비교는 최초 탐색 당시 자료 기준이며, 선택 조합 성적은 현재 자료로 재계산합니다."
 }
