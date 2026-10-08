@@ -44,7 +44,8 @@ const {search}=require('../scripts/runner-search.cjs');
   assert.equal(await minutes.getAttribute('min'),'10');assert.equal(await minutes.getAttribute('max'),'1440');assert.equal(await minutes.getAttribute('step'),'10');assert.equal(await minutes.inputValue(),'10');
   for(const invalid of ['1','9','15','1441','1450']){await minutes.fill(invalid);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('10~1,440분'));}
   await minutes.fill('10');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,600);
-  assert.equal(await page.locator('#runnerSearchDuration option[value="172800"]').count(),0);
+  for(let days=1;days<=7;days++){await page.selectOption('#runnerSearchDuration',String(days*86400));await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,days*86400);}
+  await page.selectOption('#runnerSearchDuration','current');
 
   await page.locator('#weightSearchMinutes').fill('1440');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,86400);
   await page.selectOption('#runnerSearchDuration','86400');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,86400);await page.selectOption('#runnerSearchDuration','current');

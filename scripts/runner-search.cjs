@@ -20,7 +20,7 @@ async function search(request,rows,metadata={}){
  const cap=metadata.segmentSeconds===undefined?SEGMENT_SECONDS:metadata.segmentSeconds;
  const segmentSeconds=nextSegmentSeconds(request.seconds,done,cap),cores=os.availableParallelism?.()||os.cpus().length,workers=request.parallel?Math.min(8,cores):1;
  const priorBest=previous?.result.best||null,runtimeSettings=priorBest?.settings||request.settings;
- const options={...request,seconds:segmentSeconds,settings:runtimeSettings,seeds:[request.settings.weights,...(priorBest?[priorBest.settings.weights]:[])],from:H.PERIOD.from,to:metadata.to||new Date().toISOString().slice(0,10).replaceAll('-',''),searchSeed:crypto.randomBytes(4).readUInt32LE()};
+ const options={...request,seconds:segmentSeconds,settings:runtimeSettings,seeds:[request.settings.weights,...(priorBest?[priorBest.settings.weights]:[])],from:H.PERIOD.from,to:previous?.to||metadata.to||new Date().toISOString().slice(0,10).replaceAll('-',''),searchSeed:crypto.randomBytes(4).readUInt32LE()};
  const pool=P.create({makeWorker:()=>{
   const worker=new Worker(path.join(__dirname,'runner-search-worker.cjs')),adapter={postMessage:m=>worker.postMessage(m),terminate:()=>worker.terminate()};
   worker.on('message',data=>adapter.onmessage?.({data}));worker.on('error',e=>adapter.onerror?.(e));worker.on('exit',code=>{if(code!==0)adapter.onerror?.(Error('Worker exit '+code));});return adapter;

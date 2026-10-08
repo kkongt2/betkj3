@@ -21,7 +21,7 @@ const all={total:100,evaluated:100,hits:25,paidHits:25,payoutTotal:125,excluded:
  const request={schema:1,requestId:'minutes-test',...options,joint:false,parallel:true,method:'de',target:60};
  const report={schema:1,modelVersion:T.VERSION,featureCount:22,request,runId:'1-1',from:options.from,to:options.to,finishedAt:new Date().toISOString(),result:{count:0,elapsed:86400,workers:1,best:null}};
  assert.equal(R.report(report).result.elapsed,86400);assert.throws(()=>R.report({...report,result:{...report.result,elapsed:86401}}));
- assert.equal(R.request({...request,seconds:5}).seconds,5,'old Runner results remain readable');assert.equal(R.request({...request,seconds:86400}).seconds,86400);assert.equal(R.request({...request,seconds:172800}).seconds,172800);assert.throws(()=>R.request({...request,seconds:172801}));
+ assert.equal(R.request({...request,seconds:5}).seconds,5,'old Runner results remain readable');assert.equal(R.request({...request,seconds:86400}).seconds,86400);assert.equal(R.request({...request,seconds:172800}).seconds,172800);assert.throws(()=>R.request({...request,seconds:604801}));
  const {nextSegmentSeconds,SEGMENT_SECONDS}=require('../scripts/runner-search.cjs');
  assert.equal(SEGMENT_SECONDS,18000);
  for(let minutes=10;minutes<=1440;minutes+=10){
@@ -31,7 +31,10 @@ const all={total:100,evaluated:100,hits:25,paidHits:25,payoutTotal:125,excluded:
   assert.equal(nextSegmentSeconds(minutes*60,elapsed),0);
   if(minutes===1440)assert.deepEqual(chunks,[300,300,300,300,240]);
  }
+ for(let days=1;days<=7;days++){const total=days*86400;assert.equal(R.request({...request,seconds:total}).seconds,total);let elapsed=0,count=0;while(elapsed<total){elapsed+=nextSegmentSeconds(total,elapsed);count++;}assert.equal(elapsed,total);assert.equal(count,Math.ceil(total/18000));if(days===7)assert.equal(count,34);}
  assert.throws(()=>nextSegmentSeconds(86400,0,21600));
  const workflow=fs.readFileSync('.github/workflows/runner-search.yml','utf8'),timeout=+workflow.match(/timeout-minutes: (\d+)/)[1];assert.equal(timeout,330);for(let i=2;i<=5;i++){assert(workflow.includes('search'+i+':'));assert(workflow.includes('fromJSON(inputs.request).seconds > '+((i-1)*18000)));}assert(workflow.includes('search10:'));assert(workflow.includes('fromJSON(inputs.request).seconds > 162000'));assert(workflow.includes('runner-search-state-10'));
- console.log('PASS 1440-minute local deadlines, 24-hour coordinator timers, 1/2-day Runner chaining, legacy results and job timeout headroom');
+ assert(!/^concurrency:/m.test(workflow));for(let i=2;i<=34;i++){assert(workflow.includes('needs: search'+(i-1)));assert(workflow.includes('fromJSON(inputs.request).seconds > '+((i-1)*18000)));assert(workflow.includes('name: runner-search-state-'+i));}assert(workflow.includes('retention-days: 14'));
+ for(let i=2;i<=34;i++){const block=workflow.split('  search'+i+':\n')[1].split(i===34?'  publish:':'  search'+(i+1)+':')[0];assert(block.includes('name: runner-search-state-'+(i-1)+'\n          path: _runner-prev'));assert(block.includes('name: runner-search-state-'+i+'\n          path: _runner-out/result.json'));}
+ console.log('PASS 1440-minute local deadlines, 24-hour coordinator timers, 1–7-day independent Runner chaining, legacy results and job timeout headroom');
 })().catch(e=>{console.error(e);process.exitCode=1;});

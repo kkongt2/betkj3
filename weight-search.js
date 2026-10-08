@@ -26,7 +26,7 @@ const WeightSearch=(()=>{
   let token=0,busy=false,snapshot='',best=null;
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
   const options=()=>{const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<10||minutes>1440||minutes%10!==0)throw Error('탐색 시간은 10~1,440분 범위에서 10분 단위로 입력하세요.');return {seconds:minutes*60,minHitRate:readMinHitRate(),parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value};};
-  const runnerOptions=()=>{const out=options(),choice=runnerDuration?.value||'current';if(choice==='current')return out;const seconds=Number(choice);if(![86400].includes(seconds))throw Error('Runner 탐색 시간을 확인해 주세요.');return {...out,seconds};};
+  const runnerOptions=()=>{const out=options(),choice=runnerDuration?.value||'current';if(choice==='current')return out;const seconds=Number(choice);if(!Number.isInteger(seconds)||seconds<86400||seconds>604800||seconds%86400!==0)throw Error('Runner 탐색 시간을 확인해 주세요.');return {...out,seconds};};
   const runner=RunnerSearchPanel.init({options:runnerOptions,canPrepare:()=>!busy,receive:async report=>{
    invalidate('현재 최고 조합의 연도별 성적을 재계산 중…');const id=++token,o=report.request;let out=report.result;
    busy=true;snapshot=key();buttons();stop.disabled=true;api.pause(true);

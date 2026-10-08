@@ -3,7 +3,7 @@ const RunnerSearchContract=(()=>{
  const T=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const S=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
  const H=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
- const MAX_RUNNER_SECONDS=172800;
+ const MAX_RUNNER_SECONDS=604800;
  const fail=()=>{throw Error('Runner 탐색 자료 형식 또는 범위를 확인해 주세요.');};
  function settings(s){
   if(!s||!T.validWeights(s.weights)||s.weights.length!==T.FEATURES.length||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)fail();
