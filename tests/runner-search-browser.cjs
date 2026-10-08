@@ -36,6 +36,10 @@ const {search}=require('../scripts/runner-search.cjs');
    return route.abort();
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
+  const floor=page.locator('#weightSearchMinHitRate');assert.equal(await floor.inputValue(),'15');
+  for(const invalid of ['', '-1','100.1','12.55']){await floor.fill(invalid);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('최저 적중률'));}
+  await floor.fill('12.5');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).minHitRate,12.5);
+  await page.reload();await page.locator('#pairLead .lead-number').waitFor();assert.equal(await floor.inputValue(),'12.5');
   const minutes=page.locator('#weightSearchMinutes');
   assert.equal(await minutes.getAttribute('min'),'10');assert.equal(await minutes.getAttribute('max'),'1440');assert.equal(await minutes.getAttribute('step'),'10');assert.equal(await minutes.inputValue(),'10');
   for(const invalid of ['1','9','15','1441','1450']){await minutes.fill(invalid);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('10~1,440분'));}

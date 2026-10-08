@@ -5,6 +5,7 @@ const m=JSON.parse(fs.readFileSync('qpl-history.json'));
 const rows=m.shards.filter(s=>s.url.includes('2023')||s.url.includes('2024')||s.url.includes('2025')).flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows.slice(0,240));
 const settings={...T.settings(),min:2,max:10};
 (async()=>{
+ for(const minHitRate of [0,100]){let count=0;const out=await J.create(rows).run({settings,seconds:30,target:60,balanced:false,minHitRate,from:'20230101',to:'20251231'},H.create(rows).evaluate,{stopped:()=>count>=3,progress:p=>{count=p.count;}});if(minHitRate===0)assert(out.best);else assert.equal(out.best,null);}
  const e=J.create(rows),points=await e.evaluate(settings,'20230101','20251231');
  const coefficients=J.profiles()[1],screening={version:S.JOINT_VERSION,coefficients,threshold:50,target:50},cfg={...settings,screening};
  for(let i=0;i<rows.length;i+=17){const result=P.apply(T.apply(T.unpack(rows[i]),cfg),null,cfg),s=S.score(result,cfg);if(points[i].features)assert.equal(S.jointScore(points[i].features,coefficients),s.score);}

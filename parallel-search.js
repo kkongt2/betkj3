@@ -32,10 +32,12 @@ const ParallelSearch=(()=>{
   const exact=options.joint?g.screening.points[b.settings.screening.threshold]:g.all;
   for(const k of ['total','evaluated','hits','paidHits'])if(exact[k]!==b.all[k])throw Error('병렬 탐색 결과 검산 불일치');
   if(Math.abs(exact.payoutTotal-b.all.payoutTotal)>1e-7)throw Error('병렬 탐색 배당 검산 불일치');
+  const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
+  if(!exact.evaluated||exact.hits!==exact.paidHits||exact.hits*1000<exact.evaluated*Math.round(minHitRate*10))throw Error('최저 적중률 조건 검산 실패');
   b.all=exact;b.metrics=H.metrics(exact);if(options.joint&&b.joint)b.joint.fixed=g.fixedSelection;if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=selection50-1'),now=()=>performance.now()}={}){
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=min-hit-rate-1'),now=()=>performance.now()}={}){
   let states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}

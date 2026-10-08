@@ -133,7 +133,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=selection50-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=min-hit-rate-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2023년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
@@ -186,7 +186,7 @@ async function runWeightSearch(options,progress){
 }
 async function recalculateRunnerSearch(report){
  if(!qplHistory)throw Error('과거 경주 자료를 불러온 후 다시 시도해 주세요.');
- const id=++searchRequest,options={joint:true,from:report.from,to:report.to};
+ const id=++searchRequest,options={joint:true,minHitRate:report.request.minHitRate??15,from:report.from,to:report.to};
  if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress:()=>{}};historyWorker.postMessage({type:'recalculate-search',searchId:id,options,result:report.result});});
  await getHistoryEngines();if(id!==searchRequest)return null;
  return ParallelSearch.verify(report.result,options,historyEngine.evaluate,()=>id===searchRequest);

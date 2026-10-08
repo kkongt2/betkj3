@@ -15,6 +15,12 @@ const group=(hits,payoutTotal,evaluated=100,total=100)=>({total,evaluated,hits,e
  clock=0;await assert.rejects(S.run({settings,seconds:1,objective:'rate'},async()=>{clock=1001;return {all:group(25,125)};},async()=>({all:group(26,130)}),{now:()=>clock}),/일치/);
  await assert.rejects(S.run({settings,seconds:0,objective:'rate'},()=>{},()=>{}),/1,440분/);
  assert(!S.eligible({...group(20,100),paidHits:19}));assert(S.eligible(group(6,30,40,100)));assert(!S.eligible(group(5,30,40,100)));
+ for(const minHitRate of [0,10,12.5,15,20,100]){
+  let clock=0;const all=group(125,500,1000,1000);
+  const out=await S.run({settings,seconds:1,objective:'product',minHitRate},async()=>{clock=1001;return {all};},async()=>({all}),{now:()=>clock});
+  assert.equal(!!out.best,minHitRate<=12.5);
+ }
+ for(const minHitRate of [-1,100.1,12.55,null,'10',NaN])await assert.rejects(S.run({settings,seconds:1,objective:'product',minHitRate},()=>{},()=>{}),/최저 적중률/);
  assert.deepEqual(S.normalize(Array(17).fill(1)).reduce((a,b)=>a+b),100);
  console.log('PASS search goals, exact verification, balanced/free integer weights, 15% hit/40% coverage boundaries, incomplete payout rejection, deadline, stop and abort');
  if(process.argv.includes('--archive')){

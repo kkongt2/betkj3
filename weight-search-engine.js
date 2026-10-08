@@ -6,12 +6,14 @@ const WeightSearchEngine=(()=>{
  const globalSearch=typeof module!=='undefined'?require('./global-weight-search.js'):GlobalWeightSearch;
  const objectives=['rate','average','product'];
  function normalize(w){const sum=w.reduce((a,b)=>a+b,0)||1,raw=w.map(x=>x*100/sum),out=raw.map(Math.floor);for(const i of raw.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])||a-b).slice(0,100-out.reduce((a,b)=>a+b,0)))out[i]++;return out;}
- function eligible(g){return g.total>0&&g.evaluated>=Math.ceil(g.total*.4)&&g.hits*20>=g.evaluated*3&&g.hits===g.paidHits;}
+ function eligible(g,minHitRate=15){return g.total>0&&g.evaluated>0&&g.evaluated>=Math.ceil(g.total*.4)&&g.hits*1000>=g.evaluated*Math.round(minHitRate*10)&&g.hits===g.paidHits;}
  function better(a,b,objective){return !b||a.metrics[objective]>b.metrics[objective]||a.metrics[objective]===b.metrics[objective]&&(a.metrics.product>b.metrics.product||a.metrics.product===b.metrics.product&&a.all.evaluated>b.all.evaluated);}
  async function run(options,fast,verify,control={}){
   const now=control.now||(()=>performance.now()),random=control.random||(options.searchSeed===undefined?Math.random:globalSearch.rng(options.searchSeed)),current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{});
   if(!objectives.includes(options.objective))throw Error('탐색 목표를 확인해 주세요.');
   if(!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>86400)throw Error('탐색 시간은 1~86,400초(최대 1,440분) 정수로 입력하세요.');
+  const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
+  if(!Number.isFinite(minHitRate)||minHitRate<0||minHitRate>100||Math.abs(minHitRate*10-Math.round(minHitRate*10))>1e-8)throw Error('최저 적중률은 0~100% 범위에서 0.1% 단위로 입력하세요.');
   const settings={...options.settings,...tuning.settings(options.settings)},balanced=options.balanced!==false,project=w=>balanced?(balance.valid(w)?w.slice():balance.project(w)):normalize(w),objective=options.objective;
   const method=globalSearch.method(options.method);
   delete settings.screening;
@@ -31,9 +33,9 @@ const WeightSearchEngine=(()=>{
    }
    const key=weights.join(',');if(seen.has(key)){await yieldTask();continue;}seen.add(key);
    const config={...settings,weights},result=await fast(config,options.from,options.to,active);if(!current())return null;
-   if(evolution){if(!result)break;evolution.tell(eligible(result.all)?history.metrics(result.all)[objective]:-Infinity);}
+   if(evolution){if(!result)break;evolution.tell(eligible(result.all,minHitRate)?history.metrics(result.all)[objective]:-Infinity);}
    if(result){count++;const candidate={settings:config,all:result.all,metrics:history.metrics(result.all)};
-    if(eligible(candidate.all)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective))best=candidate;elite.push(candidate);elite.sort((a,b)=>better(a,b,objective)?-1:better(b,a,objective)?1:0);elite.length=Math.min(elite.length,8);}
+    if(eligible(candidate.all,minHitRate)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective))best=candidate;elite.push(candidate);elite.sort((a,b)=>better(a,b,objective)?-1:better(b,a,objective)?1:0);elite.length=Math.min(elite.length,8);}
    }
    if(now()-lastProgress>=200)report('searching');
    await yieldTask();
@@ -42,7 +44,7 @@ const WeightSearchEngine=(()=>{
   const elapsed=Math.min(options.seconds,(now()-started)/1000),wasStopped=stopped();
   if(best){report('verifying');const groups=await verify(best.settings,options.from,options.to,current);if(!current()||!groups)return null;
    const metrics=history.metrics(groups.all);for(const k of ['total','evaluated','hits','paidHits'])if(groups.all[k]!==best.all[k])throw Error('탐색·검산 통계가 일치하지 않습니다. 결과를 적용하지 않았습니다.');
-   if(Math.abs(groups.all.payoutTotal-best.all.payoutTotal)>1e-7||!eligible(groups.all))throw Error('최고 후보 검산에 실패했습니다.');
+   if(Math.abs(groups.all.payoutTotal-best.all.payoutTotal)>1e-7||!eligible(groups.all,minHitRate))throw Error('최고 후보 검산에 실패했습니다.');
    best={settings:best.settings,all:groups.all,metrics,comparison:groups.comparison};
   }
   return {best,count,elapsed,stopped:wasStopped,objective,balanced,method,evolution:evolution?.stats()};

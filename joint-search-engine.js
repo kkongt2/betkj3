@@ -18,7 +18,7 @@ const JointSearchEngine=(()=>{
   for(let threshold=99;threshold>=0;threshold--){for(const k of ['evaluated','hits','paidHits','payoutTotal'])g[k]+=bins[threshold][k];if(g.evaluated>=needed){g.excluded=g.total-g.evaluated;return {threshold,all:g};}}
   return null;
  }
- function eligible(g){return g.evaluated>0&&g.hits===g.paidHits&&g.hits/g.evaluated>=.15;}
+ function eligible(g,minHitRate=15){return g.evaluated>0&&g.hits===g.paidHits&&g.hits*1000>=g.evaluated*Math.round(minHitRate*10);}
  function better(a,b){return !b||a.metrics.product>b.metrics.product+1e-12||Math.abs(a.metrics.product-b.metrics.product)<=1e-12&&a.all.evaluated>b.all.evaluated;}
  function rng(seed){let x=seed>>>0;return ()=>{x=(Math.imul(1664525,x)+1013904223)>>>0;return x/4294967296;};}
  function normalize(w){const sum=w.reduce((s,x)=>s+x,0)||1,raw=w.map(x=>100*x/sum),out=raw.map(Math.floor);for(const i of raw.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])||a-b).slice(0,100-out.reduce((s,x)=>s+x,0)))out[i]++;return out;}
@@ -88,6 +88,8 @@ const JointSearchEngine=(()=>{
    return current()?out:null;
   }
   async function run(options,verify,control={}){
+   const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
+   if(!Number.isFinite(minHitRate)||minHitRate<0||minHitRate>100||Math.abs(minHitRate*10-Math.round(minHitRate*10))>1e-8)throw Error('최저 적중률은 0~100% 범위에서 0.1% 단위로 입력하세요.');
    if(!S.JOINT_TARGETS.includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>86400)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
    const current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{}),now=control.now||(()=>performance.now());
    const start=now(),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(2);
@@ -114,9 +116,9 @@ const JointSearchEngine=(()=>{
    }
    function accept(scope,c,points){
     if(!c)return;
-    const valid=eligible(c.all),old=scope.incumbent;
+    const valid=eligible(c.all,minHitRate),old=scope.incumbent;
     // An ineligible seed can guide exploration until a qualifying candidate exists.
-    if(!old||valid&&!eligible(old.all)||valid===eligible(old.all)&&better(c,old)){scope.incumbent=c;scope.weights=c.settings.weights;scope.points=points;}
+    if(!old||valid&&!eligible(old.all,minHitRate)||valid===eligible(old.all,minHitRate)&&better(c,old)){scope.incumbent=c;scope.weights=c.settings.weights;scope.points=points;}
     if(valid){const map=scope.year?foldBest:bestByTarget,key=scope.year||scope.target;if(better(c,map.get(key)))map.set(key,c);}
    }
    function startWeights(scope){
@@ -154,7 +156,7 @@ const JointSearchEngine=(()=>{
      if(weights){
       const points=await evaluate({...baseSettings,weights},options.from,trainTo,active);if(!points)break;
       const c=candidate(scope,points,weights,scope.fixedScreen.coefficients,scope.fixedScreen.threshold);
-      if(scope.search)scope.search.tell(c&&eligible(c.all)?c.metrics.product:-Infinity);
+      if(scope.search)scope.search.tell(c&&eligible(c.all,minHitRate)?c.metrics.product:-Infinity);
       accept(scope,c,points);
      }
      if(!weights||++scope.weightSteps>=24){scope.phase='screening';scope.rounds++;}
