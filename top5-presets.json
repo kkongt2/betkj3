@@ -72,10 +72,10 @@
       }
     ]
   },
-  "generatedAt": "2026-10-10T02:32:52+09:00",
+  "generatedAt": "2026-10-10T13:28:01+09:00",
   "from": "20230107",
   "to": "20261011",
-  "sourceRaces": 3925,
+  "sourceRaces": 3924,
   "minimumCoverageRatio": 0.4,
   "minimumEvaluated": 1570,
   "presets": [
@@ -114,10 +114,10 @@
         "max": 8
       },
       "all": {
-        "total": 3925,
-        "evaluated": 3903,
+        "total": 3924,
+        "evaluated": 3905,
         "hits": 797,
-        "excluded": 22,
+        "excluded": 19,
         "paidHits": 797,
         "payoutTotal": 3066.0999999999963
       },
@@ -147,18 +147,18 @@
           "payoutTotal": 774.1000000000008
         },
         "2026": {
-          "total": 811,
-          "evaluated": 790,
+          "total": 810,
+          "evaluated": 792,
           "hits": 163,
-          "excluded": 21,
+          "excluded": 18,
           "paidHits": 163,
           "payoutTotal": 603.6000000000003
         }
       },
       "metrics": {
-        "rate": 0.20420189597745325,
+        "rate": 0.20409731113956467,
         "average": 3.847051442910911,
-        "product": 0.7855751985652053
+        "product": 0.7851728553136994
       },
       "weightSummary": {
         "minimum": 0,
@@ -202,7 +202,7 @@
           }
         ]
       },
-      "coverage": 0.9943949044585987
+      "coverage": 0.995158002038736
     }
   ],
   "note": "기존 프리셋 가중치를 유지하고 2023년 이후 자료로 성적을 재계산했습니다. 2022년은 전적 참조와 척도 설정에만 사용하며 2021년은 제외합니다. 새 가중치는 0%로 추가하며 재탐색 결과가 아닙니다."
