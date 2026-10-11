@@ -72,7 +72,7 @@
       }
     ]
   },
-  "generatedAt": "2026-10-11T19:53:10+09:00",
+  "generatedAt": "2026-10-12T01:33:51+09:00",
   "from": "20230107",
   "to": "20261011",
   "sourceRaces": 3924,
@@ -116,10 +116,10 @@
       "all": {
         "total": 3924,
         "evaluated": 3923,
-        "hits": 800,
+        "hits": 802,
         "excluded": 1,
-        "paidHits": 800,
-        "payoutTotal": 3076.1999999999957
+        "paidHits": 802,
+        "payoutTotal": 3082.599999999996
       },
       "years": {
         "2023": {
@@ -149,16 +149,16 @@
         "2026": {
           "total": 810,
           "evaluated": 810,
-          "hits": 166,
+          "hits": 168,
           "excluded": 0,
-          "paidHits": 166,
-          "payoutTotal": 613.7000000000004
+          "paidHits": 168,
+          "payoutTotal": 620.1000000000004
         }
       },
       "metrics": {
-        "rate": 0.20392556716798368,
-        "average": 3.8452499999999947,
-        "product": 0.7841447871526882
+        "rate": 0.20443538108590364,
+        "average": 3.8436408977556056,
+        "product": 0.785776191690032
       },
       "weightSummary": {
         "minimum": 0,
