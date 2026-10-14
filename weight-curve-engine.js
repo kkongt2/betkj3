@@ -3,6 +3,7 @@ const WeightCurveEngine=(()=>{
  const tuning=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
  const history=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
+ const searchPolicy=typeof module!=='undefined'?require('./search-policy.js'):SearchPolicy;
  const pairKey=ns=>ns.slice().sort((a,b)=>a-b).join('-');
  function prepare(row){
   const field=row.horses.filter(h=>!Array.isArray(row.starters)||row.starters.map(Number).includes(+h[0])).slice().sort((a,b)=>a[0]-b[0]);
@@ -58,18 +59,19 @@ const WeightCurveEngine=(()=>{
   }
   async function evaluate(options,from,to,isCurrent=()=>true){
    if(options.betStrategy&&options.betStrategy!=='qpl-single'){
-    const result=await multiHistory.evaluate(options,from,to,isCurrent);return result?{all:result.all,metrics:history.metrics(result.all)}:null;
+    const result=await multiHistory.evaluate(options,from,to,isCurrent);return result?{all:result.all,metrics:history.metrics(result.all),...(result.training?{training:result.training}:{})}:null;
    }
-   const settings={...tuning.settings(options),...policy.normalizeRange(options)},total=settings.weights.reduce((a,b)=>a+b,0),g={total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0};
+   const settings={...tuning.settings(options),...policy.normalizeRange(options)},total=settings.weights.reduce((a,b)=>a+b,0),g={total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0},training=searchPolicy.create(options.fitness);
    for(let ri=0;ri<entries.length;ri++){
     if(ri%128===127)await yieldTask();
-    if(!isCurrent())return null;const entry=entries[ri];if(entry.row.date<from||entry.row.date>to)continue;g.total++;
+    if(!isCurrent())return null;const entry=entries[ri];if(entry.row.date<from||entry.row.date>to)continue;g.total++;training?.touch(entry.row.date);
     if(!entry.valid||entry.field.length<settings.min||entry.field.length<settings.anchorRank){g.excluded++;continue;}
     const values=entry.features.map(f=>f.reduce((sum,x,j)=>sum+x*settings.weights[j],0));
     const selected=pick(entry,settings,values,total);if(selected===null){g.excluded++;continue;}g.evaluated++;
     if(entry.winning.has(selected)){g.hits++;const amount=entry.winning.get(selected);if(Number.isFinite(amount)&&amount>=1){g.paidHits++;g.payoutTotal+=amount;}}
+    training?.bet(entry.row.date,entry.winning.has(selected),entry.winning.get(selected));
    }
-   return isCurrent()?{all:g,metrics:history.metrics(g)}:null;
+   return isCurrent()?{all:g,metrics:history.metrics(g),...(training?{training:training.finish(options.searchObjective||'product')}:{})}:null;
   }
   return {curve,evaluate};
  }

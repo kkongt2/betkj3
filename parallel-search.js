@@ -2,6 +2,7 @@
 const ParallelSearch=(()=>{
  const W=typeof module!=='undefined'?require('./weight-search-engine.js'):WeightSearchEngine;
  const H=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
+ const Policy=typeof module!=='undefined'?require('./search-policy.js'):SearchPolicy;
  const S=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
  function workers(options={}){
   if(options.parallel===false)return 1;
@@ -17,33 +18,35 @@ const ParallelSearch=(()=>{
   if(best){best={...best};if(options.joint){
    const folds=new Map(),ratios=new Map();
    for(const x of valid)if(x.best?.joint){
-    for(const f of x.best.joint.validation.folds){const prior=folds.get(f.year);if(!prior||f.train.product>prior.train.product||f.train.product===prior.train.product&&f.train.evaluated>prior.train.evaluated)folds.set(f.year,f);}
-    for(const r of x.best.joint.ratios){const prior=ratios.get(r.target);if(r.product!==null&&(!prior||r.product>prior.product))ratios.set(r.target,r);}
+    for(const f of x.best.joint.validation.folds){const prior=folds.get(f.year);if(!prior||(f.train.searchScore??f.train.product)>(prior.train.searchScore??prior.train.product)||(f.train.searchScore??f.train.product)===(prior.train.searchScore??prior.train.product)&&f.train.evaluated>prior.train.evaluated)folds.set(f.year,f);}
+    for(const r of x.best.joint.ratios){const prior=ratios.get(r.target);if(r.product!==null&&(!prior||(r.searchScore??r.product)>(prior.searchScore??prior.product)))ratios.set(r.target,r);}
    }
    const all={total:0,evaluated:0,hits:0,paidHits:0,payoutTotal:0,excluded:0};for(const f of folds.values())for(const k of Object.keys(all))all[k]+=f.test[k];
-   const target=options.target;ratios.set(target,{target,...best.all,...best.metrics,ratio:best.all.total?best.all.evaluated/best.all.total:null});
+   const target=options.target;ratios.set(target,{target,...best.all,...best.metrics,searchScore:Policy.value(best,objective),ratio:best.all.total?best.all.evaluated/best.all.total:null});
    best.joint={optimizer:best.joint?.optimizer,fixed:best.joint?.fixed||null,method:options.method||'local',target,modelLabels:S.JOINT_LABELS,ratios:S.JOINT_TARGETS.map(target=>ratios.get(target)||{target,product:null,ratio:null}),validation:{folds:[...folds.values()].sort((a,b)=>a.year.localeCompare(b.year)),all,metrics:H.metrics(all)}};
   }}
-  return {best,count:valid.reduce((n,x)=>n+x.count,0),elapsed:Math.max(0,...valid.map(x=>x.elapsed||0)),stopped:valid.some(x=>x.stopped),objective,balanced:!!options.balanced,method:options.method||'local'};
+  const pool=Policy.pool([best,...valid.flatMap(x=>[x.best,...(x.pool||[])])],objective);
+  return {best,pool,count:valid.reduce((n,x)=>n+x.count,0),elapsed:Math.max(0,...valid.map(x=>x.elapsed||0)),stopped:valid.some(x=>x.stopped),objective,balanced:!!options.balanced,method:options.method||'local'};
  }
  async function verify(result,options,evaluate,current){
   if(!result?.best)return result;
-  const b=result.best,g=await evaluate({...b.settings,includeScreening:!!options.joint},options.from,options.to,current);if(!g||!current())return null;
+  const b=result.best,g=await evaluate({...b.settings,includeScreening:!!options.joint,...(options.fitness?{fitness:options.fitness,searchObjective:options.objective||'product'}:{})},options.from,options.to,current);if(!g||!current())return null;
   const exact=options.joint?g.screening.points[b.settings.screening.threshold]:g.all;
   for(const k of ['total','evaluated','hits','paidHits'])if(!options.migrated&&exact[k]!==b.all[k])throw Error('병렬 탐색 결과 검산 불일치');
   if(!options.migrated&&Math.abs(exact.payoutTotal-b.all.payoutTotal)>1e-7)throw Error('병렬 탐색 배당 검산 불일치');
   const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
   if(!exact.evaluated||exact.hits!==exact.paidHits||(!options.migrated&&exact.hits*1000<exact.evaluated*Math.round(minHitRate*10)))throw Error('최저 적중률 조건 검산 실패');
+  if(options.fitness){if(!g.training||Math.abs(g.training.score-b.training.score)>1e-7)throw Error('안정성 탐색 점수 검산 불일치');b.training=g.training;}
   b.migrated=options.migrated===true;b.all=exact;b.metrics=H.metrics(exact);if(options.joint&&b.joint)b.joint.fixed=g.fixedSelection;if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=pace21-1'),now=()=>performance.now()}={}){
-  let states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=search-robust-1'),now=()=>performance.now()}={}){
+  let emittedAt=-Infinity,states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}
   const live=()=>states.filter(s=>!s.failed).length;
   const elapsed=()=>started===null?0:Math.min(options.seconds,(now()-started)/1000);
-  function emit(){if(settled)return;const merged=merge(states.map(s=>s.result||s.latest),options);progress({...merged,phase:started===null?'preparing':states.every(s=>s.done||s.latest?.phase==='verifying')?'verifying':'searching',seconds:options.seconds,elapsed:elapsed(),workers:live(),failedWorkers:states.filter(s=>s.failed).length});}
+  function emit(force=false){if(settled||!force&&now()-emittedAt<200)return;emittedAt=now();const merged=merge(states.map(s=>s.result||s.latest),options);progress({...merged,phase:started===null?'preparing':states.every(s=>s.done||s.latest?.phase==='verifying')?'verifying':'searching',seconds:options.seconds,elapsed:elapsed(),workers:live(),failedWorkers:states.filter(s=>s.failed).length});}
   function complete(){
    if(!states.every(s=>s.done))return;
    const results=states.map(s=>s.result||s.latest),out=merge(results,options);
@@ -57,13 +60,19 @@ const ParallelSearch=(()=>{
    // Keep the last completed candidate if a worker stops responding.
    clearTimeout(finishTimer);finishTimer=setTimeout(()=>{for(const s of states)if(!s.done){s.done=true;s.failed=true;}complete();},15000);
   }
+  let migrationAt=0;const migrants=new Set();
+  function migrate(){if(started===null||now()-migrationAt<10000)return;migrationAt=now();
+   const candidates=Policy.pool(states.flatMap(s=>[s.latest?.best,...(s.result?.pool||[])]),options.joint?'product':options.objective);
+   const fresh=candidates.filter(c=>!migrants.has(JSON.stringify(c.settings)));for(const c of fresh)migrants.add(JSON.stringify(c.settings));
+   if(migrants.size>512)migrants.clear();if(fresh.length)for(const s of states)if(!s.done)s.worker.postMessage({type:'migrate',candidates:fresh.map(c=>({settings:c.settings}))});
+  }
   function begin(){
    if(settled||started!==null||!states.every(s=>s.ready||s.done))return;
    if(!live()){complete();return;}
    clearTimeout(prepareTimer);started=now();
    for(const s of states)if(!s.done)s.worker.postMessage({type:'start'});
    timer=setTimeout(()=>{for(const s of states)if(!s.done)s.worker.postMessage({type:'stop'});finishTimer=setTimeout(()=>{for(const s of states)if(!s.done){s.done=true;s.failed=true;}complete();},15000);},options.seconds*1000);
-   emit();
+   emit(true);
   }
   function fail(s){if(settled||s.done)return;s.failed=true;s.done=true;s.worker?.terminate();if(started===null)begin();else{emit();complete();}}
   function run(rows,input,count,onProgress){
@@ -75,7 +84,7 @@ const ParallelSearch=(()=>{
     prepareTimer=setTimeout(()=>{for(const s of states)if(!s.ready)fail(s);},20000);
     for(const s of states){try{
      s.worker=makeWorker();s.worker.onerror=e=>{e.preventDefault?.();fail(s);};s.worker.onmessageerror=()=>fail(s);
-     s.worker.onmessage=({data:m})=>{if(settled||s.done)return;if(m.type==='ready'){s.ready=true;begin();}else if(m.type==='progress'){s.latest=m.progress;emit();}else if(m.type==='result'){s.result=m.result;s.done=true;s.worker.terminate();emit();complete();}else if(m.type==='error')fail(s);};
+     s.worker.onmessage=({data:m})=>{if(settled||s.done)return;if(m.type==='ready'){s.ready=true;begin();}else if(m.type==='progress'){s.latest=m.progress;migrate();emit();}else if(m.type==='result'){s.result=m.result;s.done=true;s.worker.terminate();emit();complete();}else if(m.type==='error')fail(s);};
      s.worker.postMessage({type:'init',rows:data,options:{...options,island:s.index,searchSeed:(base+Math.imul(s.index,2654435761))>>>0}});
     }catch{fail(s);}}
     emit();

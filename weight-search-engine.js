@@ -4,10 +4,11 @@ const WeightSearchEngine=(()=>{
  const balance=typeof module!=='undefined'?require('./weight-balance.js'):WeightBalance;
  const history=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
  const globalSearch=typeof module!=='undefined'?require('./global-weight-search.js'):GlobalWeightSearch;
+ const P=typeof module!=='undefined'?require('./search-policy.js'):SearchPolicy;
  const objectives=['rate','average','product'];
  const normalize=w=>tuning.normalizeActive(w);
  function eligible(g,minHitRate=15){return g.total>0&&g.evaluated>0&&g.evaluated>=Math.ceil(g.total*.4)&&g.hits*1000>=g.evaluated*Math.round(minHitRate*10)&&g.hits===g.paidHits;}
- function better(a,b,objective){return !b||a.metrics[objective]>b.metrics[objective]||a.metrics[objective]===b.metrics[objective]&&(a.metrics.product>b.metrics.product||a.metrics.product===b.metrics.product&&a.all.evaluated>b.all.evaluated);}
+ function better(a,b,objective){return !b||P.value(a,objective)>P.value(b,objective)||P.value(a,objective)===P.value(b,objective)&&(a.metrics.product>b.metrics.product||a.metrics.product===b.metrics.product&&a.all.evaluated>b.all.evaluated);}
  async function run(options,fast,verify,control={}){
   const now=control.now||(()=>performance.now()),random=control.random||(options.searchSeed===undefined?Math.random:globalSearch.rng(options.searchSeed)),current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{});
   if(!objectives.includes(options.objective))throw Error('탐색 목표를 확인해 주세요.');
@@ -15,27 +16,29 @@ const WeightSearchEngine=(()=>{
   const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
   if(!Number.isFinite(minHitRate)||minHitRate<0||minHitRate>100||Math.abs(minHitRate*10-Math.round(minHitRate*10))>1e-8)throw Error('최저 적중률은 0~100% 범위에서 0.1% 단위로 입력하세요.');
   const settings={...options.settings,...tuning.settings(options.settings)},balanced=options.balanced!==false,project=w=>balanced?(balance.valid(w)?w.slice():balance.project(w)):normalize(w),objective=options.objective;
-  const method=globalSearch.method(options.method);
+  const fitness=P.config(options.fitness),method=globalSearch.method(options.method);
   delete settings.screening;
   const yieldTask=control.yieldTask||(()=>new Promise(r=>setTimeout(r,0)));
-  const seeds=(options.island>0?[]:[settings.weights,tuning.defaults(),...(options.seeds||[]).filter(tuning.validWeights).map(w=>tuning.settings({weights:w}).weights)]).map(project),seen=new Set(),elite=[];
-  const evolution=method==='de'?globalSearch.create({seeds,balanced,random}):null;
+  const supplied=(options.seeds||[]).filter(tuning.validWeights).map(w=>tuning.settings({weights:w}).weights),offset=(options.island||0)*2;
+  const seeds=[...(options.island>0?[]:[settings.weights,tuning.defaults()]),...supplied.slice(offset%Math.max(1,supplied.length)).concat(supplied.slice(0,offset%Math.max(1,supplied.length))).slice(0,fitness?8:2)].map(project),seen=new Set();let elite=[],stale=0;
+  const evolution=method==='de'?globalSearch.create({seeds,balanced,random,surrogate:!!fitness}):null;
   let best=null,count=0,lastProgress=-Infinity;const started=now(),deadline=started+options.seconds*1000;
   const active=()=>current()&&!stopped()&&now()<deadline;
   const report=phase=>{lastProgress=now();progress({phase,count,best,method,evolution:evolution?.stats(),elapsed:Math.min(options.seconds,(now()-started)/1000),seconds:options.seconds});};
   report('searching');
   while(active()){
+   const migrants=(control.migrants?.()||[]).map(c=>c.settings?.weights).filter(tuning.validWeights).map(project);if(evolution)evolution.inject(migrants);else seeds.push(...migrants);
    let weights=evolution?evolution.ask():seeds.shift();
    if(evolution&&!weights)break;
    if(!weights){
-    if(elite.length&&random()<.8){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=tuning.ACTIVE[Math.floor(random()*tuning.ACTIVE.length)],b=tuning.ACTIVE[Math.floor(random()*tuning.ACTIVE.length)],amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
+    if(elite.length&&random()<(fitness&&stale>64?.5:.8)){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=tuning.ACTIVE[Math.floor(random()*tuning.ACTIVE.length)],b=tuning.ACTIVE[Math.floor(random()*tuning.ACTIVE.length)],amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
     else weights=project(Array.from({length:tuning.FEATURES.length},()=>Math.pow(random(),3)*100));
    }
    const key=weights.join(',');if(seen.has(key)){await yieldTask();continue;}seen.add(key);
-   const config={...settings,weights},result=await fast(config,options.from,options.to,active);if(!current())return null;
-   if(evolution){if(!result)break;evolution.tell(eligible(result.all,minHitRate)?history.metrics(result.all)[objective]:-Infinity);}
-   if(result){count++;const candidate={settings:config,all:result.all,metrics:history.metrics(result.all)};
-    if(eligible(candidate.all,minHitRate)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective))best=candidate;elite.push(candidate);elite.sort((a,b)=>better(a,b,objective)?-1:better(b,a,objective)?1:0);elite.length=Math.min(elite.length,8);}
+   const config={...settings,weights,...(fitness?{fitness,searchObjective:objective}:{})},result=await fast(config,options.from,options.to,active);if(!current())return null;
+   if(evolution){if(!result)break;evolution.tell(fitness?P.guidance(result.all,result.training,objective,minHitRate):eligible(result.all,minHitRate)?history.metrics(result.all)[objective]:-Infinity);}
+   if(result){count++;const candidate={settings:config,all:result.all,metrics:history.metrics(result.all),...(result.training?{training:result.training}:{})};
+    if(eligible(candidate.all,minHitRate)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective)){best=candidate;stale=0;}else stale++;elite=P.pool([...elite,candidate],objective);}
    }
    if(now()-lastProgress>=200)report('searching');
    await yieldTask();
@@ -45,9 +48,10 @@ const WeightSearchEngine=(()=>{
   if(best){report('verifying');const groups=await verify(best.settings,options.from,options.to,current);if(!current()||!groups)return null;
    const metrics=history.metrics(groups.all);for(const k of ['total','evaluated','hits','paidHits'])if(groups.all[k]!==best.all[k])throw Error('탐색·검산 통계가 일치하지 않습니다. 결과를 적용하지 않았습니다.');
    if(Math.abs(groups.all.payoutTotal-best.all.payoutTotal)>1e-7||!eligible(groups.all,minHitRate))throw Error('최고 후보 검산에 실패했습니다.');
-   best={settings:best.settings,all:groups.all,metrics,comparison:groups.comparison};
+   if(fitness&&(!groups.training||Math.abs(groups.training.score-best.training.score)>1e-7))throw Error('안정성 탐색 점수 검산에 실패했습니다.');
+   best={settings:best.settings,all:groups.all,metrics,comparison:groups.comparison,...(groups.training?{training:groups.training}:{})};
   }
-  return {best,count,elapsed,stopped:wasStopped,objective,balanced,method,evolution:evolution?.stats()};
+  return {best,pool:P.pool([best,...elite],objective),count,elapsed,stopped:wasStopped,objective,balanced,method,evolution:evolution?.stats()};
  }
  return {run,eligible,normalize,better};
 })();

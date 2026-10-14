@@ -6,6 +6,7 @@ const JointSearchEngine=(()=>{
  const H=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
  const B=typeof module!=='undefined'?require('./weight-balance.js'):WeightBalance;
  const G=typeof module!=='undefined'?require('./global-weight-search.js'):GlobalWeightSearch;
+ const P=typeof module!=='undefined'?require('./search-policy.js'):SearchPolicy;
  const blank=()=>({total:0,evaluated:0,hits:0,paidHits:0,payoutTotal:0,excluded:0});
  const metric=g=>({...g,...H.metrics(g),ratio:g.total?g.evaluated/g.total:null});
  function add(g,p){g.evaluated++;if(p.hit){g.hits++;if(Number.isFinite(p.payout)&&p.payout>=0){g.paidHits++;g.payoutTotal+=p.payout;}}}
@@ -19,7 +20,7 @@ const JointSearchEngine=(()=>{
   return null;
  }
  function eligible(g,minHitRate=15){return g.evaluated>0&&g.hits===g.paidHits&&g.hits*1000>=g.evaluated*Math.round(minHitRate*10);}
- function better(a,b){return !b||a.metrics.product>b.metrics.product+1e-12||Math.abs(a.metrics.product-b.metrics.product)<=1e-12&&a.all.evaluated>b.all.evaluated;}
+ function better(a,b){return !b||P.value(a,'product')>P.value(b,'product')+1e-12||Math.abs(P.value(a,'product')-P.value(b,'product'))<=1e-12&&a.all.evaluated>b.all.evaluated;}
  function rng(seed){let x=seed>>>0;return ()=>{x=(Math.imul(1664525,x)+1013904223)>>>0;return x/4294967296;};}
  const normalize=w=>T.normalizeActive(w);
  // Legacy candidate proposals never depend on test outcomes. DE uses separate populations
@@ -88,55 +89,59 @@ const JointSearchEngine=(()=>{
    return current()?out:null;
   }
   async function run(options,verify,control={}){
+   const fitness=P.config(options.fitness);
    const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
    if(!Number.isFinite(minHitRate)||minHitRate<0||minHitRate>100||Math.abs(minHitRate*10-Math.round(minHitRate*10))>1e-8)throw Error('최저 적중률은 0~100% 범위에서 0.1% 단위로 입력하세요.');
    if(!S.JOINT_TARGETS.includes(options.target)||!Number.isInteger(options.seconds)||options.seconds<1||options.seconds>86400)throw Error('선택 비율과 탐색 시간을 확인해 주세요.');
    const current=control.current||(()=>true),stopped=control.stopped||(()=>false),progress=control.progress||(()=>{}),now=control.now||(()=>performance.now());
-   const start=now(),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(2);
+   const start=now(),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(1);
    const method=G.method(options.method),targets=S.JOINT_TARGETS,bestByTarget=new Map(),foldBest=new Map();
    const baseSettings={...T.settings(options.settings),min:options.settings.min,max:options.settings.max};delete baseSettings.screening;
    const savedScreen=S.jointConfig(options.settings.screening),initialProfiles=profiles();
+   const seedCandidates=options.seedCandidates||[],seed=seedCandidates[(options.island||0)%Math.max(1,seedCandidates.length)];
    const project=w=>options.balanced?B.project(w):normalize(w);
    // Each coverage target and chronological fold owns its state and RNG. User
    // settings/checkpoints seed only the descriptive full-period search, never folds.
    const scopes=[...[options.target,...targets.filter(t=>t!==options.target)].map(target=>({year:null,target})),...years.map(year=>({year,target:options.target}))].map(s=>({
     ...s,random:rng((options.searchSeed??0)+(s.year?+s.year*7919:41821+s.target*97)),
-    weights:project(s.year?T.defaults():baseSettings.weights),phase:'initial',points:null,incumbent:null,
-    coefficientIndex:0,weightIndex:0,weightSteps:0,rounds:0,search:null,completedGenerations:0,completedRestarts:0
+    weights:project(s.year?T.defaults():seed?.settings.weights||baseSettings.weights),pool:[],phase:'initial',points:null,incumbent:null,
+    coefficientIndex:0,weightIndex:0,weightSteps:0,rounds:0,search:null,completedGenerations:0,completedRestarts:0,completedSurrogate:0
    }));
    let count=0,cursor=0;
    const active=()=>current()&&!stopped()&&now()-start<options.seconds*1000;
-   const evolution=()=>{if(method!=='de')return undefined;const s=scopes[0],v=s.search?.stats()||{population:0,populationSize:12,generations:0,restarts:0};return {...v,generations:v.generations+s.completedGenerations,restarts:v.restarts+s.completedRestarts};};
+   const evolution=()=>{if(method!=='de')return undefined;const s=scopes[0],v=s.search?.stats()||{population:0,populationSize:12,generations:0,restarts:0};return {...v,generations:v.generations+s.completedGenerations,restarts:v.restarts+s.completedRestarts,surrogateProposals:(v.surrogateProposals||0)+s.completedSurrogate};};
    const score=(points,coefficients)=>points.map(p=>({...p,score:p.features?S.jointScore(p.features,coefficients):null}));
    function candidate(scope,points,weights,coefficients,threshold){
     if(scope.year&&points.length<200)return null;
     const scored=score(points,coefficients),fit=threshold===undefined?calibrate(scored,scope.target):{threshold,all:aggregate(scored,threshold)};
     if(!fit||!fit.all.evaluated||fit.all.evaluated<Math.ceil(fit.all.total*scope.target/100))return null;
-    return {settings:{...baseSettings,weights:weights.slice(),screening:{version:S.JOINT_VERSION,coefficients:coefficients.slice(),threshold:fit.threshold,target:scope.target}},all:fit.all,metrics:H.metrics(fit.all)};
+    return {settings:{...baseSettings,...(fitness?{fitness,searchObjective:'product'}:{}),weights:weights.slice(),screening:{version:S.JOINT_VERSION,coefficients:coefficients.slice(),threshold:fit.threshold,target:scope.target}},all:fit.all,metrics:H.metrics(fit.all),...(fitness?{training:P.summarize(scored,fitness,'product',p=>p.score!==null&&p.score>=fit.threshold)}:{})};
    }
    function accept(scope,c,points){
     if(!c)return;
     const valid=eligible(c.all,minHitRate),old=scope.incumbent;
     // An ineligible seed can guide exploration until a qualifying candidate exists.
     if(!old||valid&&!eligible(old.all,minHitRate)||valid===eligible(old.all,minHitRate)&&better(c,old)){scope.incumbent=c;scope.weights=c.settings.weights;scope.points=points;}
-    if(valid){const map=scope.year?foldBest:bestByTarget,key=scope.year||scope.target;if(better(c,map.get(key)))map.set(key,c);}
+    if(valid){scope.pool=P.pool([...scope.pool,c]);const map=scope.year?foldBest:bestByTarget,key=scope.year||scope.target;if(better(c,map.get(key)))map.set(key,c);}
    }
    function startWeights(scope){
     scope.phase='weights';scope.weightSteps=0;
     const next=scope.incumbent?.settings.screening||{coefficients:initialProfiles[0],threshold:0};
     const unchanged=JSON.stringify(next)===JSON.stringify(scope.fixedScreen);scope.fixedScreen=next;
-    if(scope.search&&unchanged)return;
-    if(scope.search){const v=scope.search.stats();scope.completedGenerations+=v.generations;scope.completedRestarts+=v.restarts;}
+    if(scope.search&&unchanged){scope.search.inject(scope.incoming||[]);scope.incoming=[];return;}
+    if(scope.search){const v=scope.search.stats();scope.completedGenerations+=v.generations;scope.completedRestarts+=v.restarts;scope.completedSurrogate+=v.surrogateProposals||0;}
     // Screening changed: old DE fitness is no longer comparable. Start a fresh
     // population with the incumbent, keeping this block's coefficients/threshold fixed.
-    scope.search=method==='de'?G.create({seeds:[scope.weights,T.defaults(),...(!scope.year?(options.seeds||[]):[])],balanced:!!options.balanced,random:scope.random}):null;
+    scope.search=method==='de'?G.create({seeds:[scope.weights,T.defaults(),...(!scope.year?[...(options.seeds||[]),...(scope.incoming||[])]:[])],balanced:!!options.balanced,random:scope.random,surrogate:!!fitness}):null;
    }
    while(active()){
+    const incoming=(control.migrants?.()||[]).map(c=>c.settings?.weights).filter(T.validWeights);if(incoming.length)for(const s of scopes)if(!s.year){s.incoming=[...(s.incoming||[]),...incoming].slice(-16);s.search?.inject(incoming);}
     const scope=scopes[cursor++%scopes.length],stage=scope.phase;
     const trainTo=scope.year?Math.min(+options.to,+((+scope.year-1)+'1231')).toString():options.to;
     if(stage==='initial'){
      const points=await evaluate({...baseSettings,weights:scope.weights},options.from,trainTo,active);if(!points)break;
      scope.points=points;
+     if(!scope.year&&seed?.settings.screening)accept(scope,candidate(scope,points,scope.weights,seed.settings.screening.coefficients,seed.settings.screening.threshold),points);
      if(!scope.year&&savedScreen)accept(scope,candidate(scope,points,scope.weights,savedScreen.coefficients,savedScreen.threshold),points);
      for(const coefficients of [...initialProfiles,...(!scope.year&&savedScreen?[savedScreen.coefficients]:[])])accept(scope,candidate(scope,points,scope.weights,coefficients),points);
      scope.phase='screening';
@@ -156,7 +161,7 @@ const JointSearchEngine=(()=>{
      if(weights){
       const points=await evaluate({...baseSettings,weights},options.from,trainTo,active);if(!points)break;
       const c=candidate(scope,points,weights,scope.fixedScreen.coefficients,scope.fixedScreen.threshold);
-      if(scope.search)scope.search.tell(c&&eligible(c.all,minHitRate)?c.metrics.product:-Infinity);
+      if(scope.search)scope.search.tell(c?(fitness?P.guidance(c.all,c.training,'product',minHitRate,scope.target/100):eligible(c.all,minHitRate)?c.metrics.product:-Infinity):-Infinity);
       accept(scope,c,points);
      }
      if(!weights||++scope.weightSteps>=24){scope.phase='screening';scope.rounds++;}
@@ -177,14 +182,15 @@ const JointSearchEngine=(()=>{
     best.all={...p};best.metrics=H.metrics(p);
     const summed=blank(),folds=[];
     // Held-out outcomes are read only after all training decisions are complete.
+    if(fitness&&(!exact.training||Math.abs(exact.training.score-best.training.score)>1e-7))throw Error('공동 안정성 점수 검산 실패');
     for(const [year,c] of foldBest){
      const points=await evaluate(c.settings,year+'0101',Math.min(+options.to,+(year+'1231')).toString(),current);if(!points||!current())return null;
      const test=aggregate(score(points,c.settings.screening.coefficients),c.settings.screening.threshold);
-     for(const k of Object.keys(summed))summed[k]+=test[k];folds.push({year,train:metric(c.all),test:metric(test),settings:c.settings});
+     for(const k of Object.keys(summed))summed[k]+=test[k];folds.push({year,train:{...metric(c.all),searchScore:P.value(c,'product')},test:metric(test),settings:c.settings});
     }
-    best.joint={fixed:exact.fixedSelection,method,optimizer:'alternating-v1',target:options.target,ratios:targets.map(target=>({target,...(bestByTarget.has(target)?metric(bestByTarget.get(target).all):{product:null,ratio:null})})),validation:{folds,all:summed,metrics:H.metrics(summed)},modelLabels:S.JOINT_LABELS};
+    best.joint={fixed:exact.fixedSelection,method,optimizer:'alternating-v1',target:options.target,ratios:targets.map(target=>({target,...(bestByTarget.has(target)?{...metric(bestByTarget.get(target).all),searchScore:P.value(bestByTarget.get(target),'product')}:{product:null,ratio:null})})),validation:{folds,all:summed,metrics:H.metrics(summed)},modelLabels:S.JOINT_LABELS};
    }
-   return {best,count,elapsed,stopped:stopped(),objective:'product',balanced:!!options.balanced,method,evolution:evolution()};
+   return {best,pool:P.pool([best,...scopes[0].pool]),count,elapsed,stopped:stopped(),objective:'product',balanced:!!options.balanced,method,evolution:evolution()};
   }
   return {run,evaluate};
  }

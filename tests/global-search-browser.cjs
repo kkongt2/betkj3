@@ -22,7 +22,7 @@ const server=http.createServer((req,res)=>{
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   if(fallback)await page.addInitScript(()=>{window.Worker=undefined;});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
-  assert.equal(await page.locator('#weightSearchMethod').inputValue(),'local');
+  assert.equal(await page.locator('#weightSearchMethod').inputValue(),'de');
   await page.selectOption('#weightSearchMethod','de');assert((await page.locator('#weightSearchMethodHelp').innerText()).includes('전역 최적해 보장 아님'));
   await page.reload();await page.locator('#pairLead .lead-number').waitFor();assert.equal(await page.locator('#weightSearchMethod').inputValue(),'de');
   await page.locator('#weightSearchMinutes').fill('10');

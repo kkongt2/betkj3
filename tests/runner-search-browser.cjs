@@ -18,7 +18,7 @@ const server=http.createServer((req,res)=>{
 const {search}=require('../scripts/runner-search.cjs');
 (async()=>{
  const cfg={...T.settings(),anchorRank:1,min:2,max:10};
- let report=await search({schema:1,requestId:'browser-test',seconds:2,method:'de',objective:'product',parallel:true,balanced:false,joint:false,target:60,settings:cfg},rows,{runId:'123-1'});
+ let report=await search({schema:1,requestId:'browser-test',seconds:2,method:'de',objective:'product',parallel:true,balanced:false,joint:false,target:60,fitness:require('../search-policy').defaults(),settings:cfg},rows,{runId:'123-1'});
  assert(report.result.best);
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({headless:true,args:['--no-sandbox']}),errors=[];
  try{
@@ -36,6 +36,7 @@ const {search}=require('../scripts/runner-search.cjs');
    return route.abort();
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
+  assert.equal(await page.locator('#weightSearchRobust').isChecked(),true);assert.equal(await page.locator('#weightSearchPayoutCap').inputValue(),'60');assert.equal(await page.locator('#weightSearchQuarterFloor').inputValue(),'0.65');
   const floor=page.locator('#weightSearchMinHitRate');assert.equal(await floor.inputValue(),'15');
   for(const invalid of ['', '-1','100.1','12.55']){await floor.fill(invalid);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('최저 적중률'));}
   await floor.fill('12.5');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).minHitRate,12.5);
@@ -51,7 +52,7 @@ const {search}=require('../scripts/runner-search.cjs');
   await page.selectOption('#runnerSearchDuration','86400');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).seconds,86400);await page.selectOption('#runnerSearchDuration','current');
   await page.selectOption('#weightSearchMethod','de');await page.locator('#weightSearchMinutes').fill('20');await page.locator('#weightSearchBalanced').uncheck();
   const before=await page.evaluate(()=>strategySettings());
-  await page.locator('#prepareRunnerSearch').click();await page.locator('#runnerSearchRequest').waitFor();const payload=JSON.parse(await page.locator('#runnerSearchRequest').inputValue());assert.equal(payload.seconds,1200);assert.equal(payload.method,'de');assert.deepEqual(payload.settings.weights,before.weights);
+  await page.locator('#prepareRunnerSearch').click();await page.locator('#runnerSearchRequest').waitFor();const payload=JSON.parse(await page.locator('#runnerSearchRequest').inputValue());assert.equal(payload.seconds,1200);assert.deepEqual(payload.fitness,require('../search-policy').defaults());assert.equal(payload.method,'de');assert.deepEqual(payload.settings.weights,before.weights);
   assert.equal(await page.locator('#startWeightSearch').isDisabled(),false,'prepare must not launch local search');
   assert.equal(await page.locator('#runnerWorkflowLink').getAttribute('href'),'https://github.com/kkongt2/betkj3/actions/workflows/runner-search.yml');report.request=payload;
   await page.locator('#refreshRunnerSearch').click();await page.waitForFunction(()=>!document.querySelector('#refreshRunnerSearch').disabled);assert.equal(await page.locator('#loadRunnerSearch').isDisabled(),true);

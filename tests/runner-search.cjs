@@ -15,6 +15,15 @@ const request={schema:1,requestId:'runner-test',seconds:1,method:'de',objective:
   const b=report.result.best,g=await H.create(rows).evaluate({...b.settings,includeScreening:joint},report.from,report.to);assert.equal(b.metrics.product,H.metrics(joint?g.screening.points[b.settings.screening.threshold]:g.all).product);
   if(joint){assert.equal(b.joint.optimizer,'alternating-v1');assert.equal(b.settings.screening.target,50);assert(b.all.evaluated>=Math.ceil(b.all.total*.5));assert.deepEqual(b.joint.ratios.map(r=>r.target),[40,50,60,80]);}
  }
+ for(const joint of [false,true]){
+  const robustRequest={...request,joint,seconds:2,fitness:require('../search-policy').defaults()};
+  const first=await search(robustRequest,rows,{runId:'126-1',segmentSeconds:1,sourceSha:'test-source'});
+  assert(first.result.pool.length>1&&first.result.pool.length<=8);assert(first.result.best.training);
+  const resumed=await search(robustRequest,rows,{runId:'126-1',segmentSeconds:1,previous:first,sourceSha:'test-source'});
+  assert.equal(resumed.result.segments,2);assert(resumed.result.best.training.score>=first.result.best.training.score-1e-7);
+  assert(resumed.result.pool.length<=8);assert(new Set(resumed.result.pool.map(c=>JSON.stringify(c.settings))).size===resumed.result.pool.length);
+  const broken=structuredClone(resumed);broken.result.best.training.capped.payoutTotal=Infinity;assert.throws(()=>Contract.report(broken));
+ }
  const low=structuredClone(report);low.request.joint=false;low.request.minHitRate=12.5;low.result.best.all={total:1000,evaluated:1000,hits:125,paidHits:125,excluded:0,payoutTotal:500};
  assert.equal(Contract.report(structuredClone(low)).result.best.metrics.rate,.125);
  low.request.minHitRate=12.6;assert.throws(()=>Contract.report(structuredClone(low)));

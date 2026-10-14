@@ -17,18 +17,19 @@ const settings={...T.settings(),min:2,max:10};
  const storage={v:null,getItem(){return this.v},setItem(k,v){this.v=v}};Presets.save(storage,'joint',cfg);assert.deepEqual(Presets.read(storage)[0].settings.screening,screening);
  // Fixed candidate budget: perturb only held-out outcomes and confirm training choices
  // stay identical. Date order, labels, payout amounts and selection are all checked.
- async function run(data){let count=0;return J.create(data).run({settings,seconds:30,target:60,balanced:false,from:'20230101',to:'20251231'},H.create(data).evaluate,{stopped:()=>count>=5,progress:p=>{count=p.count;}});}
+ async function run(data,fitness){let count=0;return J.create(data).run({settings,...(fitness?{fitness:require('../search-policy').defaults()}:{}),seconds:30,target:60,balanced:false,from:'20230101',to:'20251231'},H.create(data).evaluate,{stopped:()=>count>=6,progress:p=>{count=p.count;}});}
  const a=await run(rows),changed=structuredClone(rows);for(const r of changed)if(r.date.startsWith('2025'))r.payouts=r.payouts.map(p=>({...p,odds:p.odds*2}));const b=await run(changed);
- assert(a.best?.joint.validation.folds.length===1);assert.deepEqual(a.best.joint.validation.folds[0].settings,b.best.joint.validation.folds[0].settings,'future outcomes cannot affect fold selection');
- assert.deepEqual(a.best.joint.validation.folds[0].train,b.best.joint.validation.folds[0].train);
- assert.equal(b.best.joint.validation.folds[0].test.payoutTotal,2*a.best.joint.validation.folds[0].test.payoutTotal);
+ assert.deepEqual(a.best.joint.validation.folds.map(f=>f.year),['2024','2025']);
+ for(const af of a.best.joint.validation.folds){const bf=b.best.joint.validation.folds.find(f=>f.year===af.year);assert.deepEqual(af.settings,bf.settings,'future outcomes cannot affect fold selection');assert.deepEqual(af.train,bf.train);assert.equal(bf.test.payoutTotal,af.test.payoutTotal*(af.year==='2025'?2:1));}
+ const robustA=await run(rows,true),robustB=await run(changed,true);assert(robustA.best.training);
+ for(const af of robustA.best.joint.validation.folds){const bf=robustB.best.joint.validation.folds.find(f=>f.year===af.year);assert.deepEqual(af.settings,bf.settings);assert.deepEqual(af.train,bf.train,'robust training cannot observe held-out payouts');assert.equal(bf.test.payoutTotal,af.test.payoutTotal*(af.year==='2025'?2:1));}
  assert.equal(J.calibrate([{score:null,hit:false,payout:null}],40),null);
  assert.equal(S.jointConfig({...screening,coefficients:[NaN]}),null);
  // Run multiple complete alternating blocks on real history. Screen updates must
  // preserve horse weights; weight updates must preserve BOTH screening components.
  const sample=rows.filter((r,i)=>i%3===0),trace=[],opts={settings,method:'local',seconds:600,target:60,balanced:false,from:'20230101',to:'20251231'};
  let steps=0;
- const alternated=await J.create(sample,()=>Promise.resolve()).run(opts,H.create(sample).evaluate,{stopped:()=>steps>=150,progress:p=>{steps=p.count;},onStep:s=>trace.push(structuredClone(s))});
+ const alternated=await J.create(sample,()=>Promise.resolve()).run(opts,H.create(sample).evaluate,{stopped:()=>steps>=210,progress:p=>{steps=p.count;},onStep:s=>trace.push(structuredClone(s))});
  const scopes=new Map();let screeningChanged=false,weightsChanged=false;
  for(const step of trace){
   const key=step.year+'-'+step.target,prior=scopes.get(key);scopes.set(key,step);

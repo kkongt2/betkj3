@@ -3,6 +3,7 @@ const QplHistoryEngine=(()=>{
  const tuning=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const policy=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;
  const screening=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
+ const searchPolicy=typeof module!=='undefined'?require('./search-policy.js'):SearchPolicy;
  const PERIOD={from:'20230101',comparisonFrom:'20240101'};
  const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
@@ -105,7 +106,7 @@ const QplHistoryEngine=(()=>{
    if(!isCurrent())return null;
    const groups=summarizeStrategy(results,from,to),comparisonFrom=from>PERIOD.comparisonFrom?from:PERIOD.comparisonFrom;
    const comparison=summarizeStrategy(results,comparisonFrom,to);
-   return {...groups,from,to,betStrategy:mode,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to),
+   return {...groups,...(options.fitness?{training:searchPolicy.summarize(results,options.fitness,options.searchObjective||'product',p=>p.settled&&p.ready&&(!includeScreening||!config.screening||p.screening?.available&&p.screening.score>=config.screening.threshold))}:{}),from,to,betStrategy:mode,comparison:{from:comparisonFrom,to,all:comparison.all,metrics:metrics(comparison.all)},coverage:coverage(from,to),
     ...(includeScreening&&config.screening?{fixedSelection:fixedSelection(results,config,from,to)}:{}),
     ...(includeScreening?{screening:screening.curve(results)}:{})};
   }
