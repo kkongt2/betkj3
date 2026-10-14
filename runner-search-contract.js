@@ -6,7 +6,7 @@ const RunnerSearchContract=(()=>{
  const MAX_RUNNER_SECONDS=604800;
  const fail=()=>{throw Error('Runner 탐색 자료 형식 또는 범위를 확인해 주세요.');};
  function settings(s){
-  if(!s||!T.validWeights(s.weights)||s.weights.length!==T.FEATURES.length||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)fail();
+  if(!s||!T.validWeights(s.weights)||![22,T.FEATURES.length].includes(s.weights.length)||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)fail();
   if(s.hybridRanks!==undefined&&!T.validHybridRanks(s.hybridRanks))fail();
   if(s.screening&&!S.jointConfig(s.screening))fail();
   if(s.betStrategy!==undefined&&!['qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy))fail();
@@ -24,7 +24,8 @@ const RunnerSearchContract=(()=>{
   return {...g,...H.metrics(g),ratio:g.total?g.evaluated/g.total:null};
  }
  function report(x){
-  if(!x||x.schema!==1||x.modelVersion!==T.VERSION||x.featureCount!==T.FEATURES.length||!/^\d+(?:-\d+)?$/.test(x.runId)||!/^\d{8}$/.test(x.from)||!/^\d{8}$/.test(x.to)||!Number.isFinite(Date.parse(x.finishedAt)))fail();
+  const migrated=x?.modelVersion==='user-weighted-seoul-trainer22-v1'&&x?.featureCount===22;
+  if(!x||x.schema!==1||(!migrated&&(x.modelVersion!==T.VERSION||x.featureCount!==T.FEATURES.length))||!/^\d+(?:-\d+)?$/.test(x.runId)||!/^\d{8}$/.test(x.from)||!/^\d{8}$/.test(x.to)||!Number.isFinite(Date.parse(x.finishedAt)))fail();
   x.request=request(x.request);const r=x.result;
   if(!r||!Number.isSafeInteger(r.count)||r.count<0||!Number.isFinite(r.elapsed)||r.elapsed<0||r.elapsed>x.request.seconds||!Number.isInteger(r.workers)||r.workers<1||r.workers>8)fail();
   r.method=x.request.method;r.objective=x.request.objective;
@@ -45,6 +46,7 @@ const RunnerSearchContract=(()=>{
     j.validation.folds=j.validation.folds.map(f=>{if(!/^\d{4}$/.test(f.year))fail();return {year:f.year,train:stats(f.train),test:stats(f.test),settings:settings(f.settings)};});
    }else delete b.joint;
   }
+  if(migrated){x.migrated=true;x.request.joint=false;delete x.request.settings.screening;if(r.best){delete r.best.settings.screening;delete r.best.joint;}}
   return x;
  }
  return {request,report,MAX_RUNNER_SECONDS};

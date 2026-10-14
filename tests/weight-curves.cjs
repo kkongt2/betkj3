@@ -20,16 +20,16 @@ function same(point,expected){for(const key of ['total','evaluated','hits','excl
  rows.push(fixture(8,33),{...fixture(8,34),starters:[]},{...fixture(8,35),starters:[1,2,3,4,5,6]},{...fixture(8,36),settled:false},{...fixture(8,37),venue:'busan'},{...fixture(8,38),pairs:[]},{...fixture(8,39),date:'20240101'});
  const missing=fixture(8,40);missing.horses[0][6]=null;rows.push(missing);
  const evaluator=c.create(rows);
- for(const anchorRank of [1,2,3])for(const index of [0,8,16]){
+ for(const anchorRank of [1,2,3])for(const index of [2,9,22]){
   const settings={anchorRank,weights:t.defaults(),min:3,max:9},result=await evaluator.curve(settings,index,'20250101','20250101');
   const single=await evaluator.evaluate(settings,'20250101','20250101');same({...single.all,...single.metrics},direct(rows,settings,'20250101','20250101'));
   assert.equal(result.points.length,101);for(const point of result.points){const s={...settings,weights:settings.weights.map((x,i)=>i===index?point.value:x)};same(point,direct(rows,s,'20250101','20250101'));}
  }
- const w=Array(17).fill(0);w[0]=100;const zero=await evaluator.curve({weights:w,min:2,max:2},0,'00000000','99999999');assert.equal(zero.points[0].valid,false);assert.equal(zero.points[0].product,null);same(zero.points[100],direct(rows,{weights:w,min:2,max:2}));
- assert.equal(await evaluator.curve({weights:w},0,'00000000','99999999',()=>false),null);
+ const w=Array(17).fill(0);w[4]=100;const zero=await evaluator.curve({weights:w,min:2,max:2},4,'00000000','99999999');assert.equal(zero.points[0].valid,false);assert.equal(zero.points[0].product,null);same(zero.points[100],direct(rows,{weights:w,min:2,max:2}));
+ assert.equal(await evaluator.curve({weights:w},4,'00000000','99999999',()=>false),null);
  console.log('PASS all 101 points against exact model: analysis ranks, ties, tiny gaps, uniform strengths, scratched runners, unavailable pairs, date/venue exclusions, zero total and cancellation');
  if(process.argv.includes('--archive')){
   const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),archive=manifest.shards.flatMap(s=>JSON.parse(fs.readFileSync(s.url)).rows),settings=JSON.parse(fs.readFileSync('top5-presets.json')).presets[0].settings,engine=c.create(archive);
-  for(let i=0;i<17;i++){const start=Date.now(),curve=await engine.curve(settings,i,'00000000','99999999');for(const value of new Set([0,settings.weights[i],100,...([0,8,16].includes(i)?[1,25,50,75,99]:[])])){const s={...settings,weights:settings.weights.map((x,j)=>j===i?value:x)};same(curve.points[value],direct(archive,s));}console.log('PASS full Seoul archive curve',i,archive.length,'races',Date.now()-start+'ms');}
+  for(const i of t.ACTIVE){const start=Date.now(),curve=await engine.curve(settings,i,'00000000','99999999');for(const value of new Set([0,settings.weights[i],100,...([2,9,22].includes(i)?[1,25,50,75,99]:[])])){const s={...settings,weights:settings.weights.map((x,j)=>j===i?value:x)};same(curve.points[value],direct(archive,s));}console.log('PASS full Seoul archive curve',i,archive.length,'races',Date.now()-start+'ms');}
  }
 })().catch(e=>{console.error(e);process.exitCode=1});

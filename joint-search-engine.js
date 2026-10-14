@@ -21,7 +21,7 @@ const JointSearchEngine=(()=>{
  function eligible(g,minHitRate=15){return g.evaluated>0&&g.hits===g.paidHits&&g.hits*1000>=g.evaluated*Math.round(minHitRate*10);}
  function better(a,b){return !b||a.metrics.product>b.metrics.product+1e-12||Math.abs(a.metrics.product-b.metrics.product)<=1e-12&&a.all.evaluated>b.all.evaluated;}
  function rng(seed){let x=seed>>>0;return ()=>{x=(Math.imul(1664525,x)+1013904223)>>>0;return x/4294967296;};}
- function normalize(w){const sum=w.reduce((s,x)=>s+x,0)||1,raw=w.map(x=>100*x/sum),out=raw.map(Math.floor);for(const i of raw.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])||a-b).slice(0,100-out.reduce((s,x)=>s+x,0)))out[i]++;return out;}
+ const normalize=w=>T.normalizeActive(w);
  // Legacy candidate proposals never depend on test outcomes. DE uses separate populations
  // for the descriptive full-period search and each fold; fold feedback uses training only. Current/saved user weights are
  // allowed in the descriptive full-period search only, not in walk-forward folds.
@@ -29,7 +29,7 @@ const JointSearchEngine=(()=>{
   if(index===0&&!(options.island>0))return options.balanced?B.project(options.settings.weights):normalize(options.settings.weights);
   const base=T.defaults();
   if(index===1&&!(options.island>0))return options.balanced?B.project(base):normalize(base);
-  if(index%3){for(let k=0;k<5;k++){const a=Math.floor(random()*T.FEATURES.length),b=Math.floor(random()*T.FEATURES.length),n=Math.min(base[a],1+Math.floor(random()*12));base[a]-=n;base[b]+=n;}}
+  if(index%3){for(let k=0;k<5;k++){const a=T.ACTIVE[Math.floor(random()*T.ACTIVE.length)],b=T.ACTIVE[Math.floor(random()*T.ACTIVE.length)],n=Math.min(base[a],1+Math.floor(random()*12));base[a]-=n;base[b]+=n;}}
   else for(let i=0;i<T.FEATURES.length;i++)base[i]=Math.pow(random(),2)*100;
   return options.balanced?B.project(base):normalize(base);
  }
@@ -54,7 +54,7 @@ const JointSearchEngine=(()=>{
   if(index%8===7)for(let j=0;j<out.length;j++)out[j]=Math.pow(random(),2)*100;
   else {
    const from=out.map((x,i)=>x>0?i:-1).filter(i=>i>=0),a=from[Math.floor(random()*from.length)];
-   let b=Math.floor(random()*(out.length-1));if(b>=a)b++;
+   const to=T.ACTIVE.filter(i=>i!==a),b=to[Math.floor(random()*to.length)];
    const amount=Math.min(out[a],[1,2,5,10][index%4]);out[a]-=amount;out[b]+=amount;
   }
   return balanced?B.project(normalize(out)):normalize(out);

@@ -5,13 +5,7 @@ const GlobalWeightSearch=(()=>{
  const T=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel;
  const B=typeof module!=='undefined'?require('./weight-balance.js'):WeightBalance;
  function method(value){if(value===undefined)return 'local';if(!['local','de'].includes(value))throw Error('탐색 방식을 확인해 주세요.');return value;}
- function normalize(input){
-  const w=input.map(x=>Math.max(0,Math.min(100,Number.isFinite(x)?x:0))),sum=w.reduce((a,b)=>a+b,0);
-  if(!sum)w.fill(1);
-  const total=sum||w.length,raw=w.map(x=>100*x/total),out=raw.map(Math.floor);
-  for(const i of raw.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])||a-b).slice(0,100-out.reduce((a,b)=>a+b,0)))out[i]++;
-  return out;
- }
+ const normalize=input=>T.normalizeActive(input);
  function create({seeds=[],balanced=false,random=Math.random,size=12}={}){
   if(!Number.isInteger(size)||size<4)throw Error('DE population must contain at least four candidates');
   const project=v=>{const w=normalize(v);return balanced?(B.valid(w)?w:B.project(w)):w;};
@@ -28,7 +22,7 @@ const GlobalWeightSearch=(()=>{
     else{
      const ids=population.map((_,i)=>i).filter(i=>i!==slot);
      for(let i=ids.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
-     const [a,b,c]=ids,F=.5+random()*.5,forced=Math.floor(random()*T.FEATURES.length),target=population[slot].weights;
+     const [a,b,c]=ids,F=.5+random()*.5,forced=T.ACTIVE[Math.floor(random()*T.ACTIVE.length)],target=population[slot].weights;
      weights=project(target.map((x,j)=>j===forced||random()<.7?population[a].weights[j]+F*(population[b].weights[j]-population[c].weights[j]):x));kind='evolve';
     }
     const key=weights.join(',');if(seen.has(key))continue;seen.add(key);

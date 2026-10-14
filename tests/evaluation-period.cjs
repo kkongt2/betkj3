@@ -5,7 +5,7 @@ const fixture=(date,hit=true)=>({venue:'seoul',date,race:1,k:2,models:{place:'te
  const settings={...T.settings(),anchorRank:1,min:2,max:2},rows=[fixture('20211231'),fixture('20220101'),fixture('20221231',false),fixture('20230101'),fixture('20231231',false),fixture('20240101'),fixture('20270101')],engine=H.create(rows),to='20260913';
  const g=await engine.evaluate(settings,H.PERIOD.from,to);assert.equal(g.all.total,3);assert.equal(g.all.hits,2);assert.equal(g.comparison.all.total,1);assert.equal(g.comparison.all.hits,1);assert.equal(g.metrics,undefined);assert.equal(g.coverage.horses,18);assert.equal(g.coverage.fullFive,15);assert.equal(g.coverage.noHistory,3);assert.deepEqual(g.coverage.features[0],{available:15,fallback:3,unknown:0});
  const legacy=fixture('20230201');legacy.horses.forEach(h=>delete h[7].available);const l=await H.create([legacy]).evaluate(settings,H.PERIOD.from,to);assert.equal(l.coverage.features[3].unknown,6);assert.equal(l.coverage.features[0].available,5);
- const curve=await C.create(rows).curve(settings,0,H.PERIOD.from,to);assert(curve.points.every(p=>p.total===3));assert.equal(curve.points[22].hits,2);
+ const curve=await C.create(rows).curve(settings,4,H.PERIOD.from,to);assert(curve.points.every(p=>p.total===3));assert.equal(curve.points[22].hits,2);
  let clock=0;const fast=C.create(rows),result=await S.run({settings,seconds:1,objective:'product',from:H.PERIOD.from,to},async(s,a,b)=>{const r=await fast.evaluate(s,a,b);clock=1001;return r;},engine.evaluate,{now:()=>clock});assert.equal(result.best.all.total,3);assert.equal(result.best.comparison.all.total,1);
  assert.deepEqual(H.sumYears({'2021':{total:99},'2022':{total:99},'2023':g.all},H.PERIOD.from),g.all);
  if(process.argv.includes('--archive')){

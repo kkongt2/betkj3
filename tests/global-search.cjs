@@ -8,7 +8,7 @@ const settings={...T.settings(),min:2,max:10};
  for(const balanced of [false,true]){
   const optimizer=G.create({seeds:[T.defaults()],balanced,random:rng(87)}),seen=new Set();let initial=-Infinity,best=-Infinity,wide=false,last;
   for(let n=0;n<250;n++){
-   const w=optimizer.ask();assert(w);assert.equal(w.length,22);assert.equal(w.reduce((a,b)=>a+b),100);assert(w.every(x=>Number.isInteger(x)&&x>=0&&x<=100));if(balanced)assert(B.valid(w));
+   const w=optimizer.ask();assert(w);assert.equal(w.length,26);assert.equal(w.reduce((a,b)=>a+b),100);assert(w.every(x=>Number.isInteger(x)&&x>=0&&x<=100));if(balanced)assert(B.valid(w));
    const key=w.join(',');assert(!seen.has(key));seen.add(key);
    if(n>=12&&last&&w.filter((v,i)=>v!==last[i]).length>2)wide=true;last=w;
    const fitness=-w.reduce((s,x,i)=>s+(x-(i===0?100:0))**2,0);if(n<12)initial=Math.max(initial,fitness);best=Math.max(best,fitness);optimizer.tell(fitness);

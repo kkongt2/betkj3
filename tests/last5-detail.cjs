@@ -2,12 +2,12 @@
 const assert=require('node:assert/strict'),fs=require('node:fs');
 const T=require('../tuning-model.js'),C=require('../weight-curve-engine.js'),H=require('../qpl-history-engine.js'),P=require('../qpl-policy.js'),S=require('../race-selection-model.js');
 const old=[1,2,3,12,0,6,29,1,20,1,0,0,15,4,1,1,4],cfg={...T.settings({weights:old}),min:2,max:10};
-assert.deepEqual(cfg.weights,[...old,0,0,0,0,0]);assert.equal(T.FEATURES.length,22);
-const row={date:'20250101',venue:'seoul',race:1,k:3,models:{place:'test',pair:'test'},settled:true,starters:[1,2,3,4,5,6,7,8],payouts:[{numbers:[7,8],odds:4}],horses:Array.from({length:8},(_,i)=>[i+1,.3,1,[],null,null,Array.from({length:22},(_,j)=>j>=17?i/7:.5),{starts:5,available:Array(22).fill(true)}]),pairs:[]};
+assert.deepEqual(cfg.weights,[0,0,3,12,7,6,29,1,0,21,0,0,15,4,1,1,0,0,0,0,0,0,0,0,0,0]);assert.equal(T.FEATURES.length,26);
+const row={date:'20250101',venue:'seoul',race:1,k:3,models:{place:'test',pair:'test'},settled:true,starters:[1,2,3,4,5,6,7,8],payouts:[{numbers:[7,8],odds:4}],horses:Array.from({length:8},(_,i)=>[i+1,.3,1,[],null,null,Array.from({length:26},(_,j)=>j>=17?i/7:.5),{starts:5,available:Array(26).fill(true)}]),pairs:[]};
 for(let a=1;a<=8;a++)for(let b=a+1;b<=8;b++)row.pairs.push([a,b,.1]);
 (async()=>{
- for(let j=17;j<22;j++){
-  const weights=Array(22).fill(0);weights[j]=100;const settings={...cfg,weights};
+ for(const j of T.ACTIVE.filter(i=>i>=17)){
+  const weights=Array(26).fill(0);weights[j]=100;const settings={...cfg,weights};
   const exact=P.apply(T.apply(T.unpack(row),settings),null,settings);assert.deepEqual(exact.pairs[0].numbers.slice().sort((a,b)=>a-b),[7,8]);
   const e=await H.create([row]).evaluate(settings,'0','9'),fast=await C.create([row]).evaluate(settings,'0','9');assert.deepEqual(e.all,fast.all);assert.equal(H.metrics(e.all).product,4);
   const curve=await C.create([row]).curve(settings,j,'0','9');assert.equal(curve.points[100].product,4);assert.equal(curve.points[0].valid,false);
@@ -17,7 +17,7 @@ for(let a=1;a<=8;a++)for(let b=a+1;b<=8;b++)row.pairs.push([a,b,.1]);
  assert.deepEqual(T.apply(T.unpack(row),cfg).pairs,legacyResult.pairs);
  if(process.argv.includes('--archive')){
   const manifest=JSON.parse(fs.readFileSync('qpl-history.json')),rows=manifest.shards.flatMap(x=>JSON.parse(fs.readFileSync(x.url)).rows);
-  for(const r of rows)for(const h of r.horses){assert.equal(h[6].length,22);assert.equal(h[7].detail.counts.length,22);assert.equal(h[7].available.length,22);assert(!h[7].detail.recent);if(h[7].through)assert(h[7].through<r.date);}
+  for(const r of rows)for(const h of r.horses){assert.equal(h[6].length,26);assert.equal(h[7].detail.counts.length,26);assert.equal(h[7].available.length,26);assert(!h[7].detail.recent);if(h[7].through)assert(h[7].through<r.date);}
   for(const file of fs.readdirSync('data/calendar'))for(const r of JSON.parse(fs.readFileSync('data/calendar/'+file)).races)for(const h of r.horses){const recent=h.weighted_v3_support.detail.recent;assert(recent.length<=5);assert(recent.every(x=>x.date<r.date));}
   const altered={...cfg,weights:cfg.weights.map((v,i)=>i>=17?5:v),includeScreening:true};
   const exact=await H.create(rows).evaluate(altered,'20230101','99999999'),fast=await C.create(rows).evaluate(altered,'20230101','99999999');assert.deepEqual(exact.all,fast.all);

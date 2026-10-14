@@ -7,7 +7,7 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
   const cfg={...T.settings({betStrategy}),min:2,max:8,includeScreening:true},h=H.create([row]);
   const g=await h.evaluate(cfg,'20230101','20261231');assert.equal(g.all.payoutTotal,expected);assert.equal(g.screening.points[0].product,expected);assert.equal(g.screening.points[0].hits,1);assert.equal(g.screening.points[100].evaluated,0);
   const fast=await C.create([row]).evaluate(cfg,'20230101','20261231');assert.equal(fast.metrics.product,expected);
-  const curve=await C.create([row]).curve(cfg,0,'20230101','20261231');assert.equal(curve.points[22].product,expected);
+  const curve=await C.create([row]).curve(cfg,4,'20230101','20261231');assert.equal(curve.points[22].product,expected);
   const base=T.apply(T.unpack(row),cfg),live=P.apply(base,null,cfg);live.allPairs=base.pairs;
   assert(S.score(live,cfg).available);
   const joint=await J.create([row]).evaluate(cfg,'20230101','20261231');assert.equal(joint[0].payout,expected);

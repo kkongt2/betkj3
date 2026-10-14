@@ -9,6 +9,7 @@ function nextSegmentSeconds(total,elapsed=0,cap=SEGMENT_SECONDS){
 function checkpoint(previous,request,metadata){
  if(!previous)return null;
  const report=Contract.report(previous);
+ if(report.migrated)throw Error('A checkpoint from a different feature policy cannot be resumed; start a new search.');
  if(JSON.stringify(report.request)!==JSON.stringify(request))throw Error('Runner checkpoint request does not match the current request.');
  if(metadata.sourceSha&&report.sourceSha&&metadata.sourceSha!==report.sourceSha)throw Error('Runner checkpoint source does not match the current commit.');
  return report;

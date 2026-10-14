@@ -1,7 +1,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 
 const fixture={date:'20250928',venue:'seoul',race_no:1,start_time:'10:00',
- horses:Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1),rating:50-i,starts_1y:10,wins_1y:2,seconds_1y:1,thirds_1y:1,weighted_v3_features:Array.from({length:17},(_,j)=>j===0?1-i/7:j===1?i/7:.5)})),
+ horses:Array.from({length:6},(_,i)=>({number:i+1,name:'말'+(i+1),rating:50-i,starts_1y:10,wins_1y:2,seconds_1y:1,thirds_1y:1,weighted_v3_features:Array.from({length:17},(_,j)=>j===4?1-i/7:.5)})),
  official_result:{status:'confirmed',starters:[1,2,3,4,5,6],place:{status:'confirmed',payouts:[{numbers:[1],odds:1.1},{numbers:[3],odds:2}]},pair:{status:'confirmed',payouts:[{numbers:[1,3],odds:3}]}}};
 
 const doc={updated_at:'2026-09-14T09:00:00+09:00',scope:'seoul',
@@ -89,28 +89,28 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert.equal(vm.runInContext('tuningSettings.anchorRank',sandbox),2);
 
  const previous=vm.runInContext('ranked.places[0].prob',sandbox);
- nodes['#weight-0'].value='34';nodes['#weight-0'].oninput();await flush();
- assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
- assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-seoul-trainer22-v1');
+ nodes['#weight-4'].value='34';nodes['#weight-4'].oninput();await flush();
+ assert.equal(vm.runInContext('tuningSettings.weights[4]',sandbox),34);
+ assert.equal(vm.runInContext('ranked.models.place',sandbox),'user-weighted-seoul-pace21-v1');
  assert.notEqual(vm.runInContext('ranked.places[0].prob',sandbox),previous);
  assert(nodes['#qplHistoryStats'].innerHTML.includes('서울 최근 5경주 가중치'));
  assert(nodes['#qplHistoryStats'].innerHTML.includes('적중률 × 평균배당'));
 
- nodes['#weight-0'].value='34.5';nodes['#weight-0'].onchange();assert.equal(nodes['#weight-0'].value,'34');
+ nodes['#weight-4'].value='34.5';nodes['#weight-4'].onchange();assert.equal(nodes['#weight-4'].value,'34');
  nodes['#presetName'].value='테스트 <설정>';nodes['#saveStrategy'].onclick();
  assert(nodes['#presetStatus'].textContent.includes('저장했습니다'));
  assert(nodes['#savedStrategy'].innerHTML.includes('&lt;설정&gt;'));
- nodes['#weight-0'].value='50';nodes['#weight-0'].oninput();
+ nodes['#weight-4'].value='50';nodes['#weight-4'].oninput();
  nodes['#partnerMin'].value='2';nodes['#partnerMin'].onchange();
  nodes['#loadStrategy'].onclick();await flush();
- assert.equal(vm.runInContext('tuningSettings.weights[0]',sandbox),34);
+ assert.equal(vm.runInContext('tuningSettings.weights[4]',sandbox),34);
  assert.equal(vm.runInContext('partnerRange.min',sandbox),3);
  assert.equal(nodes['#anchorRank'].value,'2');
  assert(nodes['#presetStatus'].textContent.includes('불러왔습니다'));
  nodes['#deleteStrategy'].onclick();assert(nodes['#presetStatus'].textContent.includes('삭제했습니다'));
 
  // A stale odds-era rolling report is hidden; regenerated analysis-only reports are accepted.
- if(rollingFile.policyVersion===historyDoc.policyVersion){
+ if(rollingFile.policyVersion===historyDoc.policyVersion&&rollingFile.version===nativeTuning.VERSION){
   assert.equal(nodes['#applyRolling'].hidden,false);
   nodes['#applyRolling'].onclick();await flush();
  }else{
@@ -150,7 +150,7 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),2);
  assert.equal(vm.runInContext('TuningModel.settings(strategySettings()).hybridRanks.join()',sandbox),'6');
  assert(nodes['#qplHistoryStats'].innerHTML.includes('분석 1·2위 고정 + 복병 6위'));
- nodes['#weight-0'].value='35';nodes['#weight-0'].oninput();await flush();
+ nodes['#weight-4'].value='35';nodes['#weight-4'].oninput();await flush();
  assert.equal(vm.runInContext('strategySettings().hybridRanks.join()',sandbox),'6');
  console.log('PASS analysis-only QPL selection, no final-odds fetch, one preset, controls, history and result display');
 })().catch(e=>{console.error(e);process.exitCode=1});

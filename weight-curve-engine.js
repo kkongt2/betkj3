@@ -28,7 +28,7 @@ const WeightCurveEngine=(()=>{
  function create(rows,yieldTask=()=>new Promise(r=>setTimeout(r,0))){
   const entries=rows.filter(r=>r.venue==='seoul').map(prepare),multiHistory=history.create(rows);
   async function curve(options,index,from,to,isCurrent=()=>true,onProgress=()=>{}){
-   if(!Number.isInteger(index)||index<0||index>=tuning.FEATURES.length)throw Error('가중치 항목 확인 필요');
+   if(!tuning.ACTIVE.includes(index))throw Error('가중치 항목 확인 필요');
    const settings={...tuning.settings(options),...policy.normalizeRange(options)},others=settings.weights.reduce((s,x,i)=>s+(i===index?0:x),0);
    if(settings.betStrategy!=='qpl-single'){
     const points=[];for(let value=0;value<=100;value++){

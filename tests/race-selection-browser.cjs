@@ -61,7 +61,7 @@ const server=http.createServer((req,res)=>{
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
   const config2=await page.evaluate(()=>strategySettings()),expected2=await H.create(rows).evaluate({...config2,includeScreening:true},'20230101','20260920');
   assert.equal(await page.locator('#screeningProduct').innerText(),expected2.screening.points[50].product.toFixed(4)+'배');
-  await page.locator('#weight-0').evaluate(n=>{n.value='60';n.dispatchEvent(new Event('input'));});
+  await page.locator('#weight-4').evaluate(n=>{n.value='60';n.dispatchEvent(new Event('input'));});
   await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
   const config3=await page.evaluate(()=>strategySettings()),expected3=await H.create(rows).evaluate({...config3,includeScreening:true},'20230101','20260920');
   assert.equal(await page.locator('#screeningProduct').innerText(),expected3.screening.points[50].product.toFixed(4)+'배');

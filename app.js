@@ -150,7 +150,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=hybrid-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=pace21-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2023년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});
@@ -203,7 +203,7 @@ async function runWeightSearch(options,progress){
 }
 async function recalculateRunnerSearch(report){
  if(!qplHistory)throw Error('과거 경주 자료를 불러온 후 다시 시도해 주세요.');
- const id=++searchRequest,options={joint:true,minHitRate:report.request.minHitRate??15,from:report.from,to:report.to};
+ const id=++searchRequest,options={joint:report.request.joint,migrated:report.migrated===true,minHitRate:report.request.minHitRate??15,from:report.from,to:report.to};
  if(historyWorker)return new Promise((resolve,reject)=>{searchPending={id,resolve,reject,progress:()=>{}};historyWorker.postMessage({type:'recalculate-search',searchId:id,options,result:report.result});});
  await getHistoryEngines();if(id!==searchRequest)return null;
  return ParallelSearch.verify(report.result,options,historyEngine.evaluate,()=>id===searchRequest);
@@ -230,6 +230,7 @@ function initTuning(){
  function update(){if(tuningSettings.screening){delete tuningSettings.screening;screeningPanel?.applyModel(null);}try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}sync();renderQplHistory();render();}
  $('#anchorRank').onchange=()=>{tuningSettings.anchorRank=+$('#anchorRank').value;update();};
  TuningModel.FEATURES.forEach((f,i)=>{
+  if(!f.active){$('#weight-'+i).disabled=true;$('#weight-range-'+i).disabled=true;return;}
   const change=node=>{const value=node.value.trim(),weights=TuningModel.FEATURES.map((_,i)=>editing()[i]??0);weights[i]=value===''?NaN:Number(value);if(!TuningModel.validWeights(weights)){$('#weightStatus').textContent='0~100 사이 정수를 입력하세요. 최소 한 요소는 1% 이상이어야 합니다.';return false;}setWeights(weights);update();return true;};
   for(const id of ['#weight-'+i,'#weight-range-'+i]){const node=$(id);node.oninput=()=>change(node);node.onchange=()=>{if(!change(node))node.value=String(editing()[i]??0);};}
  });
@@ -315,7 +316,7 @@ function horseDetailHTML(h){
  const recent=(d.recent||[]).map(x=>'<tr><td>'+esc(x.date)+'</td><td>'+num(x.finish,0)+' / '+num(x.fieldSize,0)+'두</td><td>'+num(x.form*100)+'점</td><td>'+signed(x.speed)+'초</td></tr>').join('');
  const grade=g=>Number.isInteger(g)?g+'등급':'미확인';
  const conditions='직전 대비 거리 '+(Number.isFinite(d.distanceChange)?signed(d.distanceChange,0)+'m':'미확인')+' · 등급 '+grade(d.previousGrade)+' → '+grade(d.currentGrade)+' · 휴양 '+num(d.restDays,0)+'일 / 평소 '+num(d.usualRestDays,0)+'일';
- const rows=TuningModel.FEATURES.map((f,j)=>{const present=s.available?.[j],count=d.counts?.[j],v=h.weighted_v3_features?.[j];return '<tr><td>'+esc(f.label)+'</td><td>'+num(v*100)+'</td><td>'+(Number.isInteger(count)?count+'건':'미확인')+'</td><td>'+(present===true?'자료·조건 충족':present===false?'자료·조건 부족 · 대체값':'미확인')+'</td></tr>';}).join('');
+ const rows=TuningModel.FEATURES.map((f,j)=>{if(!f.active)return '';const present=s.available?.[j],count=d.counts?.[j],v=h.weighted_v3_features?.[j];return '<tr><td>'+esc(f.label)+'</td><td>'+num(v*100)+'</td><td>'+(Number.isInteger(count)?count+'건':'미확인')+'</td><td>'+(present===true?'자료·조건 충족':present===false?'자료·조건 부족 · 대체값':'미확인')+'</td></tr>';}).join('');
  return '<details class="horse-detail"><summary>최근 5경주 흐름 · 자료 개수</summary><p class="hint">오래된 경주 → 직전 경주 · '+s.starts+'/5경주 확보</p><div class="table-scroll"><table class="validation-table"><thead><tr><th>경주일</th><th>착순 / 두수</th><th>두수 보정</th><th>보정 기록</th></tr></thead><tbody>'+recent+'</tbody></table></div><p class="hint">착순 추세 '+(Number.isFinite(d.finishTrend)?signed(d.finishTrend*100)+'점/경주':'자료 부족')+' · 기록 추세 '+(Number.isFinite(d.speedTrend)?signed(d.speedTrend)+'초/경주':'자료 부족')+'<br>착순 변동 '+(Number.isFinite(d.finishStd)?num(d.finishStd*100)+'점':'자료 부족')+' · 기록 변동 '+(Number.isFinite(d.speedStd)?num(d.speedStd)+'초':'자료 부족')+'</p><p class="hint">추세는 양수일수록 개선, 변동은 작을수록 안정적입니다. 추세는 자료 수에 따라 0 쪽으로 보정합니다. 보정 기록은 이전 기준 기록보다 빠를수록 높습니다.</p><p class="hint">'+esc(conditions)+'<br>조건 변화는 참고 정보이며 유불리를 일괄 가산하지 않습니다.</p><div class="table-scroll"><table class="validation-table"><thead><tr><th>지표</th><th>점수</th><th>근거</th><th>상태</th></tr></thead><tbody>'+rows+'</tbody></table></div><p class="hint">같은 50점이어도 실제 관측값과 대체값을 구분합니다. 근거 수가 적으면 해당 점수의 근거도 제한적입니다. 지표마다 기간과 조건이 다릅니다. 기수·조교사는 이전 365일, 상대 레이팅은 현재 출전마 수, 출전 간격은 이전 간격 수입니다. 추가 지표는 가중치가 0%면 추천 점수에 반영되지 않습니다.</p></details>';
 }
 

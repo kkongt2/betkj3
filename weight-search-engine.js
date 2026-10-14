@@ -5,7 +5,7 @@ const WeightSearchEngine=(()=>{
  const history=typeof module!=='undefined'?require('./qpl-history-engine.js'):QplHistoryEngine;
  const globalSearch=typeof module!=='undefined'?require('./global-weight-search.js'):GlobalWeightSearch;
  const objectives=['rate','average','product'];
- function normalize(w){const sum=w.reduce((a,b)=>a+b,0)||1,raw=w.map(x=>x*100/sum),out=raw.map(Math.floor);for(const i of raw.map((_,i)=>i).sort((a,b)=>(raw[b]-out[b])-(raw[a]-out[a])||a-b).slice(0,100-out.reduce((a,b)=>a+b,0)))out[i]++;return out;}
+ const normalize=w=>tuning.normalizeActive(w);
  function eligible(g,minHitRate=15){return g.total>0&&g.evaluated>0&&g.evaluated>=Math.ceil(g.total*.4)&&g.hits*1000>=g.evaluated*Math.round(minHitRate*10)&&g.hits===g.paidHits;}
  function better(a,b,objective){return !b||a.metrics[objective]>b.metrics[objective]||a.metrics[objective]===b.metrics[objective]&&(a.metrics.product>b.metrics.product||a.metrics.product===b.metrics.product&&a.all.evaluated>b.all.evaluated);}
  async function run(options,fast,verify,control={}){
@@ -28,7 +28,7 @@ const WeightSearchEngine=(()=>{
    let weights=evolution?evolution.ask():seeds.shift();
    if(evolution&&!weights)break;
    if(!weights){
-    if(elite.length&&random()<.8){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=Math.floor(random()*tuning.FEATURES.length),b=Math.floor(random()*tuning.FEATURES.length),amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
+    if(elite.length&&random()<.8){weights=elite[Math.floor(random()*elite.length)].settings.weights.slice();for(let attempt=0;attempt<30;attempt++){const a=tuning.ACTIVE[Math.floor(random()*tuning.ACTIVE.length)],b=tuning.ACTIVE[Math.floor(random()*tuning.ACTIVE.length)],amount=[1,2,5,10][Math.floor(random()*4)],next=weights.slice();next[a]-=amount;next[b]+=amount;if(a!==b&&next.every(x=>x>=0&&x<=100)&&(!balanced||balance.valid(next))){weights=next;break;}}}
     else weights=project(Array.from({length:tuning.FEATURES.length},()=>Math.pow(random(),3)*100));
    }
    const key=weights.join(',');if(seen.has(key)){await yieldTask();continue;}seen.add(key);

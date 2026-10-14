@@ -4,12 +4,15 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-VERSION='weighted-seoul-trainer22-v1'
+VERSION='weighted-seoul-pace21-v1'
 SOURCE_FROM='20220101'
 EVALUATION_FROM='20230101'
 FIT_TO='20221231'
 FEATURES=['place','win','distance','rating','recent','jockey','trainer','burden','body','interval','speed','margin','opponents','speed_median','speed_best','speed_consistency','mean_finish5','finish_trend','speed_trend','speed_last','finish_consistency']
 FEATURES.append('trainer_form')
+FEATURES += ['early_speed','late_kick','pace_fit','jockey_upgrade']
+RETIRED={0,1,8,16,20}
+ACTIVE=[i for i in range(len(FEATURES)) if i not in RETIRED]
 def day(s):return datetime.strptime(s,'%Y%m%d').toordinal()
 def avg(xs,default=None):return sum(xs)/len(xs) if xs else default
 def clip(x,a,b):return max(a,min(b,x))
@@ -32,10 +35,16 @@ def trend(xs,field):
     return slope*len(points)/(len(points)+3)
 def active(r):return [h for h in r['horses'] if not h.get('withdrawn') and (not r.get('official_result',{}).get('starters') or h['number'] in r['official_result']['starters'])]
 class History:
-    def __init__(self):self.horses=defaultdict(list);self.people=defaultdict(list);self.times=defaultdict(list);self.through=''
+    def __init__(self):self.horses=defaultdict(list);self.people=defaultdict(list);self.times=defaultdict(list);self.sections=defaultdict(list);self.through=''
     def features(self,r):
         if r.get('venue')!='seoul':raise ValueError('Seoul race required')
         d=day(r['date']);field=active(r);ratings=[float(h['rating']) for h in field if h.get('rating',0)>0];field_rating=avg(ratings);base=(2 if len(field)<=7 else 3)/max(3,len(field));result={}
+        front={}
+        for runner in field:
+            previous=[x for x in self.horses[key(r,runner)] if x['day']<d]
+            front[runner['number']]=previous[-1].get('front') if previous else None
+        known=sum(v is not None for v in front.values());leaders=sum(v is True for v in front.values())
+        pace_known=len(field)>=3 and known>=math.ceil(.8*len(field))
         for h in r['horses']:
             hist=[x for x in self.horses[key(r,h)] if x['day']<d];yr=[x for x in hist if x['day']>=d-365];recent=hist[-5:];last=hist[-1] if hist else None
             place=avg([x['placed'] for x in recent],base)
@@ -77,12 +86,28 @@ class History:
             values=[place,win,dist,rating,form,*people,burden,body,interval,speed,margin,opponent,median,best,consistency,avg(forms,.5),trend(recent,'form'),trend(recent,'speed'),last.get('speed') if last else None,-statistics.pstdev(forms) if len(forms)>=3 else None]
             available=[v is not None for v in values]
             values.append(trainer_form);available.append(trainer_form is not None)
+            early_records=[x for x in recent if x.get('early_speed') is not None]
+            late_records=[x for x in recent if x.get('late_kick') is not None]
+            early=smooth(early_records,d,lambda x:x['early_speed'],0,3) if early_records else None
+            late=smooth(late_records,d,lambda x:x['late_kick'],0,3) if late_records else None
+            pace=None
+            if pace_known and front.get(h['number']) is not None:
+                if front[h['number']]:pace=1.0 if leaders==1 else -1.0 if leaders>=3 else 0.0
+                elif late is not None:pace=max(0,late)*2 if leaders>=3 else 0.0
+            previous_jockey=last.get('jockey') if last else None
+            jockey_hist=[x for x in self.people[(r['venue'],'jockey',previous_jockey)] if d-365<=x['day']<d] if previous_jockey else []
+            upgrade=people[0]-smooth(jockey_hist,d,lambda x:x['residual'],0,30) if clean_person(h.get('jockey')) and people_counts[0]>=20 and len(jockey_hist)>=20 else None
+            values.extend([early,late,pace,upgrade]);available.extend(v is not None for v in [early,late,pace,upgrade])
             for i in (0,1,4,16):available[i]=bool(recent)
             available[2]=bool(near)
             margin_count=sum(x.get('margin') is not None for x in recent)
             counts=[len(recent),len(recent),len(near),len(ratings) if rating is not None else 0,len(recent),*people_counts,int(bool(comparable)),len(own_body),len(gaps[-10:]),len(records),margin_count,len(opp),len(records),len(records),len(records),len(recent),len(forms),len(records),int(values[19] is not None),len(forms)]
             counts.append(len(trainer_recent)+len(trainer_baseline))
+            counts.extend([len(early_records),len(late_records),known if pace is not None else 0,min(people_counts[0],len(jockey_hist)) if upgrade is not None else 0])
             details={
+                'pace':{'knownRunners':known,'fieldSize':len(field),'leaders':leaders,'frontRunner':front.get(h['number']),'value':pace},
+                'jockeyUpgrade':{'previousJockey':previous_jockey,'currentJockey':clean_person(h.get('jockey')),'previousStarts':len(jockey_hist),'currentStarts':people_counts[0],'value':upgrade},
+                'sectionals':{'early':early,'late':late},
                 'trainerForm':{'recentStarts':len(trainer_recent),'baselineStarts':len(trainer_baseline),'value':trainer_form},
                 'version':'last5-detail-v1','counts':counts,
                 'recent':[{'date':datetime.fromordinal(x['day']).strftime('%Y%m%d'),'finish':x['finish'],'fieldSize':x['fieldSize'],'form':x['form'],'speed':x.get('speed'),'distance':x['distance'],'grade':x.get('grade')} for x in recent],
@@ -97,7 +122,7 @@ class History:
     def add_day(self,rs):
         rs=[r for r in rs if r.get('venue')=='seoul' and r['date']>=SOURCE_FROM]
         # Compute all baselines before updating any horse/person/track pool that day.
-        pending=[];time_updates=[]
+        pending=[];time_updates=[];section_updates=[]
         for r in rs:
             if r.get('venue')!='seoul' or not r.get('horses'):continue
             d=day(r['date']);n=len(r['horses']);winners=set(r.get('place_winners') or [h['number'] for h in sorted(r['horses'],key=lambda h:h['finish'])[:r.get('place_k',3)]])
@@ -107,6 +132,9 @@ class History:
             track=str(r.get('track_condition') or '?');race_grade=grade(r.get('grade'));exact=(r['venue'],r['distance'],race_grade,track);fallback=(r['venue'],r['distance'],race_grade,'*')
             pool=self.times[exact] if len(self.times[exact])>=20 else self.times[fallback]
             ref=statistics.median(pool[-200:]) if len(pool)>=20 and race_grade is not None else None
+            early_pool=self.sections[(r['distance'],'early')]
+            early_ref=statistics.median(early_pool[-500:]) if len(early_pool)>=20 else None
+            late_times=[x['last_seconds'] for x in r['horses'] if isinstance(x.get('last_seconds'),(int,float)) and 8<=x['last_seconds']<=40 and x.get('finish',99)<=n]
             base=r.get('place_k',3)/n
             for h in r['horses']:
                 hist=[x for x in self.horses[key(r,h)] if d-365<=x['day']<d]
@@ -117,6 +145,13 @@ class History:
                     distance=r['distance'],rating=float(h.get('rating') or 0),grade=grade(r.get('grade')),burden=h.get('burden'),body=h.get('horse_weight'),
                     speed=clip((ref-seconds)*1200/r['distance'],-20,20) if ref is not None and valid else None,
                     margin=clip((seconds-winner_time)*1200/r['distance'],0,30) if valid and winner_time else None,opponents=avg(other))
+                early=h.get('early_seconds');late=h.get('last_seconds');position=h.get('early_position')
+                early_valid=isinstance(early,(int,float)) and 8<=early<=40 and h['finish']<=n
+                late_valid=isinstance(late,(int,float)) and 8<=late<=40 and h['finish']<=n
+                entry.update(jockey=clean_person(h.get('jockey')),front=(position<=2) if isinstance(position,(int,float)) and 1<=position<=n else None,
+                    early_speed=clip(early_ref-early,-5,5) if early_ref is not None and early_valid else None,
+                    late_kick=((sum(x>late for x in late_times)+.5*(sum(x==late for x in late_times)-1))/(len(late_times)-1)-.5) if late_valid and len(late_times)>=3 else None)
+                if early_valid:section_updates.append(((r['distance'],'early'),early))
                 pending.append((r,h,entry,entry['placed']-expected))
             if winner_time:
                 time_updates.extend([(exact,winner_time),(fallback,winner_time)])
@@ -124,6 +159,7 @@ class History:
             self.horses[key(r,h)].append(e)
             for kind in ('jockey','trainer'):self.people[(r['venue'],kind,clean_person(h.get(kind)))].append({'day':e['day'],'residual':residual})
         for k,t in time_updates:self.times[k].append(t)
+        for k,t in section_updates:self.sections[k].append(t)
         if rs:self.through=max(self.through,max(r['date'] for r in rs))
 
 def read_seed():
@@ -188,7 +224,7 @@ def main():
                         coverage[i]+=1
                         if date<=FIT_TO:raw_train[i].append(v)
         history.add_day(by_source[date])
-    scaler={'scope':'seoul','version':VERSION,'sourceFrom':SOURCE_FROM,'evaluationFrom':EVALUATION_FROM,'fitThrough':FIT_TO,'features':FEATURES,'mean':[avg(x,0) for x in raw_train],'std':[max(statistics.pstdev(x),1e-4) if len(x)>1 else 1 for x in raw_train]}
+    scaler={'scope':'seoul','version':VERSION,'sourceFrom':SOURCE_FROM,'evaluationFrom':EVALUATION_FROM,'fitThrough':FIT_TO,'features':FEATURES,'activeFeatures':[FEATURES[i] for i in ACTIVE],'retiredFeatures':[FEATURES[i] for i in sorted(RETIRED)],'mean':[avg(x,0) for x in raw_train],'std':[max(statistics.pstdev(x),1e-4) if len(x)>1 else 1 for x in raw_train]}
     for snap in snapshots.values():
         for x in snap['horses'].values():
             x['features']=[round(.5+clip((v-scaler['mean'][i])/scaler['std'][i],-3,3)/6,10) if v is not None else .5 for i,v in enumerate(x.pop('raw'))]
@@ -211,6 +247,10 @@ def main():
             'speedDefinition':'Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral',
             'recentDefinition':'Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included','meanFinishDefinition':'Arithmetic mean of (fieldSize-finish)/(fieldSize-1) over the same previous five starts; nonfinish is clipped to zero',
             'trainerFormDefinition':'90-day mean ability-adjusted placing residual vs preceding 275 days; minimum 20/50 starts; each mean shrunk by 30 neutral starts; earlier dates only',
+            'activeFeatureCount':len(ACTIVE),'activeFeatures':[FEATURES[i] for i in ACTIVE],
+            'sectionalDefinition':'Early: last five starts vs preceding-date distance median S1F, minimum 20 records; late: within-race G1F speed percentile centered at zero; both shrunk by 3 neutral starts',
+            'paceDefinition':'Previous-start S1F position 1/2 identifies front runners; at least 80% of today starters must have known running styles; one leader gets +1, three or more leaders get -1 and positive late kick benefits non-leaders; an unvalidated prior, not a calibrated probability',
+            'jockeyUpgradeDefinition':'Current minus previous-start jockey ability-adjusted residual over preceding 365 days, at least 20 starts each, shrinkage 30; no same-day results',
             'currentResultInputs':False,'sameDayResultsInputs':False}
     Path('data/weighted-v3-coverage.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
     print(json.dumps(report,ensure_ascii=False),flush=True)

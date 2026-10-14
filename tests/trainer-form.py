@@ -9,7 +9,7 @@ def history(recent=20,baseline=50):
     h.people[pool]=[{'day':d-365+i,'residual':-.1} for i in range(baseline)]+[{'day':d-90+i,'residual':.2} for i in range(recent)]
     return h
 h=history();f=h.features(r)['1']
-assert len(m.FEATURES)==22 and m.FEATURES[21]=='trainer_form'
+assert len(m.FEATURES)==26 and m.FEATURES[21]=='trainer_form'
 assert f['available'][21] and math.isclose(f['raw'][21],4/50+5/80)
 assert f['detail']['trainerForm']['recentStarts']==20
 assert f['detail']['trainerForm']['baselineStarts']==50

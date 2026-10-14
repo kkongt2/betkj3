@@ -28,17 +28,17 @@ const server=http.createServer((req,res)=>{
   const legacy=T.defaults().slice(0,17);
   await page.addInitScript(({fallback,legacy})=>{if(fallback)window.Worker=undefined;if(!localStorage.getItem('betkj3-tuning'))localStorage.setItem('betkj3-tuning',JSON.stringify({weights:legacy}));},{fallback,legacy});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
-  assert.deepEqual(await page.evaluate(()=>strategySettings().weights),[...legacy,0,0,0,0,0]);
+  assert.deepEqual(await page.evaluate(()=>strategySettings().weights),T.settings({weights:legacy}).weights);
   assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
   await page.locator('details.card').filter({has:page.locator('#horses')}).locator('> summary').click();
   await page.locator('.horse-detail summary').first().click();
   const detail=page.locator('.horse-detail').first();
   assert((await detail.innerText()).includes('오래된 경주 → 직전 경주'));assert((await detail.innerText()).includes('자료·조건 부족 · 대체값'));assert((await detail.innerText()).includes('거리 +200m'));
-  assert.equal(await detail.locator('tbody').nth(0).locator('tr').count(),5);assert.equal(await detail.locator('tbody').nth(1).locator('tr').count(),22);
+  assert.equal(await detail.locator('tbody').nth(0).locator('tr').count(),5);assert.equal(await detail.locator('tbody').nth(1).locator('tr').count(),21);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'detail mobile width');
   await detail.screenshot({path:'/tmp/screening-detail-'+(fallback?'fallback':'worker')+'.png'});
   await page.locator('#weightDetails > summary').click();
-  for(let i=17;i<22;i++){const input=page.locator('#weight-'+i);assert.equal(await input.inputValue(),'0');await input.fill('7');await input.dispatchEvent('input');assert.equal(await page.locator('#weight-range-'+i).inputValue(),'7');}
+  for(const i of T.ACTIVE.filter(i=>i>=17)){const input=page.locator('#weight-'+i);assert.equal(await input.inputValue(),'0');await input.fill('7');await input.dispatchEvent('input');assert.equal(await page.locator('#weight-range-'+i).inputValue(),'7');}
   await page.waitForFunction(()=>!document.querySelector('#qplHistoryStats').textContent.includes('계산 중')); 
   const cfg=await page.evaluate(()=>strategySettings()),exact=await H.create(rows).evaluate(cfg,'20230101','20260920');
   await page.waitForFunction(expected=>document.querySelector('#qplHistoryStats .history-product strong')?.textContent===expected,H.metrics(exact.all).product.toFixed(3)+'배');

@@ -19,7 +19,7 @@ const all={total:100,evaluated:100,hits:25,paidHits:25,payoutTotal:125,excluded:
  const pool=moduleObject.exports.create({makeWorker:()=>({postMessage(m){if(m.type==='init'){assert.equal(m.options.seconds,86400);queueMicrotask(()=>this.onmessage({data:{type:'ready'}}));}},terminate(){}})});
  const pending=pool.run([],options,2,()=>{});await new Promise(r=>setImmediate(r));assert(timers.includes(86400000));pool.abort();assert.equal(await pending,null);
  const request={schema:1,requestId:'minutes-test',...options,joint:false,parallel:true,method:'de',target:60};
- const report={schema:1,modelVersion:T.VERSION,featureCount:22,request,runId:'1-1',from:options.from,to:options.to,finishedAt:new Date().toISOString(),result:{count:0,elapsed:86400,workers:1,best:null}};
+ const report={schema:1,modelVersion:T.VERSION,featureCount:26,request,runId:'1-1',from:options.from,to:options.to,finishedAt:new Date().toISOString(),result:{count:0,elapsed:86400,workers:1,best:null}};
  assert.equal(R.report(report).result.elapsed,86400);assert.throws(()=>R.report({...report,result:{...report.result,elapsed:86401}}));
  assert.equal(R.request({...request,seconds:5}).seconds,5,'old Runner results remain readable');assert.equal(R.request({...request,seconds:86400}).seconds,86400);assert.equal(R.request({...request,seconds:172800}).seconds,172800);assert.throws(()=>R.request({...request,seconds:604801}));
  const {nextSegmentSeconds,SEGMENT_SECONDS}=require('../scripts/runner-search.cjs');

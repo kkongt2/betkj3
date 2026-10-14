@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs');
 const M=require('../model.js'),T=require('../tuning-model.js'),P=require('../qpl-policy.js'),H=require('../qpl-history-engine.js'),S=require('../race-selection-model.js');
 const config={...T.settings(),min:2,max:10,anchorRank:1};
 function fixture(index=0){return {venue:'seoul',date:'20260913',race_no:index+1,
- horses:Array.from({length:10},(_,i)=>({number:i+1,name:'말 '+(i+1),weighted_v3_features:Array.from({length:17},(_,j)=>Math.max(0,Math.min(1,.9-i*.07+Math.sin(index*3+i+j)*.13))),weighted_v3_support:{starts:5,available:Array(17).fill(true)}})),
+ horses:Array.from({length:10},(_,i)=>({number:i+1,name:'말 '+(i+1),weighted_v3_features:Array.from({length:T.FEATURES.length},(_,j)=>Math.max(0,Math.min(1,.9-i*.07+Math.sin(index*3+i+j)*.13))),weighted_v3_support:{starts:5,available:Array(T.FEATURES.length).fill(true)}})),
  official_result:{starters:Array.from({length:10},(_,i)=>i+1),pair:{status:'confirmed',payouts:[{numbers:[1,2],odds:4.5},{numbers:[1,3],odds:5.5},{numbers:[2,3],odds:7}]}}};}
 const analyzed=(race,settings=config)=>P.apply(T.apply(M.analyze(race),settings),null,settings);
 const good=fixture(),scored=S.score(analyzed(good),config);
@@ -41,7 +41,7 @@ for(let k=0;k<=100;k++){
   for(const race of races){const result=analyzed(race);if(!S.qualifies(S.score(result,config),level))continue;count++;const key=a=>a.slice().sort((a,b)=>a-b).join('-');const paid=race.official_result.pair.payouts.find(p=>key(p.numbers)===key(result.pairs[0].numbers));if(paid){hits++;returns+=paid.odds;}}
   const p=full.screening.points[level];assert.equal(p.evaluated,count);assert.equal(p.hits,hits);assert.equal(p.product,count?returns/count:null);
  }
- const alt={...config,anchorRank:3,min:2,max:5,weights:Array.from({length:17},(_,i)=>i===1?100:0),includeScreening:true};
+ const alt={...config,anchorRank:3,min:2,max:5,weights:Array.from({length:T.FEATURES.length},(_,i)=>i===1?100:0),includeScreening:true};
  assert.deepEqual((await engine.evaluate(alt,'20230101','20260920')).screening,(await H.create(packed).evaluate(alt,'20230101','20260920')).screening,'changed weights/ranges must invalidate screening cache');
  assert.deepEqual((await engine.evaluate({...config,includeScreening:true},'20230101','20260920')).screening,full.screening);
  const cancelled=await engine.evaluate({...config,includeScreening:true},'20230101','20260920',()=>false);assert.equal(cancelled,null);
