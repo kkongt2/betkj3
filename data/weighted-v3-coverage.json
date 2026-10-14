@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "seoul",
-  "version": "weighted-seoul-trainer22-v1",
+  "version": "weighted-seoul-pace21-v1",
   "sourceRaces": 4857,
   "targetRaces": 3924,
   "horseStarts": 40757,
@@ -31,7 +31,11 @@
     "speed_trend": 33699,
     "speed_last": 34405,
     "finish_consistency": 33517,
-    "trainer_form": 39316
+    "trainer_form": 39316,
+    "early_speed": 38197,
+    "late_kick": 38199,
+    "pace_fit": 36374,
+    "jockey_upgrade": 37364
   },
   "observedCoverage": {
     "place": 38199,
@@ -55,7 +59,11 @@
     "speed_trend": 33699,
     "speed_last": 34405,
     "finish_consistency": 33517,
-    "trainer_form": 39316
+    "trainer_form": 39316,
+    "early_speed": 38197,
+    "late_kick": 38199,
+    "pace_fit": 36374,
+    "jockey_upgrade": 37364
   },
   "fallbackCoverage": {
     "place": 2558,
@@ -79,7 +87,11 @@
     "speed_trend": 7058,
     "speed_last": 6352,
     "finish_consistency": 7240,
-    "trainer_form": 1441
+    "trainer_form": 1441,
+    "early_speed": 2560,
+    "late_kick": 2558,
+    "pace_fit": 4383,
+    "jockey_upgrade": 3393
   },
   "coverageDefinition": "coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions",
   "tailDownloadErrors": [],
@@ -88,6 +100,33 @@
   "recentDefinition": "Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included",
   "meanFinishDefinition": "Arithmetic mean of (fieldSize-finish)/(fieldSize-1) over the same previous five starts; nonfinish is clipped to zero",
   "trainerFormDefinition": "90-day mean ability-adjusted placing residual vs preceding 275 days; minimum 20/50 starts; each mean shrunk by 30 neutral starts; earlier dates only",
+  "activeFeatureCount": 21,
+  "activeFeatures": [
+    "distance",
+    "rating",
+    "recent",
+    "jockey",
+    "trainer",
+    "burden",
+    "interval",
+    "speed",
+    "margin",
+    "opponents",
+    "speed_median",
+    "speed_best",
+    "speed_consistency",
+    "finish_trend",
+    "speed_trend",
+    "speed_last",
+    "trainer_form",
+    "early_speed",
+    "late_kick",
+    "pace_fit",
+    "jockey_upgrade"
+  ],
+  "sectionalDefinition": "Early: last five starts vs preceding-date distance median S1F, minimum 20 records; late: within-race G1F speed percentile centered at zero; both shrunk by 3 neutral starts",
+  "paceDefinition": "Previous-start S1F position 1/2 identifies front runners; at least 80% of today starters must have known running styles; one leader gets +1, three or more leaders get -1 and positive late kick benefits non-leaders; an unvalidated prior, not a calibrated probability",
+  "jockeyUpgradeDefinition": "Current minus previous-start jockey ability-adjusted residual over preceding 365 days, at least 20 starts each, shrinkage 30; no same-day results",
   "currentResultInputs": false,
   "sameDayResultsInputs": false
 }

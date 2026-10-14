@@ -1,27 +1,25 @@
 {
   "schema": 4,
-  "preservedSettings": true,
+  "preservedSettings": false,
+  "migratedSettings": true,
   "scope": "seoul",
-  "version": "user-weighted-seoul-trainer22-v1",
+  "version": "user-weighted-seoul-pace21-v1",
   "weightBalance": {
-    "minimum": 3,
-    "maximum": 20,
+    "version": "active21-v1",
+    "minimum": 0,
+    "maximum": 25,
     "total": 100,
     "groups": [
       {
         "id": "form",
-        "label": "최근 성적·착순",
+        "label": "최근 착순·유사거리",
         "indices": [
-          0,
-          1,
           2,
           4,
-          16,
-          17,
-          20
+          17
         ],
-        "min": 20,
-        "max": 40
+        "min": 0,
+        "max": 25
       },
       {
         "id": "ability",
@@ -30,34 +28,34 @@
           3,
           12
         ],
-        "min": 6,
-        "max": 25
+        "min": 0,
+        "max": 20
       },
       {
         "id": "people",
-        "label": "기수·조교사",
+        "label": "기수·조교사·교체",
         "indices": [
           5,
           6,
-          21
+          21,
+          25
         ],
-        "min": 6,
-        "max": 20
+        "min": 0,
+        "max": 30
       },
       {
         "id": "condition",
-        "label": "중량·마체중·출전 간격",
+        "label": "부담중량·출전 간격",
         "indices": [
           7,
-          8,
           9
         ],
-        "min": 9,
-        "max": 20
+        "min": 0,
+        "max": 15
       },
       {
         "id": "records",
-        "label": "기록·시간차",
+        "label": "전체 기록·시간차",
         "indices": [
           10,
           11,
@@ -67,8 +65,19 @@
           18,
           19
         ],
-        "min": 15,
-        "max": 35
+        "min": 0,
+        "max": 30
+      },
+      {
+        "id": "sectionals",
+        "label": "구간 기록·전개",
+        "indices": [
+          22,
+          23,
+          24
+        ],
+        "min": 0,
+        "max": 40
       }
     ]
   },
@@ -87,23 +96,27 @@
         "anchorRank": 1,
         "modelMode": "custom",
         "weights": [
-          3,
-          3,
-          3,
-          3,
-          11,
-          9,
-          11,
+          0,
+          0,
           4,
-          11,
           4,
+          21,
+          10,
+          12,
+          3,
+          0,
+          12,
           5,
           3,
           4,
           4,
           4,
-          15,
-          3,
+          14,
+          0,
+          0,
+          0,
+          0,
+          0,
           0,
           0,
           0,
@@ -116,19 +129,19 @@
       "all": {
         "total": 3924,
         "evaluated": 3923,
-        "hits": 802,
+        "hits": 819,
         "excluded": 1,
-        "paidHits": 802,
-        "payoutTotal": 3082.599999999996
+        "paidHits": 819,
+        "payoutTotal": 3072.1000000000017
       },
       "years": {
         "2023": {
           "total": 1040,
           "evaluated": 1039,
-          "hits": 211,
+          "hits": 216,
           "excluded": 1,
-          "paidHits": 211,
-          "payoutTotal": 883.7999999999998
+          "paidHits": 216,
+          "payoutTotal": 825.3000000000002
         },
         "2024": {
           "total": 1041,
@@ -136,74 +149,81 @@
           "hits": 214,
           "excluded": 0,
           "paidHits": 214,
-          "payoutTotal": 804.5999999999995
+          "payoutTotal": 821.5000000000002
         },
         "2025": {
           "total": 1033,
           "evaluated": 1033,
-          "hits": 209,
+          "hits": 198,
           "excluded": 0,
-          "paidHits": 209,
-          "payoutTotal": 774.1000000000008
+          "paidHits": 198,
+          "payoutTotal": 709.6000000000001
         },
         "2026": {
           "total": 810,
           "evaluated": 810,
-          "hits": 168,
+          "hits": 191,
           "excluded": 0,
-          "paidHits": 168,
-          "payoutTotal": 620.1000000000004
+          "paidHits": 191,
+          "payoutTotal": 715.7000000000002
         }
       },
       "metrics": {
-        "rate": 0.20443538108590364,
-        "average": 3.8436408977556056,
-        "product": 0.785776191690032
+        "rate": 0.2087687993882233,
+        "average": 3.7510378510378533,
+        "product": 0.7830996686209538
       },
       "weightSummary": {
         "minimum": 0,
-        "maximum": 15,
-        "effectiveFeatures": 12.077294685990339,
+        "maximum": 21,
+        "effectiveFeatures": 8.710801393728223,
         "groups": [
           {
             "id": "form",
-            "label": "최근 성적·착순",
-            "weight": 23,
-            "min": 20,
-            "max": 40
+            "label": "최근 착순·유사거리",
+            "weight": 25,
+            "min": 0,
+            "max": 25
           },
           {
             "id": "ability",
             "label": "레이팅·상대 수준",
-            "weight": 7,
-            "min": 6,
-            "max": 25
+            "weight": 8,
+            "min": 0,
+            "max": 20
           },
           {
             "id": "people",
-            "label": "기수·조교사",
-            "weight": 20,
-            "min": 6,
-            "max": 20
+            "label": "기수·조교사·교체",
+            "weight": 22,
+            "min": 0,
+            "max": 30
           },
           {
             "id": "condition",
-            "label": "중량·마체중·출전 간격",
-            "weight": 19,
-            "min": 9,
-            "max": 20
+            "label": "부담중량·출전 간격",
+            "weight": 15,
+            "min": 0,
+            "max": 15
           },
           {
             "id": "records",
-            "label": "기록·시간차",
-            "weight": 31,
-            "min": 15,
-            "max": 35
+            "label": "전체 기록·시간차",
+            "weight": 30,
+            "min": 0,
+            "max": 30
+          },
+          {
+            "id": "sectionals",
+            "label": "구간 기록·전개",
+            "weight": 0,
+            "min": 0,
+            "max": 40
           }
         ]
       },
       "coverage": 0.9997451580020388
     }
   ],
-  "note": "기존 프리셋 가중치를 유지하고 2023년 이후 자료로 성적을 재계산했습니다. 2022년은 전적 참조와 척도 설정에만 사용하며 2021년은 제외합니다. 새 가중치는 0%로 추가하며 재탐색 결과가 아닙니다."
+  "note": "기존 프리셋의 삭제 지표 가중치를 이관하고 새 그룹 상한으로 조정한 뒤 2023년 이후 자료로 성적을 재계산했습니다. 2022년은 전적 참조와 척도 설정에만 사용하며 2021년은 제외합니다. 새 지표는 이관 시 0%에서 시작하며 그룹 상한 조정 과정에서 배분될 수 있습니다. 재탐색 결과가 아닙니다."
 }
