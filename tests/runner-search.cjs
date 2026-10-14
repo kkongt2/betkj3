@@ -47,7 +47,7 @@ const request={schema:1,requestId:'runner-test',seconds:1,method:'de',objective:
   // Independent checkouts finish together and push to the same result branch.
   const concurrentIds=Array.from({length:6},(_,i)=>String(200+i)+'-1');
   await Promise.all(concurrentIds.map(runId=>{const cwd=path.join(temp,runId);fs.mkdirSync(cwd);exec('git',['init',cwd],{stdio:'pipe'});exec('git',['remote','add','origin',bare],{cwd});fs.mkdirSync(path.join(cwd,'_runner-out'));fs.writeFileSync(path.join(cwd,'_runner-out/result.json'),JSON.stringify({...report,runId}));return new Promise((resolve,reject)=>execFile(process.execPath,[path.resolve('scripts/publish-runner-result.cjs')],{cwd},(error)=>error?reject(error):resolve()));}));
-  const index=JSON.parse(exec('git',['--git-dir',bare,'show','runner-results:index.json'],{encoding:'utf8'}));assert.equal(index.entries.length,8);
+  const index=JSON.parse(exec('git',['--git-dir',bare,'show','runner-results:index.json'],{encoding:'utf8'}));assert.equal(index.entries.length,8);assert(index.entries.every(e=>e.summary?.schema===1&&e.summary.runId===e.runId&&e.summary.request.settings.betStrategy===report.request.settings.betStrategy&&e.summary.result.best.metrics.product===report.result.best.metrics.product));
   for(const runId of concurrentIds)assert.equal(JSON.parse(exec('git',['--git-dir',bare,'show','runner-results:runs/'+runId+'.json'],{encoding:'utf8'})).runId,runId);
   assert.equal(JSON.parse(exec('git',['--git-dir',bare,'show','runner-results:runs/123-1.json'],{encoding:'utf8'})).runId,'123-1');
  }finally{fs.rmSync(temp,{recursive:true,force:true});}

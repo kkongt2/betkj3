@@ -72,6 +72,7 @@ jobs:
           node --check app.js
           node tests/feature-policy.cjs
           node tests/search-policy.cjs
+          node tests/runner-summary.cjs
           node tests/multi-strategy.cjs
           node tests/qpl-policy.cjs
           node scripts/build-qpl-history.cjs

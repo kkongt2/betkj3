@@ -32,12 +32,12 @@ const WeightSearch=(()=>{
   const key=()=>JSON.stringify([api.settings(),api.dataKey()]);
   const options=()=>{const minutes=Number(el('weightSearchMinutes').value);if(!Number.isInteger(minutes)||minutes<10||minutes>1440||minutes%10!==0)throw Error('탐색 시간은 10~1,440분 범위에서 10분 단위로 입력하세요.');const fitness=readFitness();return {...(fitness?{fitness}:{}),seconds:minutes*60,minHitRate:readMinHitRate(),parallel:parallelControl.checked,method:methodControl.value,objective:el('weightSearchGoal').value,balanced:el('weightSearchBalanced').checked,settings:api.settings(),joint:el('weightSearchMode').value==='joint',target:+el('weightSearchTarget').value};};
   const runnerOptions=()=>{const out=options(),choice=runnerDuration?.value||'current';if(choice==='current')return out;const seconds=Number(choice);if(!Number.isInteger(seconds)||seconds<86400||seconds>604800||seconds%86400!==0)throw Error('Runner 탐색 시간을 확인해 주세요.');return {...out,seconds};};
-  const runner=RunnerSearchPanel.init({options:runnerOptions,canPrepare:()=>!busy,receive:async report=>{
+  const runner=RunnerSearchPanel.init({options:runnerOptions,canPrepare:()=>!busy,receive:async(report,current=()=>true)=>{
    invalidate('현재 최고 조합의 연도별 성적을 재계산 중…');const id=++token,o=report.request;let out=report.result;
    busy=true;snapshot=key();buttons();stop.disabled=true;api.pause(true);
    try{
     if((o.joint||o.fitness||report.migrated)&&out.best)out=await api.recalculate(report);
-    if(id!==token||!out)return false;
+    if(id!==token||!out||!current())return false;
     minHitRateControl.value=String(o.minHitRate??15);saveMinHitRate();robust.checked=!!o.fitness;if(o.fitness){cap.value=String(o.fitness.cap);floor.value=String(o.fitness.floor);}saveFitness();methodControl.value=o.method;methodHelp();el('weightSearchGoal').value=o.objective;el('weightSearchMode').value=o.joint?'joint':'all';el('weightSearchTarget').value=String(o.target);el('weightSearchGoal').disabled=o.joint;el('weightSearchTarget').disabled=!o.joint;
     best=out.best;display(best);status.textContent='Runner 탐색 완료 · '+workerLabel(out)+' · '+out.count.toLocaleString()+'회 평가 · '+(out.elapsed/60).toFixed(2)+'분 · '+(best?'검산 완료 · 적용 버튼을 누르면 반영됩니다.':'조건을 만족한 후보 없음');return true;
    }catch(e){if(id===token){best=null;result.textContent='';status.textContent='Runner 결과 재계산 실패: '+e.message;}throw e;}
