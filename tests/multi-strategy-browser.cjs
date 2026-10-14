@@ -24,10 +24,18 @@ const server=http.createServer((req,res)=>{
   if(fallback)await page.addInitScript(()=>{window.Worker=undefined;});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
   await page.locator('#screeningEnabled').check();
-  for(const mode of ['qpl-anchor2','trio-box4','trio-box3','hybrid','qpl-single']){
+  for(const mode of ['place-single','qpl-anchor2','trio-box4','trio-box3','hybrid','qpl-single']){
    await page.selectOption('#betStrategy',mode);
    await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
    const cfg=await page.evaluate(()=>strategySettings()),g=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');
+   if(mode==='place-single'){
+    assert.equal(await page.locator('#betStrategyTitle').innerText(),'연승');
+    assert(await page.locator('#partnerMin').isDisabled());assert(await page.locator('#partnerMax').isDisabled());
+    await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).settings.betStrategy,mode);
+    await page.selectOption('#anchorRank','2');await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
+    assert((await page.locator('#pairLead').innerText()).includes('분석 2위'));
+    await page.selectOption('#anchorRank','1');await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
+   }
    if(mode==='hybrid'){
     assert(await page.locator('#hybridControls').isVisible());
     assert.equal(await page.locator('#pairList .candidate').count(),3);

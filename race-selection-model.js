@@ -56,10 +56,29 @@ const RaceSelectionModel=(()=>{
   return picks.length===need?picks.map(x=>({...x,anchor:p.anchor})):[];
  }
  function strategyFeatures(result,settings){
+  if(settings.betStrategy==='place-single'){
+   const T=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel,s=T.placeSelection(result,settings);
+   return s.ready?jointFeatures(result.horses,settings.weights,s.picks[0].numbers[0],s.picks[0].numbers[0]):null;
+  }
   const pairs=strategyPairs(result,settings),features=pairs.map(p=>jointFeatures(result.horses,settings.weights,p.anchor.number,p.partner.number));
   return pairs.length&&features.every(Boolean)?JOINT_LABELS.map((_,j)=>mean(features.map(f=>f[j]))):null;
  }
  function score(result,settings){
+  if(settings.betStrategy==='place-single'){
+   const T=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel,s=T.placeSelection(result,settings);
+   if(!s.ready)return {version:VERSION,available:false,score:null};
+   const joint=jointConfig(settings.screening),features=strategyFeatures(result,settings);
+   if(joint)return {version:JOINT_VERSION,available:!!features,score:features?jointScore(features,joint.coefficients):null};
+   const field=result.horses,w=settings.weights,total=w.reduce((a,b)=>a+b,0),f=field.map(h=>values(h,w)),raw=f.map(x=>x.reduce((a,v,j)=>a+v*w[j]/total,0)),chosen=+s.picks[0].numbers[0],rank=s.rank-1;
+   let same=0,trials=0;
+   for(let j=0;j<w.length;j++)if(w[j]>0)for(const factor of [-.2,.2]){
+    const changed=raw.map((v,i)=>v+f[i][j]*w[j]/total*factor),order=field.map((_,i)=>i).sort((a,b)=>changed[b]-changed[a]||field[a].number-field[b].number);
+    trials++;if(+field[order[rank]]?.number===chosen)same++;
+   }
+   const i=field.findIndex(h=>+h.number===chosen),others=raw.filter((_,j)=>j!==i),quality=h=>.5*clamp((h.weighted_v3_support?.starts||0)/5)+.5*w.reduce((a,v,j)=>a+v*(h.weighted_v3_support?.available?.[j]===true?1:0),0)/total;
+   const components={stability:(trials?same/trials:0)*clamp((Math.max(...raw)-Math.min(...raw))/.1),completeness:.5*quality(field[i])+.5*mean(field.map(quality)),gap:clamp((raw[i]-(others.length?Math.max(...others):0))/.15),advantage:clamp((s.picks[0].prob/(result.k/field.length)-1)/2)};
+   return {version:VERSION,available:true,score:Math.round(100000*(.35*components.stability+.25*components.completeness+.25*components.gap+.15*components.advantage))/1000,components};
+  }
   if(settings.betStrategy&&settings.betStrategy!=='qpl-single'){
    const pairs=strategyPairs(result,settings);if(!pairs.length)return {version:VERSION,available:false,score:null};
    const joint=jointConfig(settings.screening),features=strategyFeatures(result,settings);

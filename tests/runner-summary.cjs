@@ -14,6 +14,7 @@ for(const phrase of ['적중률 하한','20%','균형 제한','실제 4개 작�
 assert.equal(S.selection(summary.request.settings),'분석 상위 4두 · 4조합');
 assert.equal(S.selection(S.summarize(fixture('trio-box3')).request.settings),'분석 상위 4두 · 1위 축 고정 · 3조합');
 assert(S.selection(S.summarize(fixture('hybrid')).request.settings).includes('복병 4·6위 · 총 3조합'));
+assert.equal(S.selection(S.summarize(fixture('place-single')).request.settings),'연승확률 분석 1위 · 1두');
 assert(S.selection(S.summarize(fixture('qpl-anchor2')).request.settings).includes('상대 2~12위 · 2조합'));
 const empty=fixture();empty.result.best=null;empty.request.seconds=empty.result.elapsed=42000;assert(S.label(S.summarize(empty)).includes('조건 만족 후보 없음'));assert(!S.summarize(empty).result.partial);
 const old=fixture('qpl-single');old.modelVersion='user-weighted-seoul-trainer22-v1';delete old.request.minHitRate;old.request.settings.weights=Array(22).fill(1);old.result.best.settings.weights=Array(22).fill(1);

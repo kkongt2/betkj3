@@ -7,7 +7,7 @@ const QplHistoryEngine=(()=>{
  const PERIOD={from:'20230101',comparisonFrom:'20240101'};
  const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
- const modeOf=o=>['qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(o?.betStrategy)?o.betStrategy:'qpl-single';
+ const modeOf=o=>['place-single','qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(o?.betStrategy)?o.betStrategy:'qpl-single';
  function sumYears(years,from){const g=blank();for(const [year,x] of Object.entries(years||{}))if(year>=from.slice(0,4))for(const k of Object.keys(g))g[k]+=x[k]||0;return g;}
  function summarizeStrategy(rows,from,to){
   const groups=Object.fromEntries(['all','seoul'].map(k=>[k,blank()]));
@@ -38,6 +38,7 @@ const QplHistoryEngine=(()=>{
   const entries=rows.filter(r=>r.venue==='seoul').map(row=>({
    row,
    winning:new Map((row.payouts||[]).map(p=>[key(p.numbers),p.odds])),
+   placeWinning:new Map((row.placePayouts||[]).map(p=>[key(p.numbers),p.odds])),
    trioWinning:new Map((row.trioPayouts||[]).map(p=>[key(p.numbers),p.odds]))
   }));
   const coverageCache=new Map();
@@ -60,7 +61,11 @@ const QplHistoryEngine=(()=>{
    const base=tuning.unpack(signature==='existing'?entry.row:entry.custom);
    const result=policy.apply(base,null,config);result.allPairs=base.pairs;
    let ready=false,settled=false,hit=false,payout=null,candidates=[];
-   if(mode==='hybrid'){
+   if(mode==='place-single'){
+    const selected=tuning.placeSelection(result,config);ready=selected.ready;
+    settled=entry.row.placeSettled===true&&entry.placeWinning.size>0;
+    if(ready){const pick=selected.picks[0];hit=entry.placeWinning.has(key(pick.numbers));const amount=entry.placeWinning.get(key(pick.numbers));payout=hit&&Number.isFinite(amount)?amount:null;candidates=[{pick,hit,payout}];}
+   }else if(mode==='hybrid'){
     const selected=tuning.hybridSelection(result,config);ready=selected.ready;
     settled=entry.row.settled===true&&entry.winning.size>0&&entry.row.trioSettled===true&&entry.trioWinning.size>0;
     if(ready){

@@ -44,7 +44,7 @@ const TuningModel=(()=>{
   const weights=validWeights(candidate)?migrateWeights(candidate):defaults();
   const selection=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
   const screening=selection.jointConfig(s.screening);
-  return {betStrategy:['qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...((s.betStrategy==='hybrid'||s.hybridRanks!==undefined)?{hybridRanks:validHybridRanks(s.hybridRanks)?s.hybridRanks.slice():[4,5]}:{}),...(screening?{screening}:{})};
+  return {betStrategy:['place-single','qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...((s.betStrategy==='hybrid'||s.hybridRanks!==undefined)?{hybridRanks:validHybridRanks(s.hybridRanks)?s.hybridRanks.slice():[4,5]}:{}),...(screening?{screening}:{})};
  }
  const label=()=> '서울 최근 5경주 가중치 ('+ACTIVE.length+'개)';
  function featureValues(values){return FEATURES.map((_,i)=>Number.isFinite(values?.[i])?values[i]:.5);}
@@ -69,6 +69,12 @@ const TuningModel=(()=>{
   const horses=field.map((h,i)=>({...h,prob:place.p[i],reasons:[...FEATURES.map((f,j)=>({label:f.label,value:features[i][j],weight:config.weights[j],available:h.weighted_v3_support?.available?.[j],count:h.weighted_v3_support?.detail?.counts?.[j]})).filter(x=>x.weight>0).sort((a,b)=>b.weight-a.weight).slice(0,3).map(x=>x.label+' '+(x.available===false?'자료·조건 부족 · 대체점수 ':x.available===true?'점수 ':'자료 확인 전 점수 ')+Math.round(x.value*100)+(Number.isInteger(x.count)?' / 근거 '+x.count+'건':'')+' / 가중치 '+x.weight+'%'),h.weighted_v3_support?.through?'전적 기준 '+h.weighted_v3_support.through:'이전 전적 부족 · 중립값/사전값 포함']})).sort((a,b)=>b.prob-a.prob||+a.number-+b.number);
   return {...base,horses,places,pairs,model:version,models:{place:version,pair:version},advanced:{place:false,pair:false},selectiveActive:{place:false,pair:false},selection:{place:{qualified:false,reason:'사용자 가중치 적용 · 별도 선별 검증 없음'},pair:{qualified:false,reason:'사용자 가중치 적용'}},selectivePicks:{place:null,pair:null},tuning:config};
  }
+ function placeSelection(result,settings={}){
+  const starters=result.official_result?.starters,active=Array.isArray(starters)?new Set(starters.map(Number)):null;
+  const picks=(result.places||[]).filter(p=>Number.isFinite(p.prob)&&(!active||active.has(+p.numbers[0]))).slice().sort((a,b)=>b.prob-a.prob||+a.numbers[0]-+b.numbers[0]);
+  const rank=[1,2,3].includes(+settings.anchorRank)?+settings.anchorRank:1,pick=picks[rank-1];
+  return pick?{ready:true,kind:'place',picks:[pick],rank}:{ready:false,kind:'place',reason:'선택한 연승확률 분석 '+rank+'위 말이 없습니다.'};
+ }
  function packedSupport(s){if(!s?.detail)return s||null;return {...s,detail:{version:s.detail.version,counts:s.detail.counts}};}
  function pack(base){
   const field=base.horses.slice().sort((a,b)=>+a.number-+b.number);
@@ -76,6 +82,7 @@ const TuningModel=(()=>{
    horses:base.horses.map(h=>[+h.number,base.places.find(p=>+p.numbers[0]===+h.number).prob,h.quality,engine.score(h,field).features,h.weighted_features||null,h.weighted_support||null,h.weighted_v3_features||null,packedSupport(h.weighted_v3_support)]),
    pairs:base.pairs.map(p=>[...p.numbers.map(Number),p.prob]),starters:base.official_result?.starters||null,
    settled:base.official_result?.pair?.status==='confirmed'&&!!base.official_result.pair.payouts?.length,payouts:base.official_result?.pair?.payouts||[],
+   placeSettled:base.official_result?.place?.status==='confirmed'&&!!base.official_result.place.payouts?.length,placePayouts:base.official_result?.place?.payouts||[],
    trioSettled:base.official_result?.trio?.status==='confirmed'&&!!base.official_result.trio.payouts?.length,trioPayouts:base.official_result?.trio?.payouts||[]};
  }
  function unpack(row){
@@ -83,8 +90,8 @@ const TuningModel=(()=>{
   return {date:row.date,venue:row.venue,race_no:row.race,k:row.k,horses,models:row.models,mode:'accuracy',reasons:[],
    places:horses.map(h=>({numbers:[h.number],names:[h.name],prob:h.prob,quality:h.quality})).sort((a,b)=>b.prob-a.prob),
    pairs:row.pairs.map(([a,b,prob])=>({numbers:[a,b],names:[String(a),String(b)],prob})),
-   official_result:{starters:row.starters,pair:{status:row.settled?'confirmed':'pending',payouts:row.payouts||[]},trio:{status:row.trioSettled?'confirmed':'pending',payouts:row.trioPayouts||[]}}};
+   official_result:{starters:row.starters,place:{status:row.placeSettled?'confirmed':'pending',payouts:row.placePayouts||[]},pair:{status:row.settled?'confirmed':'pending',payouts:row.payouts||[]},trio:{status:row.trioSettled?'confirmed':'pending',payouts:row.trioPayouts||[]}}};
  }
- return {ACTIVE,RETIRED,MIGRATION,normalizeActive,migrateWeights,HYBRID_RANKS,validHybridRanks,hybridSelection,FEATURES,VERSION,featureValues,label,weightsFor,defaults,validWeights,settings,apply,pack,unpack};
+ return {placeSelection,ACTIVE,RETIRED,MIGRATION,normalizeActive,migrateWeights,HYBRID_RANKS,validHybridRanks,hybridSelection,FEATURES,VERSION,featureValues,label,weightsFor,defaults,validWeights,settings,apply,pack,unpack};
 })();
 if(typeof module!=='undefined')module.exports=TuningModel;
