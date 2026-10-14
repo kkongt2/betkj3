@@ -141,5 +141,16 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(nodes['#rangeHelp'].textContent.includes('분석 1위 축 고정'));
  assert(nodes['#modeHelp'].textContent.includes('1위를 축마로 고정'));
  assert.equal(savedData.get('betkj3-bet-strategy'),'trio-box3');
+ nodes['#betStrategy'].value='hybrid';nodes['#betStrategy'].onchange();await flush();
+ assert.equal(nodes['#hybridControls'].hidden,false);
+ assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),3);
+ assert(nodes['#pairList'].innerHTML.includes('복연승'));
+ assert(nodes['#pairList'].innerHTML.includes('삼복승'));
+ nodes['#hybridRanks'].value='6';nodes['#hybridRanks'].onchange();await flush();
+ assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),2);
+ assert.equal(vm.runInContext('TuningModel.settings(strategySettings()).hybridRanks.join()',sandbox),'6');
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('분석 1·2위 고정 + 복병 6위'));
+ nodes['#weight-0'].value='35';nodes['#weight-0'].oninput();await flush();
+ assert.equal(vm.runInContext('strategySettings().hybridRanks.join()',sandbox),'6');
  console.log('PASS analysis-only QPL selection, no final-odds fetch, one preset, controls, history and result display');
 })().catch(e=>{console.error(e);process.exitCode=1});

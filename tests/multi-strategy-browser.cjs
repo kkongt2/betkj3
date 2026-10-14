@@ -24,10 +24,17 @@ const server=http.createServer((req,res)=>{
   if(fallback)await page.addInitScript(()=>{window.Worker=undefined;});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
   await page.locator('#screeningEnabled').check();
-  for(const mode of ['qpl-anchor2','trio-box4','trio-box3','qpl-single']){
+  for(const mode of ['qpl-anchor2','trio-box4','trio-box3','hybrid','qpl-single']){
    await page.selectOption('#betStrategy',mode);
    await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
    const cfg=await page.evaluate(()=>strategySettings()),g=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');
+   if(mode==='hybrid'){
+    assert(await page.locator('#hybridControls').isVisible());
+    assert.equal(await page.locator('#pairList .candidate').count(),3);
+    await page.selectOption('#hybridRanks','6');
+    assert.equal(await page.locator('#pairList .candidate').count(),2);
+    await page.selectOption('#hybridRanks','4,5');
+   }
    if(mode==='trio-box3'){
     const selection=await page.evaluate(()=>strategySelection(ranked));
     assert.equal(selection.combos.length,3);

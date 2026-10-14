@@ -7,8 +7,9 @@ const RunnerSearchContract=(()=>{
  const fail=()=>{throw Error('Runner 탐색 자료 형식 또는 범위를 확인해 주세요.');};
  function settings(s){
   if(!s||!T.validWeights(s.weights)||s.weights.length!==T.FEATURES.length||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)fail();
+  if(s.hybridRanks!==undefined&&!T.validHybridRanks(s.hybridRanks))fail();
   if(s.screening&&!S.jointConfig(s.screening))fail();
-  if(s.betStrategy!==undefined&&!['qpl-single','qpl-anchor2','trio-box4','trio-box3'].includes(s.betStrategy))fail();
+  if(s.betStrategy!==undefined&&!['qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy))fail();
   return {...T.settings(s),anchorRank:s.anchorRank,min:s.min,max:s.max};
  }
  function request(x){

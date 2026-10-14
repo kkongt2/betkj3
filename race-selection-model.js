@@ -32,6 +32,15 @@ const RaceSelectionModel=(()=>{
  function strictness(value){return Number.isFinite(+value)?Math.max(0,Math.min(100,Math.round(+value))):0;}
  function qualifies(result,value){const threshold=strictness(value);return result?.available===true&&threshold<100&&(threshold===0||result.score>=threshold);}
  function strategyPairs(result,settings){
+  if(settings.betStrategy==='hybrid'){
+   const T=typeof module!=='undefined'?require('./tuning-model.js'):TuningModel,selected=T.hybridSelection(result,settings);
+   if(!selected.ready)return [];
+   const pairs=[];
+   for(const combo of selected.combos)for(let i=0;i<combo.numbers.length;i++)for(let j=i+1;j<combo.numbers.length;j++){
+    const numbers=[combo.numbers[i],combo.numbers[j]],pick=(result.allPairs||result.pairs||[]).find(p=>pairKey(p.numbers)===pairKey(numbers));
+    if(!pick)return [];pairs.push({pick,anchor:result.horses.find(h=>+h.number===+numbers[0]),partner:result.horses.find(h=>+h.number===+numbers[1])});
+   }return pairs;
+  }
   if(['trio-box4','trio-box3'].includes(settings.betStrategy)){
    const box=result.horses.slice().sort((a,b)=>b.prob-a.prob||a.number-b.number).slice(0,4);
    if(box.length!==4)return [];
@@ -62,8 +71,8 @@ const RaceSelectionModel=(()=>{
    const trioAnchor=settings.betStrategy==='trio-box3'?result.horses.slice().sort((a,b)=>b.prob-a.prob||a.number-b.number)[0].number:null;let same=0,trials=0;
    for(let j=0;j<weights.length;j++)if(weights[j]>0)for(const factor of [-.2,.2]){
     const changed=raw.map((v,i)=>v+fieldFeatures[i][j]*weights[j]/total*factor),order=field.map((_,i)=>i).sort((a,b)=>changed[b]-changed[a]||field[a].number-field[b].number);
-    const anchor=order[(settings.anchorRank||1)-1],chosen=['trio-box4','trio-box3'].includes(settings.betStrategy)?order.slice(0,4):[anchor,...order.slice(settings.min-1,settings.max).filter(i=>i!==anchor).slice(0,2)];
-    trials++;if(chosen.every(i=>i!==undefined)&&pairKey(chosen.map(i=>field[i].number))===selected&&(settings.betStrategy!=='trio-box3'||+field[order[0]].number===+trioAnchor))same++;
+    const anchor=order[(settings.anchorRank||1)-1],chosen=settings.betStrategy==='hybrid'?[order[0],order[1],...(settings.hybridRanks||[4,5]).map(rank=>order[rank-1])]:['trio-box4','trio-box3'].includes(settings.betStrategy)?order.slice(0,4):[anchor,...order.slice(settings.min-1,settings.max).filter(i=>i!==anchor).slice(0,2)];
+    trials++;if(chosen.every(i=>i!==undefined)&&pairKey(chosen.map(i=>field[i].number))===selected&&(settings.betStrategy!=='hybrid'||pairKey(order.slice(0,2).map(i=>field[i].number))===pairKey(pairs[0].pick.numbers))&&(settings.betStrategy!=='trio-box3'||+field[order[0]].number===+trioAnchor))same++;
    }
    const stability=(trials?same/trials:0)*clamp((Math.max(...raw)-Math.min(...raw))/.1);
    const components={stability,...Object.fromEntries(['completeness','gap','advantage'].map(k=>[k,mean(scores.map(s=>s.components[k]))]))};

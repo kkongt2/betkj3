@@ -5,12 +5,23 @@ const TuningModel=(()=>{
  const FEATURES=[["place","최근 5경주 연승 입상률",22,"해당 말의 직전 5경주 · 실제 연승 입상 횟수 ÷ 출전 횟수"],["win","최근 5경주 승률",0,"해당 말의 직전 5경주 · 1착 횟수 ÷ 출전 횟수"],["distance","최근 5경주 유사 거리 입상률",14,"직전 5경주 중 현재 거리 ±200m · 대상 경주가 없으면 최근 5경주 입상률"],["rating","상대 레이팅",9,"출전마 평균과 차이 · 극단값에 흔들리는 최소·최대 환산 제거"],["recent","최근 5경주 착순 · 최근 강조",8,"출전 두수 보정 착순 · 최근 경주에 가중치와 소표본 보정 적용"],["jockey","기수 기대 대비 입상",7,"과거 기승마 전적으로 예상한 입상 대비 실제 성적 · 소표본 보정"],["trainer","조교사 기대 대비 입상",5,"과거 관리마 전적으로 예상한 입상 대비 실제 성적 · 소표본 보정"],["burden","직전 대비 부담중량",5,"같은 등급·유사 레이팅일 때 자신의 직전 중량과 비교"],["body","입상 당시 마체중과 차이",3,"자신의 과거 입상 체중 중앙값과 비교 · 최소 3회"],["interval","평소 출전 간격과 차이",2,"자신의 과거 출전 주기와 비교 · 최소 3개 간격"],["speed","등급·거리·주로 보정 평균 기록",4,"이전 경주 기록을 해당 경주 이전의 경마장·거리·주로 기준 기록과 비교"],["margin","선두와의 시간차",6,"이전 경주 선두와의 시간차를 1200m 기준으로 보정 · 거리 단위 착차 아님"],["opposition","과거 상대 수준·등급 변화",4,"과거 상대 평균 레이팅과 현재 출전마 수준·등급 비교"],["speed_median","보정 기록 중앙값",3,"최근 5경주의 유효 등급 보정 기록 중앙값"],["speed_best","보정 최고 기록",2,"최근 5경주 최고 보정 기록 · 소표본 보정"],["speed_consistency","보정 기록 안정성",1,"최근 5경주 보정 기록의 표준편차 감점 · 최소 3회"],["mean_finish5","최근 5경주 두수 보정 평균 순위",5,"각 경주의 (두수−순위)/(두수−1)을 동일 가중치로 평균 · 높을수록 우수"],["finish_trend", "최근 5경주 착순 상승 추세", 0, "두수 보정 착순의 출전 순서별 기울기 · 상승일수록 우수 · 최소 2회, 소표본 보정"],["speed_trend", "최근 5경주 보정 기록 상승 추세", 0, "보정 기록의 출전 순서별 기울기 · 빨라질수록 우수 · 최소 2회, 소표본 보정"],["speed_last", "직전 경주 보정 기록", 0, "평균에 가려진 직전 기록 · 직전 경주 보정 기록이 없으면 중립값"],["finish_consistency", "최근 5경주 착순 안정성", 0, "두수 보정 착순의 표준편차 감점 · 변동이 작을수록 우수 · 최소 3회"],["trainer_form","조교사 최근 상승세",0,"최근 90일과 이전 275일의 기대 대비 입상 성적 차이 · 최소 20건·50건, 소표본 보정"]].map(([id,label,weight,description])=>({id,label,weight,description}));
  const defaults=()=>FEATURES.map(f=>f.weight);
  function validWeights(w){return Array.isArray(w)&&[10,13,16,17,21,FEATURES.length].includes(w.length)&&w.every(n=>Number.isInteger(n)&&n>=0&&n<=100)&&w.some(n=>n>0);}
+ const HYBRID_RANKS=['4','5','6','4,5','4,6','5,6'];
+ function validHybridRanks(ranks){return Array.isArray(ranks)&&ranks.every(Number.isInteger)&&HYBRID_RANKS.includes(ranks.join(','));}
+ function hybridSelection(result,config={}){
+  const ranks=validHybridRanks(config.hybridRanks)?config.hybridRanks:[4,5];
+  const ordered=(result.horses||[]).slice().sort((a,b)=>(b.prob||0)-(a.prob||0)||a.number-b.number);
+  if(ordered.length<Math.max(...ranks))return {ready:false,kind:'hybrid',reason:'선택한 복병 분석 순위까지 출전마가 필요합니다.'};
+  const anchor=ordered[0],partner=ordered[1],longshots=ranks.map(rank=>ordered[rank-1]);
+  const pair=(result.allPairs||result.pairs||[]).find(p=>p.numbers.map(Number).sort((a,b)=>a-b).join('-')===[anchor.number,partner.number].map(Number).sort((a,b)=>a-b).join('-'));
+  const combos=[{kind:'pair',numbers:[anchor.number,partner.number],names:[anchor.name,partner.name],prob:pair?.prob??null},...longshots.map(h=>({kind:'trio',numbers:[anchor.number,partner.number,h.number],names:[anchor.name,partner.name,h.name],prob:null}))];
+  return {ready:true,kind:'hybrid',anchor,partner,longshots,combos};
+ }
  function settings(s={}){
   const candidate=s.weightScope==='venue'&&validWeights(s.venueWeights?.seoul)?s.venueWeights.seoul:s.weights;
   const weights=validWeights(candidate)?FEATURES.map((_,i)=>candidate[i]??0):defaults();
   const selection=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
   const screening=selection.jointConfig(s.screening);
-  return {betStrategy:['qpl-single','qpl-anchor2','trio-box4','trio-box3'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...(screening?{screening}:{})};
+  return {betStrategy:['qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...((s.betStrategy==='hybrid'||s.hybridRanks!==undefined)?{hybridRanks:validHybridRanks(s.hybridRanks)?s.hybridRanks.slice():[4,5]}:{}),...(screening?{screening}:{})};
  }
  const label=()=> '서울 최근 5경주 가중치 ('+FEATURES.length+'개)';
  function featureValues(values){return FEATURES.map((_,i)=>Number.isFinite(values?.[i])?values[i]:.5);}
@@ -51,6 +62,6 @@ const TuningModel=(()=>{
    pairs:row.pairs.map(([a,b,prob])=>({numbers:[a,b],names:[String(a),String(b)],prob})),
    official_result:{starters:row.starters,pair:{status:row.settled?'confirmed':'pending',payouts:row.payouts||[]},trio:{status:row.trioSettled?'confirmed':'pending',payouts:row.trioPayouts||[]}}};
  }
- return {FEATURES,VERSION,featureValues,label,weightsFor,defaults,validWeights,settings,apply,pack,unpack};
+ return {HYBRID_RANKS,validHybridRanks,hybridSelection,FEATURES,VERSION,featureValues,label,weightsFor,defaults,validWeights,settings,apply,pack,unpack};
 })();
 if(typeof module!=='undefined')module.exports=TuningModel;
