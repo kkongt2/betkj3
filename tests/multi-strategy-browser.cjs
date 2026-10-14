@@ -24,10 +24,19 @@ const server=http.createServer((req,res)=>{
   if(fallback)await page.addInitScript(()=>{window.Worker=undefined;});
   await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
   await page.locator('#screeningEnabled').check();
-  for(const mode of ['qpl-anchor2','trio-box4','qpl-single']){
+  for(const mode of ['qpl-anchor2','trio-box4','trio-box3','qpl-single']){
    await page.selectOption('#betStrategy',mode);
    await page.waitForFunction(()=>document.querySelector('#screeningStats').getAttribute('aria-busy')==='false');
    const cfg=await page.evaluate(()=>strategySettings()),g=await H.create(rows).evaluate({...cfg,includeScreening:true},'20230101','20260920');
+   if(mode==='trio-box3'){
+    const selection=await page.evaluate(()=>strategySelection(ranked));
+    assert.equal(selection.combos.length,3);
+    assert(selection.combos.every(c=>c.numbers.includes(selection.box[0].number)));
+    assert.equal(await page.locator('#pairList .candidate').count(),3);
+    assert((await page.locator('#pairLead').innerText()).includes('축마로 고정'));
+    await page.locator('#prepareRunnerSearch').click();
+    assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).settings.betStrategy,mode);
+   }
    assert.equal(cfg.betStrategy,mode);assert.equal(await page.locator('#screeningProduct').innerText(),g.screening.points[0].product.toFixed(4)+'배');
    assert((await page.locator('#pairLead').innerText()).includes('배'));
    assert.equal(await page.locator('#raceOverview .screening-badge').count(),12);
@@ -47,8 +56,8 @@ const server=http.createServer((req,res)=>{
     }
    }
   }
-  await page.selectOption('#savedStrategy','trio-box4');await page.locator('#loadStrategy').click();assert.equal(await page.locator('#betStrategy').inputValue(),'trio-box4');
-  await page.reload();await page.locator('#screeningProduct').waitFor();assert.equal(await page.locator('#betStrategy').inputValue(),'trio-box4');
+  await page.selectOption('#savedStrategy','trio-box3');await page.locator('#loadStrategy').click();assert.equal(await page.locator('#betStrategy').inputValue(),'trio-box3');
+  await page.reload();await page.locator('#screeningProduct').waitFor();assert.equal(await page.locator('#betStrategy').inputValue(),'trio-box3');
   await page.locator('.race-screening').screenshot({path:'/tmp/multi-strategy-'+(fallback?'fallback':'worker')+'.png'});
   await context.close();
  }assert.deepEqual(errors,[]);console.log('PASS mobile multi-strategy worker/fallback, stats, payouts, searches, save/load, reload and layout');

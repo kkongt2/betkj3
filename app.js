@@ -8,6 +8,7 @@ const BET_STRATEGY_KEY='betkj3-bet-strategy';
 const BET_STRATEGIES={
  'qpl-single':{title:'복연승',rule:'1축 + 상대 1두 · 1조합',overview:'복연승 1조합',help:'현재 방식 · 축마와 동반입상확률이 가장 높은 상대 1두를 선택합니다.'},
  'qpl-anchor2':{title:'복연승',rule:'1축 + 상대 2두 · 2조합',overview:'복연승 2조합',help:'같은 축마에 동반입상확률이 높은 상대 2두를 붙여 2조합을 구매합니다.'},
+ 'trio-box3':{title:'삼복승',rule:'3두 박스 · 1위 축 고정 · 3조합',overview:'삼복승 3두 박스',help:'연승확률 분석 상위 4두 중 1위를 축마로 고정하고 1·2·3위, 1·2·4위, 1·3·4위의 3조합을 구매합니다. 1위가 없는 2·3·4위 조합은 제외합니다.'},
  'trio-box4':{title:'삼복승',rule:'4두 박스 · 4조합',overview:'삼복승 4두 박스',help:'연승확률 분석 상위 4두를 고르고 그중 3두씩 묶은 4개 삼복승 조합을 모두 구매합니다.'}
 };
 let betStrategy='qpl-single';
@@ -23,7 +24,7 @@ const strategySettings=()=>({...tuningSettings,...partnerRange,betStrategy,...(t
 const anchorLabel=()=> '연승확률 분석 '+(tuningSettings.anchorRank||1)+'위';
 const strategyMeta=()=>BET_STRATEGIES[betStrategy]||BET_STRATEGIES['qpl-single'];
 function syncStrategyHelp(){
- const range=$('#rangeHelp');if(range)range.textContent='현재 설정: '+anchorLabel()+' 축마 + 연승확률 분석 '+partnerRange.min+'~'+partnerRange.max+'위 상대 후보 · 이 기기에 자동 저장';
+ const range=$('#rangeHelp');if(range)range.textContent=betStrategy==='trio-box3'?'현재 설정: 분석 1위 축 고정 + 분석 2~4위 상대 · 3조합 (아래 축마 순위·상대 범위는 복연승에만 적용)':'현재 설정: '+anchorLabel()+' 축마 + 연승확률 분석 '+partnerRange.min+'~'+partnerRange.max+'위 상대 후보 · 이 기기에 자동 저장';
  const help=$('#betStrategyHelp');if(help)help.textContent=strategyMeta().help+' 선별·과거 통계·가중치 탐색은 현재 구매 방식 기준입니다. 복수 조합은 동일 금액씩 구매한 총액 기준 환급 배수를 사용합니다.';
  const title=$('#screeningTitle');if(title)title.textContent='경기 선별 · '+strategyMeta().overview;
  const historyTitle=$('#historyStrategyTitle');if(historyTitle)historyTitle.textContent='전체 경기 · '+strategyMeta().overview+' 과거 통계';
@@ -56,10 +57,10 @@ function initPartnerRange(){
 }
 
 function strategySelection(r){
- if(betStrategy==='trio-box4'){
+ if(betStrategy==='trio-box4'||betStrategy==='trio-box3'){
   const box=[...(r.horses||[])].sort((a,b)=>(b.prob||0)-(a.prob||0)||(+a.number)-(+b.number)).slice(0,4);
-  if(box.length<4)return {ready:false,kind:'trio',reason:'삼복승 4두 박스에는 출전마 4두 이상이 필요합니다.'};
-  const combos=[];for(let i=0;i<box.length-2;i++)for(let j=i+1;j<box.length-1;j++)for(let k=j+1;k<box.length;k++)combos.push({numbers:[box[i].number,box[j].number,box[k].number],names:[box[i].name,box[j].name,box[k].name]});
+  if(box.length<4)return {ready:false,kind:'trio',reason:strategyMeta().overview+'에는 출전마 4두 이상이 필요합니다.'};
+  const combos=[];for(let i=0;i<box.length-2;i++)for(let j=i+1;j<box.length-1;j++)for(let k=j+1;k<box.length;k++)if(betStrategy!=='trio-box3'||i===0)combos.push({numbers:[box[i].number,box[j].number,box[k].number],names:[box[i].name,box[j].name,box[k].name]});
   return {ready:true,kind:'trio',box,combos};
  }
  const p=r.qplPolicy;if(p?.status!=='ready')return {ready:false,kind:'pair',reason:p?.reason||'복연승 조합 선정 불가'};
@@ -94,13 +95,13 @@ function strategyLeadHTML(r,s){
  }
  const nums=s.box.map(x=>x.number),names=s.box.map(x=>esc(x.name));
  const result=screeningBadge(r)+strategyResultHTML(r,s);
- return '<div class="status '+(hold?'hold':'')+'">'+status+'</div><div class="lead-number">'+nums.join(' – ')+'</div><p class="lead-name">'+names.join(' · ')+'</p><div class="qpl-policy"><b>삼복승 4두 박스 · 총 4조합</b><span>연승확률 분석 상위 4두를 사용합니다.</span>'+result+'<small>확정배당은 공식 삼복승 결과를 사용합니다. 삼복승 확률 모델이 없어 추정확률·손익분기배당은 표시하지 않습니다.</small></div>';
+ return '<div class="status '+(hold?'hold':'')+'">'+status+'</div><div class="lead-number">'+nums.join(' – ')+'</div><p class="lead-name">'+names.join(' · ')+'</p><div class="qpl-policy"><b>'+strategyMeta().overview+' · 총 '+s.combos.length+'조합</b><span>'+ (betStrategy==='trio-box3'?'연승확률 분석 1위 '+nums[0]+'번을 축마로 고정합니다.':'연승확률 분석 상위 4두를 사용합니다.')+'</span>'+result+'<small>확정배당은 공식 삼복승 결과를 사용합니다. 삼복승 확률 모델이 없어 추정확률·손익분기배당은 표시하지 않습니다.</small></div>';
 }
 function strategyListHTML(r,s){
  if(!s.ready)return '<p class="hint">'+esc(s.reason)+'</p>';
  if(betStrategy==='qpl-single')return '<p class="hint">복연승은 현재 기준을 통과한 한 조합만 표시합니다.</p>';
  if(betStrategy==='qpl-anchor2')return '<p class="hint">축마는 동일하고 상대마마다 한 장씩, 총 2조합입니다.</p>'+s.candidates.map(x=>'<div class="candidate"><span><b>'+x.pick.numbers.join(' – ')+'</b> '+x.pick.names.map(esc).join(' · ')+' '+compactPairResultHTML(r,x.pick.numbers)+'</span><span class="candidate-metrics"><span class="candidate-probability-label">추정 동반입상</span>'+probabilityHTML(x.pick.prob)+'</span></div>').join('');
- return '<p class="hint">아래 4개 삼복승 조합을 모두 같은 금액으로 구매하면 4두 박스입니다.</p>'+s.combos.map(x=>'<div class="candidate"><span><b>'+x.numbers.join(' – ')+'</b> '+x.names.map(esc).join(' · ')+(trioComboHit(r,x.numbers)?' <span class="hit-badge">✓ 적중 · '+Number(matchingPayout(r.official_result.trio,x.numbers).odds).toFixed(1)+'배</span>':'')+'</span><span class="candidate-metrics"><span class="candidate-probability-label">삼복승</span><span class="break-even">1조합</span></span></div>').join('');
+ return '<p class="hint">아래 '+s.combos.length+'개 삼복승 조합을 모두 같은 금액으로 구매합니다.'+(betStrategy==='trio-box3'?' 모든 조합에 분석 1위 축마를 포함합니다.':'')+'</p>'+s.combos.map(x=>'<div class="candidate"><span><b>'+x.numbers.join(' – ')+'</b> '+x.names.map(esc).join(' · ')+(trioComboHit(r,x.numbers)?' <span class="hit-badge">✓ 적중 · '+Number(matchingPayout(r.official_result.trio,x.numbers).odds).toFixed(1)+'배</span>':'')+'</span><span class="candidate-metrics"><span class="candidate-probability-label">삼복승</span><span class="break-even">1조합</span></span></div>').join('');
 }
 function strategyOverviewCell(r,card,hasPair){
  const s=strategySelection(r),meta=strategyMeta();
@@ -109,10 +110,11 @@ function strategyOverviewCell(r,card,hasPair){
   const x=s.picks[0];return '<span><small>복연승</small><b>'+x.numbers.join(' – ')+'</b>'+hitHTML(card,'pair',x.numbers)+'<small>'+probabilityHTML(x.prob)+'</small>'+(hasPair?'<small class="selected-tag">선별 '+r.selectivePicks.pair.numbers.join('–')+'</small>':'')+screeningBadge(r)+'<small class="policy-tag">'+anchorLabel()+' + 분석 '+r.qplPolicy.partner.rank+'위</small>'+officialResultHTML(card,'pair',x.numbers,'overview')+'</span>';
  }
  if(betStrategy==='qpl-anchor2')return '<span><small>복연승 · 1축+상대2두</small><b>'+s.picks.map(x=>x.numbers.join('–')).join(' / ')+'</b><small>'+s.picks.map(x=>pct(x.prob)).join(' / ')+'</small>'+screeningBadge(r)+strategyResultHTML(card,s)+'</span>';
- const nums=s.box.map(x=>x.number);return '<span><small>삼복승 · 4두 박스</small><b>'+nums.join(' – ')+'</b>'+screeningBadge(r)+strategyResultHTML(card,s)+'<small>4조합</small></span>';
+ const nums=s.box.map(x=>x.number);return '<span><small>'+strategyMeta().overview+(betStrategy==='trio-box3'?' · '+nums[0]+'번 축':'')+'</small><b>'+nums.join(' – ')+'</b>'+screeningBadge(r)+strategyResultHTML(card,s)+'<small>'+s.combos.length+'조합</small></span>';
 }
 function strategyModeHelp(){
  if(betStrategy==='qpl-anchor2')return '연승과 복연승 모두 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 순위를 기준으로 합니다. '+anchorLabel()+'에 분석 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률 상위 2두를 붙여 2조합을 만듭니다.';
+ if(betStrategy==='trio-box3')return strategyMeta().help+' 축마 순위·상대 범위 설정과 관계없이 분석 1위를 고정합니다. 삼복승 자체 확률이나 배당은 현재 모델에 사용하지 않습니다.';
  if(betStrategy==='trio-box4')return '삼복승 4두 박스는 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 상위 4두를 선택해 3두 조합 4개를 만듭니다. 삼복승 자체 확률이나 배당은 현재 모델에 사용하지 않습니다.';
  return '연승과 복연승 모두 '+TuningModel.label(tuningSettings.modelMode)+'의 연승확률 분석 순위를 기준으로 합니다. 복연승은 '+anchorLabel()+' + 분석 '+partnerRange.min+'~'+partnerRange.max+'위 중 동반입상확률이 가장 높은 조합입니다.';
 }
@@ -133,7 +135,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=min-hit-rate-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=trio-box3-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2023년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});

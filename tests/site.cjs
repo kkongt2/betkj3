@@ -132,5 +132,14 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(!requested.some(x=>x.includes('market-odds')));
  assert(!nodes['#raceOverview'].innerHTML.includes('최종배당 대기'));
  assert(!nodes['#raceOverview'].innerHTML.includes('출전정보 확인 필요'));
+ nodes['#betStrategy'].value='trio-box3';nodes['#betStrategy'].onchange();await flush();
+ assert.equal(vm.runInContext('betStrategy',sandbox),'trio-box3');
+ assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),3);
+ assert(vm.runInContext('strategySelection(ranked).combos.every(c=>c.numbers.includes(strategySelection(ranked).box[0].number))',sandbox));
+ assert.equal((nodes['#pairList'].innerHTML.match(/class="candidate"/g)||[]).length,3);
+ assert(nodes['#pairLead'].innerHTML.includes('축마로 고정'));
+ assert(nodes['#rangeHelp'].textContent.includes('분석 1위 축 고정'));
+ assert(nodes['#modeHelp'].textContent.includes('1위를 축마로 고정'));
+ assert.equal(savedData.get('betkj3-bet-strategy'),'trio-box3');
  console.log('PASS analysis-only QPL selection, no final-odds fetch, one preset, controls, history and result display');
 })().catch(e=>{console.error(e);process.exitCode=1});

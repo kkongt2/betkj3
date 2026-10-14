@@ -6,7 +6,7 @@ const QplHistoryEngine=(()=>{
  const PERIOD={from:'20230101',comparisonFrom:'20240101'};
  const blank=()=>({total:0,evaluated:0,hits:0,excluded:0,paidHits:0,payoutTotal:0});
  const key=ns=>ns.map(Number).sort((a,b)=>a-b).join('-');
- const modeOf=o=>['qpl-single','qpl-anchor2','trio-box4'].includes(o?.betStrategy)?o.betStrategy:'qpl-single';
+ const modeOf=o=>['qpl-single','qpl-anchor2','trio-box4','trio-box3'].includes(o?.betStrategy)?o.betStrategy:'qpl-single';
  function sumYears(years,from){const g=blank();for(const [year,x] of Object.entries(years||{}))if(year>=from.slice(0,4))for(const k of Object.keys(g))g[k]+=x[k]||0;return g;}
  function summarizeStrategy(rows,from,to){
   const groups=Object.fromEntries(['all','seoul'].map(k=>[k,blank()]));
@@ -59,11 +59,11 @@ const QplHistoryEngine=(()=>{
    const base=tuning.unpack(signature==='existing'?entry.row:entry.custom);
    const result=policy.apply(base,null,config);result.allPairs=base.pairs;
    let ready=false,settled=false,hit=false,payout=null,candidates=[];
-   if(mode==='trio-box4'){
+   if(mode==='trio-box4'||mode==='trio-box3'){
     const box=(result.horses||[]).slice().sort((a,b)=>(b.prob||0)-(a.prob||0)||(+a.number)-(+b.number)).slice(0,4);
     ready=box.length===4;settled=entry.row.trioSettled===true&&entry.trioWinning.size>0;
     if(ready){
-     const combos=[];for(let i=0;i<2;i++)for(let j=i+1;j<3;j++)for(let k=j+1;k<4;k++)combos.push([box[i].number,box[j].number,box[k].number]);
+     const combos=[];for(let i=0;i<2;i++)for(let j=i+1;j<3;j++)for(let k=j+1;k<4;k++)if(mode!=='trio-box3'||i===0)combos.push([box[i].number,box[j].number,box[k].number]);
      const paid=combos.filter(ns=>entry.trioWinning.has(key(ns))).map(ns=>entry.trioWinning.get(key(ns)));
      hit=paid.length>0;if(hit&&paid.every(Number.isFinite))payout=paid.reduce((a,b)=>a+b,0)/combos.length;
      candidates=combos.map(ns=>({pick:{numbers:ns,prob:null},hit:entry.trioWinning.has(key(ns)),payout:entry.trioWinning.get(key(ns))??null}));

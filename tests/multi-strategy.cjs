@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),T=require('../tuning-model.js'),H=req
 const horses=Array.from({length:8},(_,i)=>[i+1,.3,1,[],null,null,Array(21).fill(1-i/10),{starts:5,available:Array(21).fill(true)}]);
 const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place:'fixture'},horses,pairs:horses.flatMap((a,i)=>horses.slice(i+1).map(b=>[a[0],b[0],.1])),starters:horses.map(h=>h[0]),settled:true,payouts:[{numbers:[1,2],odds:2},{numbers:[1,3],odds:4},{numbers:[2,3],odds:3}],trioSettled:true,trioPayouts:[{numbers:[1,2,3],odds:3}]};
 (async()=>{
- for(const [betStrategy,expected] of [['qpl-single',2],['qpl-anchor2',3],['trio-box4',.75]]){
+ for(const [betStrategy,expected] of [['qpl-single',2],['qpl-anchor2',3],['trio-box4',.75],['trio-box3',1]]){
   const cfg={...T.settings({betStrategy}),min:2,max:8,includeScreening:true},h=H.create([row]);
   const g=await h.evaluate(cfg,'20230101','20261231');assert.equal(g.all.payoutTotal,expected);assert.equal(g.screening.points[0].product,expected);assert.equal(g.screening.points[0].hits,1);assert.equal(g.screening.points[100].evaluated,0);
   const fast=await C.create([row]).evaluate(cfg,'20230101','20261231');assert.equal(fast.metrics.product,expected);
@@ -27,5 +27,18 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
  const cfg2={...T.settings({betStrategy:'qpl-anchor2'}),min:2,max:2,includeScreening:true};assert.equal((await H.create([row]).evaluate(cfg2,'20230101','20261231')).screening.eligible,0);
  const unknown={...row,trioPayouts:[{numbers:[1,2,3],odds:null}]};const unknownResult=await H.create([unknown]).evaluate(cfg,'20230101','20261231');assert.equal(unknownResult.all.hits,1);assert.equal(unknownResult.screening.points[0].product,null);
  const deadHeat={...row,trioPayouts:[{numbers:[1,2,3],odds:3},{numbers:[1,2,4],odds:5}]};assert.equal((await H.create([deadHeat]).evaluate(cfg,'20230101','20261231')).all.payoutTotal,2);
+ const anchored={...cfg,betStrategy:'trio-box3',anchorRank:3};
+ const anchorEngine=H.create([row]);
+ assert.deepEqual(anchorEngine.evaluateRow(0,anchored).candidates.map(x=>x.pick.numbers),[[1,2,3],[1,2,4],[1,3,4]]);
+ for(const numbers of [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]){
+  const fixture={...row,trioPayouts:[{numbers,odds:12}]};
+  const result=await H.create([fixture]).evaluate(anchored,'20230101','20261231');
+  assert.equal(result.all.hits,numbers.includes(1)?1:0);
+  assert.equal(result.all.payoutTotal,numbers.includes(1)?4:0);
+ }
+ assert.equal((await H.create([deadHeat]).evaluate(anchored,'20230101','20261231')).all.payoutTotal,8/3);
+ assert.equal((await H.create([{...row,horses:horses.slice(0,3)}]).evaluate(anchored,'20230101','20261231')).all.evaluated,0);
+ assert.equal((await H.create([missing]).evaluate(anchored,'20230101','20261231')).all.evaluated,0);
+ assert.equal((await H.create([unknown]).evaluate(anchored,'20230101','20261231')).screening.points[0].product,null);
  console.log('PASS all purchase modes: aggregate payout, screening, weight curves, joint/live parity, persistence, Runner, missing payouts and dead heats');
 })().catch(e=>{console.error(e);process.exitCode=1;});

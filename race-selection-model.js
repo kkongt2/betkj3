@@ -32,12 +32,14 @@ const RaceSelectionModel=(()=>{
  function strictness(value){return Number.isFinite(+value)?Math.max(0,Math.min(100,Math.round(+value))):0;}
  function qualifies(result,value){const threshold=strictness(value);return result?.available===true&&threshold<100&&(threshold===0||result.score>=threshold);}
  function strategyPairs(result,settings){
-  if(settings.betStrategy==='trio-box4'){
+  if(['trio-box4','trio-box3'].includes(settings.betStrategy)){
    const box=result.horses.slice().sort((a,b)=>b.prob-a.prob||a.number-b.number).slice(0,4);
    if(box.length!==4)return [];
    const pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){
     const numbers=[box[i].number,box[j].number],pick=(result.allPairs||result.pairs).find(p=>pairKey(p.numbers)===pairKey(numbers));
     if(!pick)return [];pairs.push({pick,anchor:box[i],partner:box[j]});
+    // Each anchor pair occurs in two purchased triples; each other pair occurs once.
+    if(settings.betStrategy==='trio-box3'&&i===0)pairs.push({pick,anchor:box[i],partner:box[j]});
    }return pairs;
   }
   const p=result.qplPolicy,need=settings.betStrategy==='qpl-anchor2'?2:1;
@@ -56,11 +58,12 @@ const RaceSelectionModel=(()=>{
    const scores=pairs.map(p=>score({...result,pairs:[p.pick],qplPolicy:{status:'ready',anchor:p.anchor,partner:p.partner}},{...settings,betStrategy:'qpl-single',screening:null}));
    const field=result.horses,weights=settings.weights,total=weights.reduce((a,b)=>a+b,0),fieldFeatures=field.map(h=>values(h,weights));
    const raw=fieldFeatures.map(f=>f.reduce((s,x,j)=>s+x*weights[j]/total,0));
-   const selected=pairKey([...new Set(pairs.flatMap(p=>p.pick.numbers))]);let same=0,trials=0;
+   const selected=pairKey([...new Set(pairs.flatMap(p=>p.pick.numbers))]);
+   const trioAnchor=settings.betStrategy==='trio-box3'?result.horses.slice().sort((a,b)=>b.prob-a.prob||a.number-b.number)[0].number:null;let same=0,trials=0;
    for(let j=0;j<weights.length;j++)if(weights[j]>0)for(const factor of [-.2,.2]){
     const changed=raw.map((v,i)=>v+fieldFeatures[i][j]*weights[j]/total*factor),order=field.map((_,i)=>i).sort((a,b)=>changed[b]-changed[a]||field[a].number-field[b].number);
-    const anchor=order[(settings.anchorRank||1)-1],chosen=settings.betStrategy==='trio-box4'?order.slice(0,4):[anchor,...order.slice(settings.min-1,settings.max).filter(i=>i!==anchor).slice(0,2)];
-    trials++;if(chosen.every(i=>i!==undefined)&&pairKey(chosen.map(i=>field[i].number))===selected)same++;
+    const anchor=order[(settings.anchorRank||1)-1],chosen=['trio-box4','trio-box3'].includes(settings.betStrategy)?order.slice(0,4):[anchor,...order.slice(settings.min-1,settings.max).filter(i=>i!==anchor).slice(0,2)];
+    trials++;if(chosen.every(i=>i!==undefined)&&pairKey(chosen.map(i=>field[i].number))===selected&&(settings.betStrategy!=='trio-box3'||+field[order[0]].number===+trioAnchor))same++;
    }
    const stability=(trials?same/trials:0)*clamp((Math.max(...raw)-Math.min(...raw))/.1);
    const components={stability,...Object.fromEntries(['completeness','gap','advantage'].map(k=>[k,mean(scores.map(s=>s.components[k]))]))};
