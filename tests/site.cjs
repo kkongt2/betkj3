@@ -152,5 +152,19 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(nodes['#qplHistoryStats'].innerHTML.includes('분석 1·2위 고정 + 복병 6위'));
  nodes['#weight-4'].value='35';nodes['#weight-4'].oninput();await flush();
  assert.equal(vm.runInContext('strategySettings().hybridRanks.join()',sandbox),'6');
+ // Hybrid official results highlight only the matching tickets, per market and regardless of number order.
+ const mixed={date:'20250928',official_result:{pair:{status:'confirmed',payouts:[{numbers:[5,8],odds:5.6},{numbers:[6,8],odds:2.4},{numbers:[5,6],odds:9.5}]},trio:{status:'confirmed',payouts:[{numbers:[5,6,8],odds:24.2}]}}};
+ const tickets={kind:'hybrid',combos:[{kind:'pair',numbers:[8,6]},{kind:'trio',numbers:[8,6,2]},{kind:'trio',numbers:[8,6,5]}]};
+ const resultHTML=(race,selection)=>vm.runInContext('strategyResultHTML('+JSON.stringify(race)+','+JSON.stringify(selection)+')',sandbox);
+ const hybridHTML=resultHTML(mixed,tickets);
+ assert.equal((hybridHTML.match(/result-line result-hit/g)||[]).length,2);
+ assert(hybridHTML.includes('result-line result-hit"><strong>6–8</strong>'));
+ assert(hybridHTML.includes('result-line result-hit"><strong>5–6–8</strong>'));
+ assert(hybridHTML.includes('result-line"><strong>5–8</strong>'));
+ assert(hybridHTML.includes('8.867배'));
+ const partial=JSON.parse(JSON.stringify(mixed));partial.official_result.trio={status:'pending'};
+ assert.equal((resultHTML(partial,tickets).match(/result-line result-hit/g)||[]).length,1);
+ const missed={...tickets,combos:[{kind:'pair',numbers:[1,2]},{kind:'trio',numbers:[1,2,3]}]};
+ assert.equal((resultHTML(mixed,missed).match(/result-line result-hit/g)||[]).length,0);
  console.log('PASS analysis-only QPL selection, no final-odds fetch, one preset, controls, history and result display');
 })().catch(e=>{console.error(e);process.exitCode=1});

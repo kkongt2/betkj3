@@ -88,9 +88,10 @@ function compactPairResultHTML(r,numbers){
 }
 function strategyResultHTML(r,s){
  if(s.kind==='hybrid'){
-  if(['pair','trio'].some(kind=>r.official_result?.[kind]?.status!=='confirmed'))return officialResultHTML(r,'pair',null)+officialResultHTML(r,'trio',null);
+  const results=()=>['pair','trio'].map(kind=>officialResultHTML(r,kind,null,'lead',s.combos.filter(c=>c.kind===kind).map(c=>c.numbers))).join('');
+  if(['pair','trio'].some(kind=>r.official_result?.[kind]?.status!=='confirmed'))return results();
   const hits=s.combos.map(c=>matchingPayout(r.official_result[c.kind],c.numbers)).filter(Boolean),paid=hits.every(p=>Number.isFinite(p.odds));
-  return '<span class="official-result"><span class="result-label">구매 결과 · 확정배당</span><span>'+(hits.length?'✓ 적중 '+hits.length+' / '+s.combos.length+'조합':'미적중 · '+s.combos.length+'조합')+'</span>'+(hits.length&&paid?'<span>총 구매금액 기준 환급 '+(hits.reduce((n,p)=>n+p.odds,0)/s.combos.length).toFixed(3)+'배</span>':'')+'</span>'+officialResultHTML(r,'pair',null)+officialResultHTML(r,'trio',null);
+  return '<span class="official-result"><span class="result-label">구매 결과 · 확정배당</span><span>'+(hits.length?'✓ 적중 '+hits.length+' / '+s.combos.length+'조합':'미적중 · '+s.combos.length+'조합')+'</span>'+(hits.length&&paid?'<span>총 구매금액 기준 환급 '+(hits.reduce((n,p)=>n+p.odds,0)/s.combos.length).toFixed(3)+'배</span>':'')+'</span>'+results();
  }
 
  const market=r.official_result?.[s.kind],combos=s.combos||s.picks||[];
@@ -296,13 +297,13 @@ function put(a){try{localStorage.setItem(KEY,JSON.stringify(a));return true}catc
 function timingReasons(r){const why=[];if(String(r.date)<day().replaceAll('-',''))why.push('지난 경주 조회 · '+(r.calendar_archive?'경주일 이전 이력으로':'현재 정보로')+' 재계산한 후보');else if(!Number.isFinite(start(r)))why.push('출발 시각 확인 필요');else if(start(r)<=Date.now())why.push(String(r.date)<day().replaceAll('-','')?'지난 경주 조회 · 현재 정보로 재계산한 후보':'이미 출발한 경주');if(!manual&&(!source?.updated_at||Date.now()-Date.parse(source.updated_at)>30*60000||!Number.isFinite(Date.parse(source.updated_at))))why.push('갱신 후 30분 경과 · 최신 출전정보 확인 필요');return why;}
 function why(r,x,type){return [...candidateReasons(r,x,type),...timingReasons(r),...(manual?['직접 입력 / 데모']:[])];}
 function isSelected(r,type){return !manual&&r.mode==='accuracy'&&r.selection?.[type]?.qualified===true&&timingReasons(r).length===0;}
-function officialResultHTML(r,type,numbers,scope='lead'){
+function officialResultHTML(r,type,numbers,scope='lead',purchased=[]){
  if(String(r.date)>=day().replaceAll('-','')&&(!Number.isFinite(start(r))||start(r)>Date.now()))return '';
  const result=r.official_result,market=result?.[type];
  const title='<span class="result-label">실제 결과 · 지급배당</span>';
  if(market?.status==='confirmed'&&market.payouts?.length){
-  const hit=matchingPayout(market,numbers);
-  return '<span class="official-result">'+title+market.payouts.map(x=>'<span class="result-line'+(x===hit?' result-hit':'')+'"><strong>'+x.numbers.map(n=>esc(n)).join('–')+(type==='place'?'번':'')+'</strong><span>'+Number(x.odds).toFixed(1)+'배</span></span>').join('')+'</span>';
+  const hits=new Set([numbers,...purchased].map(ns=>matchingPayout(market,ns)).filter(Boolean));
+  return '<span class="official-result">'+title+market.payouts.map(x=>'<span class="result-line'+(hits.has(x)?' result-hit':'')+'"><strong>'+x.numbers.map(n=>esc(n)).join('–')+(type==='place'?'번':'')+'</strong><span>'+Number(x.odds).toFixed(1)+'배</span></span>').join('')+'</span>';
  }
  return '<span class="official-result">'+title+'<span class="result-pending">'+(market?.status==='refunded'?'환불':result?.status==='unavailable'?'결과 불러오기 대기':'공식 결과 확인 중')+'</span></span>';
 }
