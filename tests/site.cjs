@@ -115,6 +115,18 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(!requested.some(x=>x.includes('market-odds')));
  assert(!nodes['#raceOverview'].innerHTML.includes('최종배당 대기'));
  assert(!nodes['#raceOverview'].innerHTML.includes('출전정보 확인 필요'));
+ for(const [option,rank] of [['place-single',1],['place-single-2',2],['place-single-3',3]]){
+  nodes['#betStrategy'].value=option;nodes['#betStrategy'].onchange();await flush();
+  assert.equal(vm.runInContext('strategySettings().betStrategy',sandbox),'place-single');
+  assert.equal(vm.runInContext('strategySettings().anchorRank',sandbox),rank);
+  assert.equal(nodes['#anchorRank'].value,String(rank));assert.equal(nodes['#betStrategy'].value,option);
+  assert.equal(vm.runInContext('strategySelection(ranked).picks[0].numbers[0]===ranked.places['+(rank-1)+'].numbers[0]',sandbox),true);
+  assert.equal(JSON.parse(savedData.get('betkj3-tuning')).anchorRank,rank);
+  assert(nodes['#historyStrategyTitle'].textContent.includes('분석 '+rank+'위'));
+ }
+ vm.runInContext('applySavedStrategy({...strategySettings(),anchorRank:2})',sandbox);await flush();
+ assert.equal(nodes['#betStrategy'].value,'place-single-2');
+ nodes['#anchorRank'].value='3';nodes['#anchorRank'].onchange();await flush();assert.equal(nodes['#betStrategy'].value,'place-single-3');
  nodes['#betStrategy'].value='trio-box3';nodes['#betStrategy'].onchange();await flush();
  assert.equal(vm.runInContext('betStrategy',sandbox),'trio-box3');
  assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),3);

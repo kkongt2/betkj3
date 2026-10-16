@@ -24,8 +24,11 @@ const raceAnalysisCache=new WeakMap();
 let syncTuningControls=()=>{},refreshPresetOptions=()=>{};
 const strategySettings=()=>({...tuningSettings,...partnerRange,betStrategy,...(tuningSettings.screening?{screening:{...tuningSettings.screening,threshold:(screeningPanel?.value()??tuningSettings.screening.threshold)}}:{})});
 const anchorLabel=()=> '연승확률 분석 '+(tuningSettings.anchorRank||1)+'위';
-const strategyMeta=()=>BET_STRATEGIES[betStrategy]||BET_STRATEGIES['qpl-single'];
+const PLACE_OPTIONS={'place-single':1,'place-single-2':2,'place-single-3':3};
+const placeOption=rank=>rank===2?'place-single-2':rank===3?'place-single-3':'place-single';
+const strategyMeta=()=>{const meta=BET_STRATEGIES[betStrategy]||BET_STRATEGIES['qpl-single'];return betStrategy==='place-single'?{...meta,rule:'분석 '+(tuningSettings.anchorRank||1)+'위 · 1두',overview:'연승 1두 · 분석 '+(tuningSettings.anchorRank||1)+'위'}:meta;};
 function syncStrategyHelp(){
+ $('#betStrategy').value=betStrategy==='place-single'?placeOption(tuningSettings.anchorRank):betStrategy;
  const hybrid=$('#hybridControls');if(hybrid)hybrid.hidden=betStrategy!=='hybrid';
  $('#partnerMin').disabled=betStrategy==='place-single';$('#partnerMax').disabled=betStrategy==='place-single';
  const ranks=$('#hybridRanks');if(ranks)ranks.value=(tuningSettings.hybridRanks||[4,5]).join(',');
@@ -38,7 +41,7 @@ function syncStrategyHelp(){
 function initBetStrategy(){
  try{const saved=localStorage.getItem(BET_STRATEGY_KEY);if(BET_STRATEGIES[saved])betStrategy=saved;}catch{}
  const select=$('#betStrategy');if(!select)return;select.value=betStrategy;
- select.onchange=()=>{betStrategy=BET_STRATEGIES[select.value]?select.value:'qpl-single';try{localStorage.setItem(BET_STRATEGY_KEY,betStrategy);}catch{}delete tuningSettings.screening;try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}screeningPanel?.applyModel(null);syncStrategyHelp();renderQplHistory();if(current)render();else renderOverview();};
+ select.onchange=()=>{const placeRank=PLACE_OPTIONS[select.value];betStrategy=placeRank?'place-single':BET_STRATEGIES[select.value]?select.value:'qpl-single';if(placeRank){tuningSettings.anchorRank=placeRank;$('#anchorRank').value=String(placeRank);}try{localStorage.setItem(BET_STRATEGY_KEY,betStrategy);}catch{}delete tuningSettings.screening;try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}screeningPanel?.applyModel(null);syncStrategyHelp();renderQplHistory();if(current)render();else renderOverview();};
  const ranks=$('#hybridRanks');if(ranks)ranks.onchange=()=>{tuningSettings.hybridRanks=ranks.value.split(',').map(Number);delete tuningSettings.screening;screeningPanel?.applyModel(null);try{localStorage.setItem('betkj3-tuning',JSON.stringify(tuningSettings));}catch{}syncStrategyHelp();renderQplHistory();render();};
  syncStrategyHelp();
 }
