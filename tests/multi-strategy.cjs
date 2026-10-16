@@ -63,6 +63,11 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
  assert.equal(H.create([{...hybridRow,trioSettled:false}]).evaluateRow(0,hybrid).settled,false);
  assert.equal(H.create([{...hybridRow,trioPayouts:[{numbers:[1,2,4],odds:null}]}]).evaluateRow(0,hybrid).payout,null);
  assert.equal(H.create([{...hybridRow,horses:horses.slice(0,4)}]).evaluateRow(0,hybrid).ready,false);
+ const h34={...hybrid,hybridRanks:[3,4]},sel34=H.create([hybridRow]).evaluateRow(0,h34);
+ assert.deepEqual(sel34.candidates.map(c=>[c.pick.kind,c.pick.numbers]),[['pair',[1,2]],['trio',[1,2,3]],['trio',[1,2,4]]]);
+ assert.equal(sel34.payout,14/3);assert.deepEqual(Presets.config(h34).hybridRanks,[3,4]);
+ assert.deepEqual(Runner.request({schema:1,requestId:'hybrid34',seconds:60,method:'de',objective:'product',joint:false,balanced:true,parallel:true,target:40,settings:h34}).settings.hybridRanks,[3,4]);
+ assert.equal(H.create([{...hybridRow,horses:horses.slice(0,4),starters:[1,2,3,4]}]).evaluateRow(0,h34).ready,true);
  const preset=Presets.config({...hybrid,hybridRanks:[4,6]});assert.deepEqual(preset.hybridRanks,[4,6]);
  const hybridBase=T.apply(T.unpack(hybridRow),hybrid),hybridLive=P.apply(hybridBase,null,hybrid);hybridLive.allPairs=hybridBase.pairs;
  assert.equal(S.strategyPairs(hybridLive,hybrid).length,7);

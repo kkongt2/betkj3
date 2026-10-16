@@ -9,7 +9,7 @@ const BET_STRATEGIES={
  'place-single':{title:'연승',rule:'1두 · 선택한 분석 순위',overview:'연승 1두',help:'연승확률 분석에서 선택한 1·2·3위 중 한 말을 구매합니다. 7두 이하는 2착 이내, 8두 이상은 3착 이내 입상 기준이며 공식 연승 결과·배당으로 평가합니다.'},
  'qpl-single':{title:'복연승',rule:'1축 + 상대 1두 · 1조합',overview:'복연승 1조합',help:'현재 방식 · 축마와 동반입상확률이 가장 높은 상대 1두를 선택합니다.'},
  'qpl-anchor2':{title:'복연승',rule:'1축 + 상대 2두 · 2조합',overview:'복연승 2조합',help:'같은 축마에 동반입상확률이 높은 상대 2두를 붙여 2조합을 구매합니다.'},
- 'hybrid':{title:'복연승 + 삼복승',rule:'1·2위 고정 · 복연승 1 + 삼복승 1~2조합',overview:'복연승 + 삼복승 하이브리드',help:'연승확률 분석 1·2위로 복연승 1조합을 구매하고, 같은 두 말에 분석 4~6위 중 선택한 복병 1~2두를 각각 붙여 삼복승을 구매합니다. 각 조합은 동일 금액 기준입니다. 원금 회수나 수익을 보장하지 않습니다.'},
+ 'hybrid':{title:'복연승 + 삼복승',rule:'1·2위 고정 · 복연승 1 + 삼복승 1~2조합',overview:'복연승 + 삼복승 하이브리드',help:'연승확률 분석 1·2위로 복연승 1조합을 구매하고, 같은 두 말에 분석 3~6위 중 선택한 복병 1~2두를 각각 붙여 삼복승을 구매합니다. 각 조합은 동일 금액 기준입니다. 원금 회수나 수익을 보장하지 않습니다.'},
  'trio-box3':{title:'삼복승',rule:'3두 박스 · 1위 축 고정 · 3조합',overview:'삼복승 3두 박스',help:'연승확률 분석 상위 4두 중 1위를 축마로 고정하고 1·2·3위, 1·2·4위, 1·3·4위의 3조합을 구매합니다. 1위가 없는 2·3·4위 조합은 제외합니다.'},
  'trio-box4':{title:'삼복승',rule:'4두 박스 · 4조합',overview:'삼복승 4두 박스',help:'연승확률 분석 상위 4두를 고르고 그중 3두씩 묶은 4개 삼복승 조합을 모두 구매합니다.'}
 };
@@ -158,7 +158,7 @@ function setupHistoryEngine(){
  weightSearch?.reset();
  cancelWeightCurve();historyWorker?.terminate();historyWorker=null;historyEngine=null;curveEngine=null;historyReady=null;
  if(typeof Worker==='function')try{
-  historyWorker=new Worker('qpl-history-worker.js?v=place-single-1');
+  historyWorker=new Worker('qpl-history-worker.js?v=hybrid-34-1');
   historyWorker.onmessage=({data})=>{if(data.type==='search-progress'||data.type==='search-result'){if(searchPending?.id!==data.searchId)return;if(data.type==='search-progress'){searchPending.progress(data.progress);return;}const pending=searchPending;searchPending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='curve'||data.type==='curve-progress'){if(curvePending?.id!==data.curveId)return;if(data.type==='curve-progress'){curvePending.progress(data.percent);return;}const pending=curvePending;curvePending=null;if(data.error)pending.reject(Error(data.error));else pending.resolve(data.result);return;}if(data.type==='loading'){$('#qplHistoryStats').textContent='평가 기간 자료를 불러오는 중… '+data.done+'/'+data.total+'개 연도';return;}if(data.id!==historyEvaluation)return;if(data.type==='progress'){$('#qplHistoryStats').textContent='2023년 이후 통계를 계산하는 중… '+data.percent+'%';return;}if(data.error){fallbackHistory();return;}showQplHistory(data.groups);};
   historyWorker.onerror=()=>fallbackHistory();
   historyWorker.postMessage({type:'init',manifest:qplHistory});

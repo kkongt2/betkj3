@@ -28,7 +28,7 @@ const TuningModel=(()=>{
   return w.some(x=>x>100)?normalizeActive(w):w.some(x=>x>0)?w:defaults();
  }
  function validWeights(w){return Array.isArray(w)&&[10,13,16,17,21,22,FEATURES.length].includes(w.length)&&w.every(n=>Number.isInteger(n)&&n>=0&&n<=100)&&w.some(n=>n>0);}
- const HYBRID_RANKS=['4','5','6','4,5','4,6','5,6'];
+ const HYBRID_RANKS=['4','5','6','3,4','4,5','4,6','5,6'];
  function validHybridRanks(ranks){return Array.isArray(ranks)&&ranks.every(Number.isInteger)&&HYBRID_RANKS.includes(ranks.join(','));}
  function hybridSelection(result,config={}){
   const ranks=validHybridRanks(config.hybridRanks)?config.hybridRanks:[4,5];
