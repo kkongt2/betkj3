@@ -353,8 +353,44 @@ function renderHistory(){const all=records();$('#stats').innerHTML=['place','pai
 $('#history').addEventListener('submit',e=>{e.preventDefault();try{const f=e.target,all=records(),x=all.find(v=>v.id===f.dataset.record);if(!x||Date.now()<x.start)throw Error('경주 시작 후 입력할 수 있습니다.');const nums=v=>v.trim().split(/[,\s]+/).map(Number),finish=nums(f.elements.finish.value),pw=nums(f.elements.placeWinners.value);for(const a of [finish,pw])if(a.some(n=>!x.field.includes(n))||new Set(a).size!==a.length)throw Error('기록된 출전마의 서로 다른 마번을 입력하세요.');if(finish.length!==3||![2,3].includes(pw.length)||pw.some((n,i)=>n!==finish[i]))throw Error('착순 3두와 공식 연승 입상마 2~3두를 착순대로 입력하세요.');const odd=v=>v===''?null:Number(v),po=odd(f.elements.placeOdds.value),qo=odd(f.elements.pairOdds.value);if([po,qo].some(v=>v!==null&&(!Number.isFinite(v)||v<1)))throw Error('배당은 1 이상으로 입력하세요.');x.result={finish,placeWinners:pw,placeHit:pw.includes(x.place.numbers[0]),pairHit:x.pair.numbers.every(n=>finish.includes(n)),placeOdds:po,pairOdds:qo,entered:new Date().toISOString()};if(put(all))renderHistory();}catch(err){alert(err.message)}});
 function venueDates(){return [...new Set([...races.filter(r=>r.venue===venue).map(r=>String(r.date)),...(source?.calendar||[]).filter(d=>d.venues.includes(venue)).map(d=>d.date)])].filter(d=>/^\d{8}$/.test(d)&&d>=browseFrom()).sort();}
 function dateRaces(d){return races.filter(r=>r.venue===venue&&String(r.date)===d).sort((a,b)=>+a.race_no-+b.race_no);}
+function purchaseOutcome(r,s){
+ const pending={status:'pending',hits:[],combinations:0,refund:null};
+ if(!s.ready)return {...pending,status:'unavailable'};
+ const combos=s.combos||s.picks||[],tickets=combos.map(c=>({...c,kind:c.kind||s.kind})),kinds=[...new Set(tickets.map(c=>c.kind))];
+ if(!tickets.length)return {...pending,status:'unavailable'};
+ if(String(r.date)>=day().replaceAll('-','')&&(!Number.isFinite(start(r))||start(r)>Date.now()))return pending;
+ if(kinds.some(k=>r.official_result?.[k]?.status==='refunded'))return {...pending,status:'refunded'};
+ if(kinds.some(k=>r.official_result?.[k]?.status!=='confirmed'||!r.official_result[k].payouts?.length))return pending;
+ const hits=tickets.flatMap(c=>{const p=matchingPayout(r.official_result[c.kind],c.numbers);return p?[{kind:c.kind,numbers:c.numbers,odds:p.odds}]:[];});
+ return {status:'confirmed',hits,combinations:tickets.length,refund:hits.every(p=>Number.isFinite(p.odds)&&p.odds>=0)?hits.reduce((a,p)=>a+p.odds,0)/tickets.length:null};
+}
+function selectedDayResults(list){
+ const data={total:list.length,selected:0,evaluated:0,hitRaces:0,pending:0,refunded:0,unavailable:0,payoutTotal:0,paid:true,winners:[]};
+ for(const card of list){
+  try{
+   const r=analyzeForSite(card),selection=strategySelection(r);
+   if(!selection.ready){data.unavailable++;continue;}
+   if(screeningEnabled()&&!RaceSelectionModel.qualifies(r.screening,screeningValue()))continue;
+   data.selected++;const outcome=purchaseOutcome(card,selection);
+   if(outcome.status!=='confirmed'){data[outcome.status]++;continue;}
+   data.evaluated++;if(outcome.refund===null)data.paid=false;else data.payoutTotal+=outcome.refund;
+   if(outcome.hits.length){data.hitRaces++;data.winners.push({race:+card.race_no,...outcome});}
+  }catch{data.unavailable++;}
+ }
+ data.refund=data.evaluated&&data.paid?data.payoutTotal/data.evaluated:null;return data;
+}
+function renderSelectedDayResults(list){
+ const root=$('#selectedDayResults'),date=$('#date').value;if(!root)return;
+ if(!list.length){root.innerHTML='<h3>선택일 선별 경기 결과</h3><p class="hint">'+(date?'이 날짜에 불러온 경주가 없습니다.':'날짜를 선택해 주세요.')+'</p>';return;}
+ const d=selectedDayResults(list),mode=screeningEnabled()?'선별 '+d.selected+'경주 / 전체 '+d.total+'경주 · 기준 '+screeningValue()+'점':'선별 OFF · 전체 경기 기준 '+d.selected+'경주';
+ const refundHTML=(value,label)=>'<span class="hybrid-summary '+(value===null?'':value>=1?'result-hit':'result-loss')+'">'+label+' '+(value===null?'— · 평가 또는 배당 자료 부족':value.toFixed(3)+'배')+'</span>';
+ root.innerHTML='<h3>선택일 선별 경기 결과</h3><p class="hint">'+esc(date)+' · '+esc(strategyMeta().overview)+'<br>'+mode+'</p><div class="official-result daily-result-totals"><span class="hybrid-summary '+(d.hitRaces?'result-hit':'')+'">적중 '+d.hitRaces+' / 확정 '+d.evaluated+'경주</span>'+refundHTML(d.refund,'선택일 전체 환급배수')+'</div><p class="hint">결과 대기 '+d.pending+'경주 · 환불 '+d.refunded+'경주'+(d.unavailable?' · 조합·자료 부족 '+d.unavailable+'경주':'')+'</p>'+
+  (d.winners.length?d.winners.map(w=>'<article class="daily-winning-race"><h4>'+w.race+'R · 적중 '+w.hits.length+' / '+w.combinations+'조합</h4><div class="official-result">'+w.hits.map(p=>'<span class="result-line result-hit"><strong>'+({place:'연승',pair:'복연승',trio:'삼복승'}[p.kind]||'')+' '+p.numbers.map(n=>esc(n)).join('–')+'</strong><span>'+(Number.isFinite(p.odds)?p.odds.toFixed(1)+'배':'배당 확인 필요')+'</span></span>').join('')+refundHTML(w.refund,'경주 최종 환급배수')+'</div><p class="hint">적중 배당 합계 ÷ 총 '+w.combinations+'조합 · 동일 금액 구매 기준</p></article>').join(''):'<p class="hint">'+(d.evaluated?'확정된 경기 중 적중한 경기가 없습니다.':'확정 결과를 기다리는 중입니다.')+'</p>')+
+  '<p class="hint">선택일 전체 환급배수는 미적중을 포함한 확정 경기별 환급배수의 평균입니다. 대기·환불은 제외하며, 현재 설정으로 재계산한 결과입니다.</p>';
+}
+
 function renderOverview(){
- const list=dateRaces($('#date').value.replaceAll('-',''));$('#overview').hidden=!list.length;
+ const list=dateRaces($('#date').value.replaceAll('-',''));$('#overview').hidden=!list.length;renderSelectedDayResults(list);
  let selected=0;
  $('#raceOverview').innerHTML=list.map(card=>{
   try{
@@ -391,6 +427,7 @@ async function chooseAvailable(){
  const archiveNeeded=d<day().replaceAll('-','')&&(source?.calendar||[]).some(x=>x.date===d)&&!dateRaces(d).every(r=>r.calendar_archive||r.archiveLoaded);
  if(d&&(!dateRaces(d).length||archiveNeeded)){
   const requestedVenue=venue;current=null;ranked=null;$('#analysis').hidden=true;$('#overview').hidden=true;renderSelectors();
+  $('#selectedDayResults').innerHTML='<h3>선택일 선별 경기 결과</h3><p class="hint">'+esc(d)+' 경주를 불러오는 중…</p>';
   $('#dataStatus').textContent=d+' 경주를 불러오는 중…';
   try{
    const doc=await fetchPublicJSON('data/calendar/'+d+'.json');
@@ -398,7 +435,7 @@ async function chooseAvailable(){
    if(doc.date!==d||!Array.isArray(doc.races)||doc.races.some(r=>r.date!==d)||!doc.races.some(r=>r.venue===requestedVenue))throw Error('날짜별 경주 확인 필요');
    races=races.filter(r=>r.date!==d).concat(doc.races.filter(r=>r.venue==='seoul').map(r=>({...r,archiveLoaded:true})));
    $('#dataStatus').textContent=d+' · '+dateRaces(d).length+'개 경주';
-  }catch{if(request===selectionRequest)$('#dataStatus').textContent='지난 경주를 불러오지 못했습니다. 날짜를 다시 누르거나 새로고침해 주세요.';return;}
+  }catch{if(request===selectionRequest){$('#dataStatus').textContent='지난 경주를 불러오지 못했습니다. 날짜를 다시 누르거나 새로고침해 주세요.';$('#selectedDayResults').innerHTML='<h3>선택일 선별 경기 결과</h3><p class="hint">경주 자료를 불러오지 못했습니다. 날짜를 다시 선택해 주세요.</p>';}return;}
  }
  const list=dateRaces(d),r=list.find(x=>+x.race_no===+$('#raceNo').value)||list[0];
  if(r)select(r);else{current=null;ranked=null;$('#analysis').hidden=true;$('#raceNo').value='';renderSelectors();renderOverview();}

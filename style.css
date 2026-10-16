@@ -49,3 +49,5 @@
 .runner-result-preview{margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:10px;min-width:0}.runner-result-preview h4{margin:0 0 8px}.runner-result-preview .validation-table{table-layout:fixed}.runner-result-preview th{width:34%;font-weight:500}.runner-result-preview td,.runner-result-preview p{overflow-wrap:anywhere}.runner-result-preview .search-metrics strong{font-size:18px}
 
 .official-result .hybrid-summary{display:block;margin:4px 0;font-weight:600;overflow-wrap:anywhere}.official-result .result-loss{background:#fde8e8;color:#9b2424;border-radius:4px;padding:3px}
+
+.daily-results{margin:18px 0;padding:14px;border:1px solid var(--line);border-radius:12px;min-width:0;overflow-wrap:anywhere}.daily-results h3{margin:0 0 10px;font-size:1rem}.daily-winning-race{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.daily-winning-race h4{margin:0 0 8px;font-size:.95rem}.daily-results .official-result{margin-top:0;padding-top:0;border-top:0}.daily-results .result-line{margin:4px 0}.daily-results .hint{font-size:.8rem}

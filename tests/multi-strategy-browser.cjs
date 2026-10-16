@@ -52,6 +52,10 @@ const server=http.createServer((req,res)=>{
     await page.locator('#prepareRunnerSearch').click();
     assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).settings.betStrategy,mode);
    }
+   assert(await page.locator('#selectedDayResults').isVisible());
+   assert((await page.locator('#selectedDayResults').innerText()).includes('적중'));
+   assert(await page.evaluate(()=>document.querySelector('#dateCalendar').compareDocumentPosition(document.querySelector('#selectedDayResults'))&Node.DOCUMENT_POSITION_FOLLOWING));
+   assert(await page.evaluate(()=>document.querySelector('#selectedDayResults').compareDocumentPosition(document.querySelector('#raceButtons'))&Node.DOCUMENT_POSITION_FOLLOWING));
    assert.equal(cfg.betStrategy,mode);assert.equal(await page.locator('#screeningProduct').innerText(),g.screening.points[0].product.toFixed(4)+'배');
    assert((await page.locator('#pairLead').innerText()).includes('배'));
    assert.equal(await page.locator('#raceOverview .screening-badge').count(),12);
