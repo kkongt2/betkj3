@@ -40,7 +40,7 @@ const sandbox={console,Intl,Date:TestDate,Math,Number,Set,Map,JSON,Array,String,
 };
 
 vm.createContext(sandbox);
-for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','search-policy.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','rolling-panel.js','top5-panel.js','weight-balance.js','global-weight-search.js','weight-search-engine.js','parallel-search.js','runner-search-contract.js','runner-search-panel.js','weight-search.js','joint-search-engine.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
+for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-model.js','race-selection-panel.js','search-policy.js','qpl-history-engine.js','weight-curve-engine.js','weight-curves.js','strategy-presets.js','weight-balance.js','global-weight-search.js','weight-search-engine.js','parallel-search.js','runner-search-contract.js','runner-search-panel.js','weight-search.js','joint-search-engine.js','history-summary.js','app.js'])vm.runInContext(fs.readFileSync(p,'utf8'),sandbox);
 
 (async()=>{await flush();
  assert.equal(vm.runInContext('races.every(r=>r.venue==="seoul")',sandbox),true);
@@ -109,25 +109,8 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert(nodes['#presetStatus'].textContent.includes('불러왔습니다'));
  nodes['#deleteStrategy'].onclick();assert(nodes['#presetStatus'].textContent.includes('삭제했습니다'));
 
- // A stale odds-era rolling report is hidden; regenerated analysis-only reports are accepted.
- if(rollingFile.policyVersion===historyDoc.policyVersion&&rollingFile.version===nativeTuning.VERSION){
-  assert.equal(nodes['#applyRolling'].hidden,false);
-  nodes['#applyRolling'].onclick();await flush();
- }else{
-  assert.equal(nodes['#applyRolling'].hidden,true);
-  assert(nodes['#rollingReport'].textContent.includes('분석순위 기준'));
- }
-
- const top=JSON.parse(fs.readFileSync('top5-presets.json'));assert.equal(top.presets.length,1);
- assert(nodes['#top5Presets'].innerHTML.includes('프리셋 1 적용·저장'));
- assert(nodes['#top5Presets'].innerHTML.includes('추천 선정에는 배당을 사용하지 않습니다'));
- const beforeAll=vm.runInContext('JSON.stringify(strategySettings())',sandbox);
- nodes['#saveAllTopPresets'].onclick();
- assert(nodes['#top5Status'].textContent.includes('1번 프리셋을 저장'));
- assert.equal(vm.runInContext('JSON.stringify(strategySettings())',sandbox),beforeAll);
- nodes['#top5Presets'].click({target:{closest:()=>({dataset:{top5:'0'}})}});await flush();
- assert.equal(vm.runInContext('tuningSettings.weights.join(",")',sandbox),require('../tuning-model.js').settings(top.presets[0].settings).weights.join(','));
- assert.equal(vm.runInContext('partnerRange.min',sandbox),top.presets[0].settings.min);
+ assert(!nodes['#top5Presets']);assert(!nodes['#rollingReport']);
+ assert(!requested.some(x=>x.includes('top5-presets.json')||x.includes('rolling-report.json')));
 
  assert(!requested.some(x=>x.includes('market-odds')));
  assert(!nodes['#raceOverview'].innerHTML.includes('최종배당 대기'));
