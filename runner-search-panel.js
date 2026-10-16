@@ -11,7 +11,7 @@ const RunnerSearchPanel=(()=>{
   if(!s||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)throw Error('실행 조건 확인 필요');
   const betStrategy=s.betStrategy||'qpl-single';if(!Object.keys(modes).includes(betStrategy))throw Error('승식 확인 필요');
   const out={betStrategy,anchorRank:s.anchorRank,min:s.min,max:s.max};
-  if(betStrategy==='hybrid'){const ranks=s.hybridRanks||[4,5];if(!['4','5','6','3,4','4,5','4,6','5,6'].includes(ranks.join(',')))throw Error('하이브리드 순위 확인 필요');out.hybridRanks=ranks.slice();}
+  if(betStrategy==='hybrid'){const ranks=s.hybridRanks||[4,5];if(!['3','4','5','6','3,4','4,5','4,6','5,6'].includes(ranks.join(',')))throw Error('하이브리드 순위 확인 필요');out.hybridRanks=ranks.slice();}
   if(s.weights!==undefined){if(!Array.isArray(s.weights)||![10,13,16,17,21,22,26].includes(s.weights.length)||!s.weights.every(w=>Number.isInteger(w)&&w>=0&&w<=100))throw Error('실행 가중치 확인 필요');out.weights=s.weights.slice();}
   if(s.screening&&Number.isInteger(s.screening.threshold)&&s.screening.threshold>=0&&s.screening.threshold<=99)out.threshold=s.screening.threshold;
   if(s.threshold!==undefined&&Number.isInteger(s.threshold)&&s.threshold>=0&&s.threshold<=99)out.threshold=s.threshold;

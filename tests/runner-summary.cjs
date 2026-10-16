@@ -16,6 +16,7 @@ assert.equal(S.selection(S.summarize(fixture('trio-box3')).request.settings),'�
 assert(S.selection(S.summarize(fixture('hybrid')).request.settings).includes('복병 4·6위 · 총 3조합'));
 assert.equal(S.selection(S.summarize(fixture('place-single')).request.settings),'연승확률 분석 1위 · 1두');
 assert(S.selection(S.summarize(fixture('qpl-anchor2')).request.settings).includes('상대 2~12위 · 2조합'));
+const hybrid3=fixture('hybrid');hybrid3.request.settings.hybridRanks=[3];hybrid3.result.best.settings.hybridRanks=[3];assert(S.selection(S.summarize(hybrid3).request.settings).includes('복병 3위 · 총 2조합'));
 const hybrid34=fixture('hybrid');hybrid34.request.settings.hybridRanks=[3,4];hybrid34.result.best.settings.hybridRanks=[3,4];assert(S.selection(S.summarize(hybrid34).request.settings).includes('복병 3·4위 · 총 3조합'));
 for(const rank of [1,2,3]){const p=fixture('place-single');p.request.settings.anchorRank=rank;p.result.best.settings.anchorRank=rank;const summary=S.summarize(p);assert(S.label(summary).includes('연승 1두 · 분석 '+rank+'위'));assert(S.preview(summary).includes('연승 1두 · 분석 '+rank+'위'));}
 const empty=fixture();empty.result.best=null;empty.request.seconds=empty.result.elapsed=42000;assert(S.label(S.summarize(empty)).includes('조건 만족 후보 없음'));assert(!S.summarize(empty).result.partial);

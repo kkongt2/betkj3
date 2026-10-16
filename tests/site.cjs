@@ -141,6 +141,10 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),3);
  assert(nodes['#pairList'].innerHTML.includes('복연승'));
  assert(nodes['#pairList'].innerHTML.includes('삼복승'));
+ nodes['#hybridRanks'].value='3';nodes['#hybridRanks'].onchange();await flush();
+ assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),2);
+ assert.equal(vm.runInContext('TuningModel.settings(strategySettings()).hybridRanks.join()',sandbox),'3');
+ assert(nodes['#qplHistoryStats'].innerHTML.includes('분석 1·2위 고정 + 복병 3위'));
  nodes['#hybridRanks'].value='3,4';nodes['#hybridRanks'].onchange();await flush();
  assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),3);
  assert.equal(vm.runInContext('TuningModel.settings(strategySettings()).hybridRanks.join()',sandbox),'3,4');
