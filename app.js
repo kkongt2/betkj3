@@ -94,7 +94,8 @@ function strategyResultHTML(r,s){
   const results=()=>['pair','trio'].map(kind=>officialResultHTML(r,kind,null,'lead',s.combos.filter(c=>c.kind===kind).map(c=>c.numbers))).join('');
   if(['pair','trio'].some(kind=>r.official_result?.[kind]?.status!=='confirmed'))return results();
   const hits=s.combos.map(c=>matchingPayout(r.official_result[c.kind],c.numbers)).filter(Boolean),paid=hits.every(p=>Number.isFinite(p.odds));
-  return '<span class="official-result"><span class="result-label">구매 결과 · 확정배당</span><span>'+(hits.length?'✓ 적중 '+hits.length+' / '+s.combos.length+'조합':'미적중 · '+s.combos.length+'조합')+'</span>'+(hits.length&&paid?'<span>총 구매금액 기준 환급 '+(hits.reduce((n,p)=>n+p.odds,0)/s.combos.length).toFixed(3)+'배</span>':'')+'</span>'+results();
+  const refund=paid?hits.reduce((n,p)=>n+p.odds,0)/s.combos.length:null;
+  return '<span class="official-result"><span class="result-label">구매 결과 · 확정배당</span><span class="hybrid-summary '+(hits.length?'result-hit':'result-loss')+'">'+(hits.length?'✓ 적중 '+hits.length+' / '+s.combos.length+'조합':'미적중 · '+s.combos.length+'조합')+'</span>'+(refund!==null?'<span class="hybrid-summary '+(refund>=1?'result-hit':'result-loss')+'">총 구매금액 기준 환급 '+refund.toFixed(3)+'배</span>':'<span class="hybrid-summary">총 환급배수 · 배당 확인 필요</span>')+'</span>'+results();
  }
 
  const market=r.official_result?.[s.kind],combos=s.combos||s.picks||[];

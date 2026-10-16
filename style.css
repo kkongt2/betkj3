@@ -47,3 +47,5 @@
 .runner-search{border:1px solid var(--line,#484852);border-radius:12px;padding:14px;margin:16px 0}.runner-search textarea{width:100%;max-width:100%;box-sizing:border-box;background:var(--bg,#19191c);color:inherit;border:1px solid #666;border-radius:8px;margin:8px 0;font-size:12px;word-break:break-all}.runner-search a{color:#9abaff}.runner-search button{margin:6px 0}.runner-search select{max-width:100%}
 
 .runner-result-preview{margin:14px 0;padding:12px;border:1px solid var(--line);border-radius:10px;min-width:0}.runner-result-preview h4{margin:0 0 8px}.runner-result-preview .validation-table{table-layout:fixed}.runner-result-preview th{width:34%;font-weight:500}.runner-result-preview td,.runner-result-preview p{overflow-wrap:anywhere}.runner-result-preview .search-metrics strong{font-size:18px}
+
+.official-result .hybrid-summary{display:block;margin:4px 0;font-weight:600;overflow-wrap:anywhere}.official-result .result-loss{background:#fde8e8;color:#9b2424;border-radius:4px;padding:3px}
