@@ -19,6 +19,12 @@ assert(S.selection(S.summarize(fixture('qpl-anchor2')).request.settings).include
 const hybrid3=fixture('hybrid');hybrid3.request.settings.hybridRanks=[3];hybrid3.result.best.settings.hybridRanks=[3];assert(S.selection(S.summarize(hybrid3).request.settings).includes('복병 3위 · 총 2조합'));
 const hybrid34=fixture('hybrid');hybrid34.request.settings.hybridRanks=[3,4];hybrid34.result.best.settings.hybridRanks=[3,4];assert(S.selection(S.summarize(hybrid34).request.settings).includes('복병 3·4위 · 총 3조합'));
 for(const rank of [1,2,3]){const p=fixture('place-single');p.request.settings.anchorRank=rank;p.result.best.settings.anchorRank=rank;const summary=S.summarize(p);assert(S.label(summary).includes('연승 1두 · 분석 '+rank+'위'));assert(S.preview(summary).includes('연승 1두 · 분석 '+rank+'위'));}
+for(const ranks of [[3],[4],[5],[6],[3,4],[4,5],[4,6],[5,6]]){
+ const p=fixture('hybrid');p.request.settings.hybridRanks=ranks;p.result.best.settings.hybridRanks=ranks;
+ const summary=S.summarize(p),detail=ranks.join('·')+'위 · 삼복승 '+ranks.length+'조합 (총 '+(ranks.length+1)+'조합)';
+ assert(S.label(summary).includes(detail));assert(S.preview(summary).includes(detail));assert(S.label(S.summarize(summary)).includes(detail));
+}
+const legacyHybrid=fixture('hybrid');delete legacyHybrid.request.settings.hybridRanks;delete legacyHybrid.result.best.settings.hybridRanks;assert(S.label(S.summarize(legacyHybrid)).includes('4·5위 · 삼복승 2조합 (총 3조합)'));
 const empty=fixture();empty.result.best=null;empty.request.seconds=empty.result.elapsed=42000;assert(S.label(S.summarize(empty)).includes('조건 만족 후보 없음'));assert(!S.summarize(empty).result.partial);
 const old=fixture('qpl-single');old.modelVersion='user-weighted-seoul-trainer22-v1';delete old.request.minHitRate;old.request.settings.weights=Array(22).fill(1);old.result.best.settings.weights=Array(22).fill(1);
 assert.equal(S.summarize(old).request.minHitRate,15);assert(S.preview(S.summarize(old)).includes('22개 보기'));

@@ -45,7 +45,7 @@ const RunnerSearchPanel=(()=>{
   if(s.betStrategy==='hybrid')return '분석 1·2위 고정 + 복병 '+s.hybridRanks.join('·')+'위 · 총 '+(1+s.hybridRanks.length)+'조합';
   return '축마 분석 '+s.anchorRank+'위 · 상대 '+s.min+'~'+s.max+'위 · '+(s.betStrategy==='qpl-anchor2'?2:1)+'조합';
  }
- const modeLabel=s=>modes[s.betStrategy]+(s.betStrategy==='place-single'?' · 분석 '+s.anchorRank+'위':'');
+ const modeLabel=s=>modes[s.betStrategy]+(s.betStrategy==='place-single'?' · 분석 '+s.anchorRank+'위':s.betStrategy==='hybrid'?' · '+s.hybridRanks.join('·')+'위 · 삼복승 '+s.hybridRanks.length+'조합 (총 '+(1+s.hybridRanks.length)+'조합)':'');
  function label(s){
   const q=s.request,b=s.result.best;
   return date(s.finishedAt)+' · '+modeLabel(q.settings)+' · '+(q.joint?'공동 '+q.target+'%':'전체')+' · '+(q.method==='de'?'DE':'혼합')+' · 하한 '+q.minHitRate+'%'+(q.balanced?' · 균형ON':'')+' · '+duration(s.result.elapsed)+(s.result.partial?' / 요청 '+duration(q.seconds)+' · 중간 결과':'')+' · '+(b?'적중 '+pct(b.metrics.rate)+' · 환급 '+odds(b.metrics.product):'조건 만족 후보 없음');
