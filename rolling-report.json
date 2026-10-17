@@ -4,9 +4,9 @@
   "version": "user-weighted-seoul-pace21-v1",
   "policyVersion": "betkj3-configurable-anchor-v3",
   "generatedAt": "2026-10-14T01:21:57.016Z",
-  "sourceRaces": 3924,
+  "sourceRaces": 3934,
   "from": "20240101",
-  "to": "20261011",
+  "to": "20261017",
   "minimumCoverageRatio": 0.4,
   "search": {
     "weightCandidates": 17832,
@@ -706,7 +706,7 @@
     {
       "from": "20261001",
       "to": "20270101",
-      "through": "20261011",
+      "through": "20261017",
       "partial": true,
       "months": 36,
       "trainFrom": "20231001",
@@ -757,31 +757,31 @@
         "payoutTotal": 375.19999999999993
       },
       "selected": {
-        "total": 51,
-        "evaluated": 51,
-        "hits": 8,
+        "total": 61,
+        "evaluated": 61,
+        "hits": 12,
         "excluded": 0,
-        "paidHits": 8,
-        "payoutTotal": 35.9
+        "paidHits": 12,
+        "payoutTotal": 46.7
       }
     }
   ],
   "selected": {
     "all": {
-      "total": 2884,
-      "evaluated": 2848,
-      "hits": 263,
+      "total": 2894,
+      "evaluated": 2858,
+      "hits": 267,
       "excluded": 36,
-      "paidHits": 263,
-      "payoutTotal": 1958
+      "paidHits": 267,
+      "payoutTotal": 1968.8
     },
     "metrics": {
-      "rate": 0.09234550561797752,
-      "average": 7.444866920152092,
-      "product": 0.6875
+      "rate": 0.0934219734079776,
+      "average": 7.373782771535581,
+      "product": 0.6888733379986004
     },
     "maxDrawdown": 933.5999999999998,
-    "netUnits": -890
+    "netUnits": -889.2
   },
   "recordComparison": [
     {
@@ -915,17 +915,17 @@
     "months": 36,
     "retrospective": {
       "all": {
-        "total": 3924,
-        "evaluated": 3923,
-        "hits": 610,
+        "total": 3934,
+        "evaluated": 3933,
+        "hits": 614,
         "excluded": 1,
-        "paidHits": 610,
-        "payoutTotal": 3123.2000000000003
+        "paidHits": 614,
+        "payoutTotal": 3134
       },
       "metrics": {
-        "rate": 0.15549324496558756,
-        "average": 5.12,
-        "product": 0.7961254142238083
+        "rate": 0.15611492499364352,
+        "average": 5.1042345276872965,
+        "product": 0.7968471904398677
       }
     }
   },
@@ -936,6 +936,6 @@
     "qpl-history-years/2026.json": "7665f8980ed30b8a062d0dc547b3a8718e06f1fe63e3a0d1bf507f81b46064d3"
   },
   "note": "서울 경주만 사용하여 각 분기 직전 3개월로 가중치·학습기간·기록 방식을 선택하고 다음 분기를 평가했습니다. 후보 선정 시 과거 각 분기의 60% 이상에서 두 순위를 비교할 자료가 있는 범위를 사용해 여유를 두며, 실제 평가에서는 각 분기 전체 서울 경주의 40% 이상 조건을 확인합니다. 과거 자료는 이전 실험에도 사용됐으므로 완전히 새로운 독립 검증은 아닙니다. 연승확률 분석 순위 기준 사후 재계산입니다. 지급배당은 성과 계산에만 사용합니다. 진행 중 분기는 확보된 날짜까지만 집계합니다. 현재 선택 조합의 전체 과거 재계산과 분기별 고정 조합 성적은 서로 다릅니다.",
-  "refreshedAt": "2026-10-17T12:28:16.614Z",
+  "refreshedAt": "2026-10-17T15:51:31.638Z",
   "recordComparisonNote": "기록 방식별 비교는 최초 탐색 당시 자료 기준이며, 선택 조합 성적은 현재 자료로 재계산합니다."
 }
