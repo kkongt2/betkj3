@@ -196,5 +196,33 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  nodes['#screeningStrictnessNumber'].value='0';nodes['#screeningStrictnessNumber'].oninput();assert.equal(dayData().selected,4);
  nodes['#screeningEnabled'].checked=false;nodes['#screeningEnabled'].onchange();
  vm.runInContext('renderSelectedDayResults([])',sandbox);assert(!nodes['#selectedDayResults'].innerHTML.includes('5.000배'));
+
+ // Monthly totals use all confirmed races, including losing races, rather than
+ // averaging daily averages. Pending/refunded races stay outside the denominator.
+ const monthRows=[...dayRows.map(r=>({...r,date:'20260912',calendar_archive:true})),{...dayWin,date:'20260913',calendar_archive:true}];
+ const html=fs.readFileSync('index.html','utf8');assert(html.indexOf('id="calendarMonth"')<html.indexOf('id="selectedMonthResults"'));assert(html.indexOf('id="selectedMonthResults"')<html.indexOf('id="dateCalendar"'));
+ vm.runInContext('races='+JSON.stringify(monthRows)+';source={calendar:[]};monthResultsKey=""',sandbox);nodes['#calendarMonth'].value='202609';
+ await vm.runInContext('renderSelectedMonthResults()',sandbox);
+ let monthHTML=nodes['#selectedMonthResults'].innerHTML;
+ assert(monthHTML.includes('적중 2 / 확정 3경주'));assert(monthHTML.includes('전체 환급배수 3.333배'));assert(monthHTML.includes('2026-09-12 · 1R'));assert(monthHTML.includes('2026-09-13 · 1R'));assert(monthHTML.includes('12.0배'));assert(monthHTML.includes('결과 대기 1경주 · 환불 1경주'));assert.equal(nodes['#selectedMonthResults']['aria-busy'],'false');
+ nodes['#screeningEnabled'].checked=true;nodes['#screeningEnabled'].onchange();nodes['#screeningStrictnessNumber'].value='100';nodes['#screeningStrictnessNumber'].oninput();
+ await flush();await vm.runInContext('renderSelectedMonthResults()',sandbox);assert(nodes['#selectedMonthResults'].innerHTML.includes('적중 0 / 확정 0경주'));
+ nodes['#screeningEnabled'].checked=false;nodes['#screeningEnabled'].onchange();await flush();
+ // Calendar fetches are shared with daily navigation and reused across settings.
+ vm.runInContext('calendarDocuments.clear()',sandbox);const before=requested.filter(x=>x.includes('calendar/')).length;
+ await vm.runInContext('Promise.all([loadCalendarDay("20250928"),loadCalendarDay("20250928")])',sandbox);
+ assert.equal(requested.filter(x=>x.includes('calendar/')).length-before,1);
+ await vm.runInContext('loadCalendarDay("20250928")',sandbox);assert.equal(requested.filter(x=>x.includes('calendar/')).length-before,1);
+ // Missing dates are explicit; retry fills them without changing the selected day.
+ sandbox.monthCards=monthRows;sandbox.monthFail=true;
+ vm.runInContext('source={calendar:[{date:"20260914",venues:["seoul"]}]};loadCalendarDay=async date=>{if(monthFail)throw Error("offline");return monthCards.slice(0,1).map(r=>({...r,date}));};monthResultsKey=""',sandbox);
+ await vm.runInContext('renderSelectedMonthResults()',sandbox);assert(nodes['#selectedMonthResults'].innerHTML.includes('자료 누락 1일'));assert(nodes['#selectedMonthResults'].innerHTML.includes('data-month-results-retry'));
+ sandbox.monthFail=false;nodes['#selectedMonthResults'].click({target:{closest:()=>true}});await flush();assert(!nodes['#selectedMonthResults'].innerHTML.includes('자료 누락'));assert(nodes['#selectedMonthResults'].innerHTML.includes('적중 3 / 확정 4경주'));
+ // A slower previous-month fetch cannot overwrite the newly selected month.
+ vm.runInContext('source={calendar:[{date:"20260815",venues:["seoul"]}]};loadCalendarDay=date=>new Promise(resolve=>{globalThis.resolveOldMonth=()=>resolve(monthCards.slice(0,1).map(r=>({...r,date})));});monthResultsKey=""',sandbox);
+ nodes['#calendarMonth'].value='202608';const oldMonth=vm.runInContext('renderSelectedMonthResults()',sandbox);
+ nodes['#calendarMonth'].value='202609';await vm.runInContext('renderSelectedMonthResults()',sandbox);const newest=nodes['#selectedMonthResults'].innerHTML;
+ vm.runInContext('resolveOldMonth()',sandbox);await oldMonth;assert.equal(nodes['#selectedMonthResults'].innerHTML,newest);
+ nodes['#calendarMonth'].value='202607';await vm.runInContext('renderSelectedMonthResults()',sandbox);assert(!nodes['#selectedMonthResults'].innerHTML.includes('3.333배'));assert(nodes['#selectedMonthResults'].innerHTML.includes('조회 가능한 경주가 없습니다'));
  console.log('PASS analysis-only QPL selection, no final-odds fetch, one preset, controls, history and result display');
 })().catch(e=>{console.error(e);process.exitCode=1});

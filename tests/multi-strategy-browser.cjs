@@ -52,6 +52,11 @@ const server=http.createServer((req,res)=>{
     await page.locator('#prepareRunnerSearch').click();
     assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).settings.betStrategy,mode);
    }
+   await page.waitForFunction(()=>document.querySelector('#selectedMonthResults').getAttribute('aria-busy')==='false');
+   assert(await page.locator('#selectedMonthResults').isVisible());
+   assert((await page.locator('#selectedMonthResults').innerText()).includes('적중'));
+   assert(await page.evaluate(()=>document.querySelector('#calendarMonth').compareDocumentPosition(document.querySelector('#selectedMonthResults'))&Node.DOCUMENT_POSITION_FOLLOWING));
+   assert(await page.evaluate(()=>document.querySelector('#selectedMonthResults').compareDocumentPosition(document.querySelector('#dateCalendar'))&Node.DOCUMENT_POSITION_FOLLOWING));
    assert(await page.locator('#selectedDayResults').isVisible());
    assert((await page.locator('#selectedDayResults').innerText()).includes('적중'));
    assert(await page.evaluate(()=>document.querySelector('#dateCalendar').compareDocumentPosition(document.querySelector('#selectedDayResults'))&Node.DOCUMENT_POSITION_FOLLOWING));
