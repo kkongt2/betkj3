@@ -73,6 +73,7 @@ jobs:
           node tests/feature-policy.cjs
           node tests/calculation-reuse.cjs
           node tests/search-policy.cjs
+          node tests/worst-floor.cjs
           node tests/runner-summary.cjs
           node tests/multi-strategy.cjs
           node tests/qpl-policy.cjs

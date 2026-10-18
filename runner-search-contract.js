@@ -33,7 +33,7 @@ const RunnerSearchContract=(()=>{
   if(!r||!Number.isSafeInteger(r.count)||r.count<0||!Number.isFinite(r.elapsed)||r.elapsed<0||r.elapsed>x.request.seconds||!Number.isInteger(r.workers)||r.workers<1||r.workers>8)fail();
   r.method=x.request.method;r.objective=x.request.objective;
   if(r.best){const b=r.best;b.settings=settings(b.settings);b.all=stats(b.all);b.metrics=H.metrics(b.all);
-   if(x.request.fitness){b.training=P.validate(b.training,x.request.objective);if(JSON.stringify(b.training.settings)!==JSON.stringify(x.request.fitness))fail();for(const k of ['total','evaluated','hits','paidHits','excluded'])if(b.training.capped[k]!==b.all[k])fail();}else delete b.training;
+   if(x.request.fitness){b.training=P.validate(b.training,x.request.objective);if(!P.satisfies(b.training,x.request.fitness))fail();if(JSON.stringify(b.training.settings)!==JSON.stringify(x.request.fitness))fail();for(const k of ['total','evaluated','hits','paidHits','excluded'])if(b.training.capped[k]!==b.all[k])fail();}else delete b.training;
    if(!b.all.evaluated||b.all.hits!==b.all.paidHits||b.all.hits*1000<b.all.evaluated*Math.round(x.request.minHitRate*10))fail();
    if(b.comparison){b.comparison.all=stats(b.comparison.all);b.comparison.metrics=H.metrics(b.comparison.all);}
    if(x.request.joint){const j=b.joint;if(!j||j.target!==x.request.target||!b.settings.screening||!Array.isArray(j.ratios)||![3,4].includes(j.ratios.length)||!Array.isArray(j.validation?.folds)||j.validation.folds.length>50)fail();
@@ -50,7 +50,7 @@ const RunnerSearchContract=(()=>{
     j.validation.folds=j.validation.folds.map(f=>{if(!/^\d{4}$/.test(f.year))fail();return {year:f.year,train:stats(f.train),test:stats(f.test),settings:settings(f.settings)};});
    }else delete b.joint;
   }
-  if(r.pool!==undefined){if(!Array.isArray(r.pool)||r.pool.length>8)fail();r.pool=r.pool.map(c=>{const out={settings:settings(c.settings),all:stats(c.all)};out.metrics=H.metrics(out.all);if(!out.all.evaluated||out.all.hits!==out.all.paidHits||out.all.hits*1000<out.all.evaluated*Math.round(x.request.minHitRate*10))fail();if(x.request.fitness){out.training=P.validate(c.training,x.request.objective);if(JSON.stringify(out.training.settings)!==JSON.stringify(x.request.fitness))fail();for(const k of ['total','evaluated','hits','paidHits','excluded'])if(out.training.capped[k]!==out.all[k])fail();}return out;});}
+  if(r.pool!==undefined){if(!Array.isArray(r.pool)||r.pool.length>8)fail();r.pool=r.pool.map(c=>{const out={settings:settings(c.settings),all:stats(c.all)};out.metrics=H.metrics(out.all);if(!out.all.evaluated||out.all.hits!==out.all.paidHits||out.all.hits*1000<out.all.evaluated*Math.round(x.request.minHitRate*10))fail();if(x.request.fitness){out.training=P.validate(c.training,x.request.objective);if(!P.satisfies(out.training,x.request.fitness))fail();if(JSON.stringify(out.training.settings)!==JSON.stringify(x.request.fitness))fail();for(const k of ['total','evaluated','hits','paidHits','excluded'])if(out.training.capped[k]!==out.all[k])fail();}return out;});}
   if(migrated){x.migrated=true;x.request.joint=false;delete x.request.settings.screening;if(r.best){delete r.best.settings.screening;delete r.best.joint;}}
   return x;
  }

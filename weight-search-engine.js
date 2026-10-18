@@ -38,7 +38,7 @@ const WeightSearchEngine=(()=>{
    const config={...settings,weights,...(fitness?{fitness,searchObjective:objective}:{})},result=await fast(config,options.from,options.to,active);if(!current())return null;
    if(evolution){if(!result)break;evolution.tell(fitness?P.guidance(result.all,result.training,objective,minHitRate):eligible(result.all,minHitRate)?history.metrics(result.all)[objective]:-Infinity);}
    if(result){count++;const candidate={settings:config,all:result.all,metrics:history.metrics(result.all),...(result.training?{training:result.training}:{})};
-    if(eligible(candidate.all,minHitRate)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective)){best=candidate;stale=0;}else stale++;elite=P.pool([...elite,candidate],objective);}
+    if(eligible(candidate.all,minHitRate)&&P.satisfies(candidate.training,fitness)&&Number.isFinite(candidate.metrics[objective])){if(better(candidate,best,objective)){best=candidate;stale=0;}else stale++;elite=P.pool([...elite,candidate],objective);}
    }
    if(now()-lastProgress>=200)report('searching');
    await yieldTask();
@@ -48,7 +48,7 @@ const WeightSearchEngine=(()=>{
   if(best){report('verifying');const groups=await verify(best.settings,options.from,options.to,current);if(!current()||!groups)return null;
    const metrics=history.metrics(groups.all);for(const k of ['total','evaluated','hits','paidHits'])if(groups.all[k]!==best.all[k])throw Error('탐색·검산 통계가 일치하지 않습니다. 결과를 적용하지 않았습니다.');
    if(Math.abs(groups.all.payoutTotal-best.all.payoutTotal)>1e-7||!eligible(groups.all,minHitRate))throw Error('최고 후보 검산에 실패했습니다.');
-   if(fitness&&(!groups.training||Math.abs(groups.training.score-best.training.score)>1e-7))throw Error('안정성 탐색 점수 검산에 실패했습니다.');
+   if(fitness&&(!groups.training||!P.satisfies(groups.training,fitness)||Math.abs(groups.training.score-best.training.score)>1e-7))throw Error('안정성 탐색 점수 검산에 실패했습니다.');
    best={settings:best.settings,all:groups.all,metrics,comparison:groups.comparison,...(groups.training?{training:groups.training}:{})};
   }
   return {best,pool:P.pool([best,...elite],objective),count,elapsed,stopped:wasStopped,objective,balanced,method,evolution:evolution?.stats()};

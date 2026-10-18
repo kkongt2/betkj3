@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model.js?v=search-robust-1','tuning-model.js?v=calculation-reuse-1','qpl-policy.js?v=search-robust-1','race-selection-model.js?v=screening-v2-2','search-policy.js?v=search-robust-1','qpl-history-engine.js?v=calculation-reuse-1','weight-curve-engine.js?v=search-robust-1','weight-balance.js?v=search-robust-1','global-weight-search.js?v=search-robust-1','weight-search-engine.js?v=search-robust-1','joint-search-engine.js?v=calculation-reuse-1','parallel-search.js?v=calculation-reuse-1');
+importScripts('model.js?v=search-robust-1','tuning-model.js?v=calculation-reuse-1','qpl-policy.js?v=search-robust-1','race-selection-model.js?v=screening-v2-2','search-policy.js?v=worst-floor-1','qpl-history-engine.js?v=calculation-reuse-1','weight-curve-engine.js?v=search-robust-1','weight-balance.js?v=search-robust-1','global-weight-search.js?v=search-robust-1','weight-search-engine.js?v=worst-floor-1','joint-search-engine.js?v=worst-floor-1','parallel-search.js?v=worst-floor-1');
 let ready=null,latest=0,latestCurve=0,searchId=0,searchStopped=false,searchPool=null;
 async function fetchYear(url){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),60000);

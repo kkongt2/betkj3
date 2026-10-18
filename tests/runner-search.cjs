@@ -24,6 +24,10 @@ const request={schema:1,requestId:'runner-test',seconds:1,method:'de',objective:
   assert(resumed.result.pool.length<=8);assert(new Set(resumed.result.pool.map(c=>JSON.stringify(c.settings))).size===resumed.result.pool.length);
   const broken=structuredClone(resumed);broken.result.best.training.capped.payoutTotal=Infinity;assert.throws(()=>Contract.report(broken));
  }
+ for(const joint of [false,true]){
+  const none=await search({...request,joint,minHitRate:0,fitness:{...require('../search-policy').defaults(),floor:1.05,worstFloor:1.05}},rows.slice(0,20),{runId:'127-1'});
+  assert.equal(none.request.fitness.worstFloor,1.05);assert.equal(none.result.best,null);assert.deepEqual(none.result.pool,[]);
+ }
  const low=structuredClone(report);low.request.joint=false;low.request.minHitRate=12.5;low.result.best.all={total:1000,evaluated:1000,hits:125,paidHits:125,excluded:0,payoutTotal:500};
  assert.equal(Contract.report(structuredClone(low)).result.best.metrics.rate,.125);
  low.request.minHitRate=12.6;assert.throws(()=>Contract.report(structuredClone(low)));

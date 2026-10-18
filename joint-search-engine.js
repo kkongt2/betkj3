@@ -115,9 +115,9 @@ const JointSearchEngine=(()=>{
    }
    function accept(scope,c,points){
     if(!c)return;
-    const valid=eligible(c.all,minHitRate),old=scope.incumbent;
+    const valid=eligible(c.all,minHitRate)&&P.satisfies(c.training,fitness),old=scope.incumbent,oldValid=!!old&&eligible(old.all,minHitRate)&&P.satisfies(old.training,fitness);
     // An ineligible seed can guide exploration until a qualifying candidate exists.
-    if(!old||valid&&!eligible(old.all,minHitRate)||valid===eligible(old.all,minHitRate)&&better(c,old)){scope.incumbent=c;scope.weights=c.settings.weights;scope.points=points;}
+    if(!old||valid&&!oldValid||valid===oldValid&&better(c,old)){scope.incumbent=c;scope.weights=c.settings.weights;scope.points=points;}
     if(valid){scope.pool=P.pool([...scope.pool,c]);const map=scope.year?foldBest:bestByTarget,key=scope.year||scope.target;if(better(c,map.get(key)))map.set(key,c);}
    }
    function startWeights(scope){
@@ -178,7 +178,7 @@ const JointSearchEngine=(()=>{
     best.all={...p};best.metrics=H.metrics(p);
     const summed=blank(),folds=[];
     // Held-out outcomes are read only after all training decisions are complete.
-    if(fitness&&(!exact.training||Math.abs(exact.training.score-best.training.score)>1e-7))throw Error('공동 안정성 점수 검산 실패');
+    if(fitness&&(!exact.training||!P.satisfies(exact.training,fitness)||Math.abs(exact.training.score-best.training.score)>1e-7))throw Error('공동 안정성 점수 검산 실패');
     for(const [year,c] of foldBest){
      const points=await evaluate(c.settings,year+'0101',Math.min(+options.to,+(year+'1231')).toString(),current);if(!points||!current())return null;
      const test=aggregate(score(points,c.settings.screening.coefficients),c.settings.screening.threshold);

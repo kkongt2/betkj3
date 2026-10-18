@@ -37,6 +37,19 @@ const {search}=require('../scripts/runner-search.cjs');
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('http://127.0.0.1:'+server.address().port);await page.locator('#pairLead .lead-number').waitFor();
   assert.equal(await page.locator('#weightSearchRobust').isChecked(),true);assert.equal(await page.locator('#weightSearchPayoutCap').inputValue(),'60');assert.equal(await page.locator('#weightSearchQuarterFloor').inputValue(),'0.65');
+  assert.equal(await page.locator('#weightSearchWorstEnabled').isChecked(),false);
+  assert.equal(await page.locator('#weightSearchWorstFloor').inputValue(),'1.05');
+  await page.locator('#weightSearchWorstEnabled').check();await page.locator('#weightSearchQuarterFloor').fill('1.05');
+  await page.locator('#prepareRunnerSearch').click();
+  assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).fitness.worstFloor,1.05);
+  await page.reload();await page.locator('#pairLead .lead-number').waitFor();
+  assert.equal(await page.locator('#weightSearchWorstEnabled').isChecked(),true);assert.equal(await page.locator('#weightSearchQuarterFloor').inputValue(),'1.05');
+  for(const bad of ['', '0','-1','2.01','1.055']){await page.locator('#weightSearchWorstFloor').fill(bad);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('Worst quarter'));}
+  await page.locator('#weightSearchWorstFloor').fill('1.05');
+  await page.locator('#weightSearchRobust').uncheck();assert.equal(await page.locator('#weightSearchWorstFloor').isDisabled(),true);
+  await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).fitness,undefined);
+  await page.locator('#weightSearchRobust').check();await page.locator('#weightSearchWorstEnabled').uncheck();
+  await page.locator('#weightSearchQuarterFloor').fill('0.65');
   const floor=page.locator('#weightSearchMinHitRate');assert.equal(await floor.inputValue(),'15');
   for(const invalid of ['', '-1','100.1','12.55']){await floor.fill(invalid);await page.locator('#prepareRunnerSearch').click();assert((await page.locator('#runnerSearchStatus').innerText()).includes('최저 적중률'));}
   await floor.fill('12.5');await page.locator('#prepareRunnerSearch').click();assert.equal(JSON.parse(await page.locator('#runnerSearchRequest').inputValue()).minHitRate,12.5);
@@ -75,6 +88,12 @@ const {search}=require('../scripts/runner-search.cjs');
    assert(text.includes('독립적인 미래 성능 검증은 아닙니다'));assert.equal(await page.locator('#fixedYearResults tr[data-year="2026"]').count(),1);
    await page.locator('#applyWeightSearch').click();assert.equal(await page.locator('#screeningEnabled').isChecked(),false);assert.equal(await page.locator('.screening-badge').count(),0);
   }
+  report=await search({...payload,seconds:1,joint:true,target:50,fitness:{...require('../search-policy').defaults(),floor:1.05,worstFloor:1.05}},rows,{runId:'125-1'});
+  assert.equal(report.result.best,null);assert.deepEqual(report.result.pool,[]);
+  await page.locator('#refreshRunnerSearch').click();await page.waitForFunction(()=>!document.querySelector('#refreshRunnerSearch').disabled);
+  assert((await page.locator('#runnerSearchPreview').innerText()).includes('1.05배 이상'));
+  await page.locator('#loadRunnerSearch').click();await page.waitForFunction(()=>document.querySelector('#weightSearchResult').textContent.includes('조건 충족 후보 없음'));
+  assert.equal(await page.locator('#applyWeightSearch').isDisabled(),true);assert.equal(await page.locator('#weightSearchWorstEnabled').isChecked(),true);assert.equal(await page.locator('#weightSearchWorstFloor').inputValue(),'1.05');
   await page.locator('#prepareRunnerSearch').click();await page.locator('#weightSearchMinutes').fill('30');await page.locator('#weightSearchMinutes').blur();assert.equal(await page.locator('#runnerPrepared').isHidden(),true);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert(rawRequests.length>=4);assert.deepEqual(errors,[]);
   await page.locator('.weight-search').screenshot({path:'/tmp/runner-search-mobile.png'});await context.close();console.log('PASS mobile Runner prepare including 1-day budget without local execution, reload recovery, missing/invalid result, matching result, explicit apply/save, stale request invalidation and screening OFF');

@@ -29,7 +29,7 @@ async function search(request,rows,metadata={}){
  let last=0;const start=previous?.startedAt||new Date().toISOString();
  const stop=()=>pool.stop();process.on('SIGINT',stop);process.on('SIGTERM',stop);
  try{
-  let result=await pool.run(rows,options,workers,p=>{if(Date.now()-last>10000){last=Date.now();console.log(JSON.stringify({phase:p.phase,segment:(previous?.result.segments||0)+1,segmentMinutes:+(p.elapsed/60).toFixed(2),totalMinutes:+((done+p.elapsed)/60).toFixed(2),count:p.count,workers:p.workers,product:p.best?.metrics.product,searchScore:p.best?.training?.score,worstQuarter:p.best?.training?.worst}));}});
+  let result=await pool.run(rows,options,workers,p=>{if(Date.now()-last>10000){last=Date.now();console.log(JSON.stringify({phase:p.phase,segment:(previous?.result.segments||0)+1,segmentMinutes:+(p.elapsed/60).toFixed(2),totalMinutes:+((done+p.elapsed)/60).toFixed(2),count:p.count,workers:p.workers,product:p.best?.metrics.product,searchScore:p.best?.training?.score,worstQuarter:p.best?.training?.worst,worstQuarterFloor:request.fitness?.worstFloor??null}));}});
   if(!result||result.failedWorkers)throw Error('Runner worker failed; incomplete results were not published.');
   result=await P.verify(result,options,H.create(rows).evaluate,()=>true);
   if(previous){

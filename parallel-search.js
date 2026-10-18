@@ -14,7 +14,7 @@ const ParallelSearch=(()=>{
  function compact(rows,from,to){return rows.filter(r=>r.venue==='seoul'&&r.date>=from&&r.date<=to).map(r=>({...r,horses:r.horses.map(h=>[h[0],h[1],h[2],null,null,null,h[6],h[7]?{starts:h[7].starts,available:h[7].available,screening:{recentTrend:S.recentTrend(h[7]),restDays:h[7].screening?.restDays??h[7].detail?.restDays}}:null])}));}
  function merge(outputs,options){
   const objective=options.joint?'product':options.objective,valid=outputs.filter(Boolean);let best=null;
-  for(const x of valid)if(x.best&&W.better(x.best,best,objective))best=x.best;
+  for(const x of valid)if(x.best&&Policy.satisfies(x.best.training,options.fitness)&&W.better(x.best,best,objective))best=x.best;
   if(best){best={...best};if(options.joint){
    const folds=new Map(),ratios=new Map();
    for(const x of valid)if(x.best?.joint){
@@ -25,7 +25,7 @@ const ParallelSearch=(()=>{
    const target=options.target;ratios.set(target,{target,...best.all,...best.metrics,searchScore:Policy.value(best,objective),ratio:best.all.total?best.all.evaluated/best.all.total:null});
    best.joint={optimizer:best.joint?.optimizer,fixed:best.joint?.fixed||null,method:options.method||'local',target,modelLabels:S.labels(best.settings.screening?.version),ratios:S.JOINT_TARGETS.map(target=>ratios.get(target)||{target,product:null,ratio:null}),validation:{folds:[...folds.values()].sort((a,b)=>a.year.localeCompare(b.year)),all,metrics:H.metrics(all)}};
   }}
-  const pool=Policy.pool([best,...valid.flatMap(x=>[x.best,...(x.pool||[])])],objective);
+  const pool=Policy.pool([best,...valid.flatMap(x=>[x.best,...(x.pool||[])])].filter(c=>c&&Policy.satisfies(c.training,options.fitness)),objective);
   return {best,pool,count:valid.reduce((n,x)=>n+x.count,0),elapsed:Math.max(0,...valid.map(x=>x.elapsed||0)),stopped:valid.some(x=>x.stopped),objective,balanced:!!options.balanced,method:options.method||'local'};
  }
  async function verify(result,options,evaluate,current){
@@ -36,11 +36,11 @@ const ParallelSearch=(()=>{
   if(!options.migrated&&Math.abs(exact.payoutTotal-b.all.payoutTotal)>1e-7)throw Error('병렬 탐색 배당 검산 불일치');
   const minHitRate=options.minHitRate===undefined?15:options.minHitRate;
   if(!exact.evaluated||exact.hits!==exact.paidHits||(!options.migrated&&exact.hits*1000<exact.evaluated*Math.round(minHitRate*10)))throw Error('최저 적중률 조건 검산 실패');
-  if(options.fitness){if(!g.training||Math.abs(g.training.score-b.training.score)>1e-7)throw Error('안정성 탐색 점수 검산 불일치');b.training=g.training;}
+  if(options.fitness){if(!g.training||!Policy.satisfies(g.training,options.fitness)||Math.abs(g.training.score-b.training.score)>1e-7)throw Error('안정성 탐색 점수 검산 불일치');b.training=g.training;}
   b.migrated=options.migrated===true;b.all=exact;b.metrics=H.metrics(exact);if(options.joint&&b.joint)b.joint.fixed=g.fixedSelection;if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=calculation-reuse-1'),now=()=>performance.now()}={}){
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=worst-floor-1'),now=()=>performance.now()}={}){
   let emittedAt=-Infinity,states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}
