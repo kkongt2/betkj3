@@ -60,7 +60,8 @@ const TuningModel=(()=>{
   const features=field.map(h=>featureValues(h.weighted_v3_features));
   const raw=features.map(f=>f.reduce((s,x,i)=>s+x*config.weights[i]/sum,0)*6.28),mean=raw.reduce((a,b)=>a+b,0)/raw.length;
   const strengths=raw.map(x=>Math.exp(Math.max(-4,Math.min(4,(x-mean)*.6))));
-  const place=engine.probs(strengths,base.k),pair=engine.probs(strengths,3);
+  // At 8+ starters both markets use the same top-three distribution.
+  const pair=engine.probs(strengths,3),place=base.k===3?pair:engine.probs(strengths,base.k);
   const refresh=(item,prob)=>({...item,prob});
   const byNumber=new Map(field.map((h,i)=>[+h.number,i]));
   const places=base.places.map(x=>refresh(x,place.p[byNumber.get(+x.numbers[0])]));

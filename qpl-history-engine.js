@@ -51,11 +51,15 @@ const QplHistoryEngine=(()=>{
     flags.forEach((v,i)=>c.features[i][v===true?'available':v===false?'fallback':'unknown']++);
    }}coverageCache.set(cacheKey,c);return c;
   }
-  function evaluateRow(entry,config){
+  function evaluateRow(entry,config,includeAnalysis=false){
+   // Return a newly computed analysis only to the internal joint-search caller.
+   // Do not retain the large presentation object for every historical race.
+   let analysis;
    const mode=modeOf(config);
    const signature=config.modelMode!=='existing'?config.modelMode+':'+tuning.weightsFor(config,entry.row.venue).join(','):'existing';
    if(signature!=='existing'&&entry.signature!==signature){
     const analyzed=tuning.apply(tuning.unpack(entry.row),config),prob=new Map(analyzed.places.map(p=>[+p.numbers[0],p.prob]));
+    if(includeAnalysis)analysis=analyzed;
     entry.custom={...entry.row,horses:entry.row.horses.filter(h=>prob.has(h[0])).map(h=>[h[0],prob.get(h[0]),...h.slice(2)]),pairs:analyzed.pairs.map(p=>[...p.numbers,p.prob])};entry.signature=signature;
    }
    const base=tuning.unpack(signature==='existing'?entry.row:entry.custom);
@@ -98,7 +102,7 @@ const QplHistoryEngine=(()=>{
     screen=entry.screen;
    }
    return {date:entry.row.date,venue:entry.row.venue,settled,ready,hit,payout,betStrategy:mode,
-    ...(includeScreening?{screening:screen}:{}),candidates};
+    ...(includeScreening?{screening:screen}:{}),candidates,...(analysis?{analysis}:{})};
   }
   async function evaluate(options,from,to,isCurrent=()=>true,onProgress=()=>{}){
    const mode=modeOf(options),includeScreening=options.includeScreening===true;
@@ -115,7 +119,7 @@ const QplHistoryEngine=(()=>{
     ...(includeScreening&&config.screening?{fixedSelection:fixedSelection(results,config,from,to)}:{}),
     ...(includeScreening?{screening:screening.curve(results)}:{})};
   }
-  return {evaluate,evaluateRow:(i,options)=>evaluateRow(entries[i],{...tuning.settings(options),...policy.normalizeRange(options),betStrategy:modeOf(options)})};
+  return {evaluate,evaluateRow:(i,options,includeAnalysis=false)=>evaluateRow(entries[i],{...tuning.settings(options),...policy.normalizeRange(options),betStrategy:modeOf(options)},includeAnalysis)};
  }
  function metrics(g){
   const rate=g.evaluated?g.hits/g.evaluated:null,average=g.paidHits?g.payoutTotal/g.paidHits:null;

@@ -65,8 +65,8 @@ const JointSearchEngine=(()=>{
     const e=entries[i];if(e.row.date<from||e.row.date>to)continue;
     const p={date:e.row.date,features:null,hit:false,payout:null};out.push(p);
     if(settings.betStrategy!=='qpl-single'){
-     const outcome=multiHistory.evaluateRow(i,settings);if(!outcome.ready||!outcome.settled)continue;
-     const P=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy,base=T.apply(T.unpack(e.row),settings),result=P.apply(base,null,settings);result.allPairs=base.pairs;
+     const outcome=multiHistory.evaluateRow(i,settings,true);if(!outcome.ready||!outcome.settled)continue;
+     const P=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy,base=outcome.analysis||T.apply(T.unpack(e.row),settings),result=P.apply(base,null,settings);result.allPairs=base.pairs;
      p.features=S.strategyFeatures(result,settings);p.hit=outcome.hit;p.payout=outcome.payout;continue;
     }
     if(!e.valid||e.field.length<settings.min||e.field.length<settings.anchorRank)continue;
