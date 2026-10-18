@@ -50,6 +50,13 @@ const live=P.apply(T.apply(M.analyze(race),settings),null,settings);
 const before=S.score(live,settings);live.official_result={pair:{payouts:[{numbers:[9,10],odds:9999}]}};
 assert.deepEqual(S.score(live,settings),before,'no actual outcome or payout enters screening');
 (async()=>{
+ if(process.argv.includes('--archive')){
+  const fs=require('node:fs'),manifest=JSON.parse(fs.readFileSync('qpl-history.json'));
+  for(const shard of manifest.shards)for(const r of JSON.parse(fs.readFileSync(shard.url)).rows){
+   assert(Number.isFinite(r.distance)&&r.distance>0,'archive retains pre-race distance');
+   for(const h of r.horses){assert(Number.isFinite(h[7]?.screening?.recentTrend),'archive retains recent-three trend');assert(!h[7]?.through||h[7].through<r.date,'history must precede race day');}
+  }
+ }
  const rows=Array.from({length:12},(_,i)=>({...row,race:i+1}));
  for(const screening of [v2,legacy]){
   const cfg={...settings,screening},points=await J.create(rows).evaluate(cfg,'20230101','20261231');
