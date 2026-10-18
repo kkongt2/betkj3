@@ -11,7 +11,7 @@ const ParallelSearch=(()=>{
   return Math.max(1,Math.min(8,memoryCap,Math.floor(cores)-1));
  }
  // Only inputs used by the weighted model and its exact tie fallback are copied.
- function compact(rows,from,to){return rows.filter(r=>r.venue==='seoul'&&r.date>=from&&r.date<=to).map(r=>({...r,horses:r.horses.map(h=>[h[0],h[1],h[2],null,null,null,h[6],h[7]?{starts:h[7].starts,available:h[7].available}:null])}));}
+ function compact(rows,from,to){return rows.filter(r=>r.venue==='seoul'&&r.date>=from&&r.date<=to).map(r=>({...r,horses:r.horses.map(h=>[h[0],h[1],h[2],null,null,null,h[6],h[7]?{starts:h[7].starts,available:h[7].available,screening:{recentTrend:S.recentTrend(h[7]),restDays:h[7].screening?.restDays??h[7].detail?.restDays}}:null])}));}
  function merge(outputs,options){
   const objective=options.joint?'product':options.objective,valid=outputs.filter(Boolean);let best=null;
   for(const x of valid)if(x.best&&W.better(x.best,best,objective))best=x.best;
@@ -23,7 +23,7 @@ const ParallelSearch=(()=>{
    }
    const all={total:0,evaluated:0,hits:0,paidHits:0,payoutTotal:0,excluded:0};for(const f of folds.values())for(const k of Object.keys(all))all[k]+=f.test[k];
    const target=options.target;ratios.set(target,{target,...best.all,...best.metrics,searchScore:Policy.value(best,objective),ratio:best.all.total?best.all.evaluated/best.all.total:null});
-   best.joint={optimizer:best.joint?.optimizer,fixed:best.joint?.fixed||null,method:options.method||'local',target,modelLabels:S.JOINT_LABELS,ratios:S.JOINT_TARGETS.map(target=>ratios.get(target)||{target,product:null,ratio:null}),validation:{folds:[...folds.values()].sort((a,b)=>a.year.localeCompare(b.year)),all,metrics:H.metrics(all)}};
+   best.joint={optimizer:best.joint?.optimizer,fixed:best.joint?.fixed||null,method:options.method||'local',target,modelLabels:S.labels(best.settings.screening?.version),ratios:S.JOINT_TARGETS.map(target=>ratios.get(target)||{target,product:null,ratio:null}),validation:{folds:[...folds.values()].sort((a,b)=>a.year.localeCompare(b.year)),all,metrics:H.metrics(all)}};
   }}
   const pool=Policy.pool([best,...valid.flatMap(x=>[x.best,...(x.pool||[])])],objective);
   return {best,pool,count:valid.reduce((n,x)=>n+x.count,0),elapsed:Math.max(0,...valid.map(x=>x.elapsed||0)),stopped:valid.some(x=>x.stopped),objective,balanced:!!options.balanced,method:options.method||'local'};
@@ -40,7 +40,7 @@ const ParallelSearch=(()=>{
   b.migrated=options.migrated===true;b.all=exact;b.metrics=H.metrics(exact);if(options.joint&&b.joint)b.joint.fixed=g.fixedSelection;if(!options.joint)b.comparison=g.comparison;
   return result;
  }
- function create({makeWorker=()=>new Worker('search-island-worker.js?v=screening-v2-1'),now=()=>performance.now()}={}){
+ function create({makeWorker=()=>new Worker('search-island-worker.js?v=screening-v2-2'),now=()=>performance.now()}={}){
   let emittedAt=-Infinity,states=[],settled=false,started=null,stopped=false,aborted=false,timer=null,prepareTimer=null,finishTimer=null,resolveRun,rejectRun,options,progress;
   const cleanup=()=>{clearTimeout(timer);clearTimeout(prepareTimer);clearTimeout(finishTimer);for(const s of states)s.worker?.terminate();};
   function close(value,error){if(settled)return;settled=true;cleanup();if(error){error.beforeStart=started===null;rejectRun(error);}else resolveRun(value);}

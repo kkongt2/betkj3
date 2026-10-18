@@ -58,6 +58,8 @@ assert.deepEqual(S.score(live,settings),before,'no actual outcome or payout ente
   }
  }
  const rows=Array.from({length:12},(_,i)=>({...row,race:i+1}));
+ const compact=require('../parallel-search').compact(rows,'20230101','20261231');
+ assert.deepEqual((await H.create(compact).evaluate({...settings,includeScreening:true},'20230101','20261231')).screening,(await H.create(rows).evaluate({...settings,includeScreening:true},'20230101','20261231')).screening,'worker transport preserves new pre-race screening metadata');
  for(const screening of [v2,legacy]){
   const cfg={...settings,screening},points=await J.create(rows).evaluate(cfg,'20230101','20261231');
   const result=P.apply(T.apply(T.unpack(row),cfg),null,cfg);
