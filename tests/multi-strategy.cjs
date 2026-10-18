@@ -11,7 +11,7 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
   const base=T.apply(T.unpack(row),cfg),live=P.apply(base,null,cfg);live.allPairs=base.pairs;
   assert(S.score(live,cfg).available);
   const joint=await J.create([row]).evaluate(cfg,'20230101','20261231');assert.equal(joint[0].payout,expected);
-  const jc={...cfg,screening:{version:S.JOINT_VERSION,coefficients:Array(12).fill(1),threshold:0,target:40}};
+  const jc={...cfg,screening:{version:S.JOINT_VERSION,coefficients:S.projectCoefficients(Array(S.JOINT_LABELS.length).fill(1)),threshold:0,target:40}};
   const jg=await h.evaluate(jc,'20230101','20261231');assert.equal(S.jointScore(joint[0].features,jc.screening.coefficients),S.score(live,jc).score);assert(Math.abs(jg.fixedSelection.metrics.product-expected)<1e-8);
   assert.equal(Presets.config(cfg).betStrategy,betStrategy);
   assert.equal(Runner.request({schema:1,requestId:'test',seconds:60,method:'local',objective:'product',joint:false,balanced:true,parallel:false,target:40,settings:cfg}).settings.betStrategy,betStrategy);

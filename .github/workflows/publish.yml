@@ -82,6 +82,7 @@ jobs:
           node tests/site.cjs
           node tests/last5-detail.cjs --archive
           node tests/race-selection.cjs
+          node tests/screening-v2.cjs
           node tests/joint-search.cjs
           node tests/weight-curves.cjs
           node tests/weight-search.cjs

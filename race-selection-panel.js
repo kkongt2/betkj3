@@ -25,7 +25,7 @@ const RaceSelectionPanel=(()=>{
   try{enabled=localStorage.getItem('betkj3-screening-enabled')==='true';}catch{}
   function sync(){
    toggle.checked=enabled;
-   const model=api.model?.();document.querySelector('#screeningModelInfo').textContent=model?'공동 탐색 선별 모델 · 목표 '+model.target+'% · 축마/상대마 격차, 출전 두수, 전적 및 마체중 자료 등 12개 지표. 점수는 적중확률이 아닙니다. 엄격도를 조절하면 목표 비율과 달라질 수 있습니다.':'고정 규칙 모델 · 구매마 전체의 선정 안정성 35%, 전적 충실도 25%, 경쟁마 격차 25%, 입상확률 우위 15%. 연승 1두는 선택한 말의 입상확률·전적·경쟁마 격차를 사용합니다. 복수 조합은 구성 말 쌍의 지표를 평균하며 하이브리드는 복연승과 삼복승 구매 조합을 구성하는 말 쌍을 함께 사용합니다. 삼복승은 구매 조합을 구성하는 말 쌍을 사용하며, 3두 박스는 1위 축마가 포함된 쌍을 두 번 반영합니다. 점수는 적중확률이 아닙니다.';
+   const model=api.model?.();document.querySelector('#screeningModelInfo').textContent=model?(model.version===RaceSelectionModel.LEGACY_JOINT_VERSION?'이전 공동 탐색 모델 · 12개 지표를 당시 계수로 적용 중입니다. 새 8개 지표를 적용하려면 공동 탐색을 다시 실행하세요.':'공동 탐색 선별 모델 v2 · 목표 '+model.target+'% · 차순위 격차, 상위 3두 집중도, 적정 두수 이탈, 구매마 신뢰도, 하위권 불확실성, 최근 3경주 추세, 등급·거리의 8개 지표. 자료 신뢰도는 음수 계수로 탐색하지 않습니다. 엄격도에 따라 실제 선택 비율은 달라집니다. 점수는 적중확률이 아닙니다.'):'고정 규칙 선별 모델 v2 · 공동 탐색과 같은 8개 지표를 기본 계수로 계산합니다. 10두에서 멀어질수록 감점하며, 자료 신뢰도는 가점·하위권 신예 및 180일 이상 휴양은 감점합니다. 등급·거리 계수는 기본 0이며 공동 탐색에서 학습합니다. 구매 방식에 따라 실제 구매마와 비구매 경쟁마를 비교합니다. 누락된 추세·등급·거리 자료는 중립으로 처리합니다. 점수는 적중확률이 아닙니다.';
    document.querySelector('#screeningControls').hidden=!enabled;
    document.querySelector('#screeningToggleStatus').textContent=enabled?'ON · 경기 선별 사용 중':'OFF · 경기 선별을 사용하지 않습니다.';
    document.querySelector('#screeningOnlyControl').hidden=!enabled;

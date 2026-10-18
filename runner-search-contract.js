@@ -40,7 +40,7 @@ const RunnerSearchContract=(()=>{
     // Old reports contain only 40/60/80. Keep them readable without inventing a 50% result.
     const ratioTargets=j.ratios.map(r=>r?.target).sort((a,b)=>a-b).join(',');
     if(!['40,60,80',S.JOINT_TARGETS.join(',')].includes(ratioTargets)||!j.ratios.some(r=>r.target===x.request.target))fail();
-    j.modelLabels=S.JOINT_LABELS;j.method=x.request.method;
+    j.modelLabels=S.labels(b.settings.screening.version);j.method=x.request.method;
     j.ratios=j.ratios.map(r=>{if(!S.JOINT_TARGETS.includes(r.target))fail();return r.product===null?{target:r.target,product:null,ratio:null}:{target:r.target,...stats(r)};});
     if(j.fixed){const v=j.fixed;if(!/^\d{8}$/.test(v.from)||!/^\d{8}$/.test(v.to)||!Array.isArray(v.years)||v.years.length>50)fail();
      v.all=stats(v.all);v.metrics=S.metrics(v.all);const seen=new Set();v.years=v.years.map(f=>{if(!/^\d{4}$/.test(f.year)||seen.has(f.year))fail();seen.add(f.year);const all=stats(f.all);return {year:f.year,all,metrics:S.metrics(all)};});

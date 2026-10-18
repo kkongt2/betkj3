@@ -75,10 +75,14 @@ const TuningModel=(()=>{
   const rank=[1,2,3].includes(+settings.anchorRank)?+settings.anchorRank:1,pick=picks[rank-1];
   return pick?{ready:true,kind:'place',picks:[pick],rank}:{ready:false,kind:'place',reason:'선택한 연승확률 분석 '+rank+'위 말이 없습니다.'};
  }
- function packedSupport(s){if(!s?.detail)return s||null;return {...s,detail:{version:s.detail.version,counts:s.detail.counts}};}
+ function packedSupport(s){
+  if(!s?.detail)return s||null;
+  const S=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
+  return {...s,screening:{recentTrend:S.recentTrend(s),...(Number.isFinite(s.detail.restDays)?{restDays:s.detail.restDays}:s.screening?.restDays!==undefined?{restDays:s.screening.restDays}:{})},detail:{version:s.detail.version,counts:s.detail.counts}};
+ }
  function pack(base){
   const field=base.horses.slice().sort((a,b)=>+a.number-+b.number);
-  return {date:base.date,venue:base.venue,race:base.race_no,k:base.k,models:base.models,
+  return {date:base.date,venue:base.venue,race:base.race_no,k:base.k,models:base.models,distance:base.distance??null,grade:base.grade??null,
    horses:base.horses.map(h=>[+h.number,base.places.find(p=>+p.numbers[0]===+h.number).prob,h.quality,engine.score(h,field).features,h.weighted_features||null,h.weighted_support||null,h.weighted_v3_features||null,packedSupport(h.weighted_v3_support)]),
    pairs:base.pairs.map(p=>[...p.numbers.map(Number),p.prob]),starters:base.official_result?.starters||null,
    settled:base.official_result?.pair?.status==='confirmed'&&!!base.official_result.pair.payouts?.length,payouts:base.official_result?.pair?.payouts||[],
@@ -87,7 +91,7 @@ const TuningModel=(()=>{
  }
  function unpack(row){
   const horses=row.horses.map(([number,prob,quality,tuningFeatures,weighted_features,weighted_support,weighted_v3_features,weighted_v3_support])=>({number,name:String(number),prob,quality,tuningFeatures,weighted_features,weighted_support,weighted_v3_features,weighted_v3_support}));
-  return {date:row.date,venue:row.venue,race_no:row.race,k:row.k,horses,models:row.models,mode:'accuracy',reasons:[],
+  return {date:row.date,venue:row.venue,race_no:row.race,k:row.k,distance:row.distance??null,grade:row.grade??null,horses,models:row.models,mode:'accuracy',reasons:[],
    places:horses.map(h=>({numbers:[h.number],names:[h.name],prob:h.prob,quality:h.quality})).sort((a,b)=>b.prob-a.prob),
    pairs:row.pairs.map(([a,b,prob])=>({numbers:[a,b],names:[String(a),String(b)],prob})),
    official_result:{starters:row.starters,place:{status:row.placeSettled?'confirmed':'pending',payouts:row.placePayouts||[]},pair:{status:row.settled?'confirmed':'pending',payouts:row.payouts||[]},trio:{status:row.trioSettled?'confirmed':'pending',payouts:row.trioPayouts||[]}}};

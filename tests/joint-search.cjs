@@ -53,7 +53,7 @@ const settings={...T.settings(),min:2,max:10};
  const resumed=await J.create(sample,()=>Promise.resolve()).run({...opts,settings:alternated.best.settings},H.create(sample).evaluate,{stopped:()=>resumedSteps>=1,progress:p=>{resumedSteps=p.count;}});
  assert(resumed.best.metrics.product>=alternated.best.metrics.product-1e-12);
  const rand=require('../global-weight-search.js').rng(44);
- let cs=Array(12).fill(10);
+ let cs=S.projectCoefficients(Array(S.JOINT_LABELS.length).fill(10));
  for(let i=0;i<250;i++){cs=J.coefficientProposal(cs,i,rand);assert(S.jointConfig({...screening,coefficients:cs}));}
  assert.equal(await J.create(sample).run(opts,()=>{throw Error('cancelled');},{current:()=>false}),null);
  console.log('PASS repeated alternating blocks, both fixed-variable invariants, learned coefficients, coverage/hit floor, checkpoint seed, coefficient bounds and cancellation');

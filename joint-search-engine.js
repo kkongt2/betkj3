@@ -34,21 +34,16 @@ const JointSearchEngine=(()=>{
   else for(let i=0;i<T.FEATURES.length;i++)base[i]=Math.pow(random(),2)*100;
   return options.balanced?B.project(base):normalize(base);
  }
- function profiles(){const random=rng(73021),out=[];
-  out.push([2,2,0,0,1,1,1,1,0,0,0,0],[2,-2,1,1,1,1,1,0,0,0,2,0],[-1,-1,0,2,1,1,1,0,-1,0,0,1]);
-  for(let i=0;i<9;i++)out.push(Array.from({length:12},()=>Math.round(random()*6)-3));return out;
+ function profiles(){const random=rng(73021),out=[S.DEFAULT_COEFFICIENTS.slice(),[2,2,2,-2,2,-2,1,1],[-1,2,1,-1,3,-2,2,0]];
+  for(let i=0;i<9;i++)out.push(S.projectCoefficients(S.JOINT_LABELS.map(()=>Math.round(random()*6)-3)));return out;
  }
- // Explore signed screening coefficients beyond the legacy starting profiles.
- // A sweep visits both directions of every coordinate; occasional wider moves
- // let subsequent alternating rounds escape a local optimum. Keep saved v1 bounds.
+ // Every mutation, restart and seed obeys the v2 coefficient bounds.
  function coefficientProposal(base,index,random){
-  const out=base.slice(),n=out.length;
+  const out=S.projectCoefficients(base),n=out.length;
   if(index%101===100)for(let j=0;j<n;j++)out[j]=Math.round(random()*20)-10;
   else if(index%25===24)for(let k=0;k<3;k++){const j=Math.floor(random()*n);out[j]+=random()<.5?-2:2;}
   else {const j=Math.floor(index/2)%n;out[j]+=index%2?1:-1;}
-  for(let j=0;j<n;j++)out[j]=Math.max(-10,Math.min(10,out[j]));
-  if(!out.some(x=>x!==0))out[Math.floor(random()*n)]=1;
-  return out;
+  return S.projectCoefficients(out);
  }
  function weightProposal(base,index,random,balanced){
   const out=base.slice();
@@ -83,7 +78,7 @@ const JointSearchEngine=(()=>{
     if(exact){const P=typeof module!=='undefined'?require('./qpl-policy.js'):Betkj3Policy;anchor=P.apply(T.apply(T.unpack(e.row),settings),null,settings).qplPolicy.anchor?.number;}
     else anchor=e.numbers.map((_,j)=>j).sort((a,b)=>raw[b]-raw[a]||e.numbers[a]-e.numbers[b]).map(j=>e.numbers[j])[settings.anchorRank-1];
     const partner=pair.split('-').map(Number).find(n=>n!==anchor);
-    p.features=S.jointFeatures(e.field.map(h=>({number:h[0],weighted_v3_features:h[6],weighted_v3_support:h[7]})),settings.weights,anchor,partner);
+    p.features=S.jointFeatures(e.field.map(h=>({number:h[0],weighted_v3_features:h[6],weighted_v3_support:h[7]})),settings.weights,anchor,partner,e.row,settings.screening?.version||S.JOINT_VERSION);
     p.hit=e.winning.has(pair);p.payout=p.hit?e.winning.get(pair):null;
    }
    return current()?out:null;
@@ -97,7 +92,7 @@ const JointSearchEngine=(()=>{
    const start=now(),years=[...new Set(entries.filter(e=>e.row.date>=options.from&&e.row.date<=options.to).map(e=>e.row.date.slice(0,4)))].sort().slice(1);
    const method=G.method(options.method),targets=S.JOINT_TARGETS,bestByTarget=new Map(),foldBest=new Map();
    const baseSettings={...T.settings(options.settings),min:options.settings.min,max:options.settings.max};delete baseSettings.screening;
-   const savedScreen=S.jointConfig(options.settings.screening),initialProfiles=profiles();
+   const saved=S.jointConfig(options.settings.screening),savedScreen=saved?.version===S.JOINT_VERSION?saved:null,initialProfiles=profiles();
    const seedCandidates=options.seedCandidates||[],seed=seedCandidates[(options.island||0)%Math.max(1,seedCandidates.length)];
    const project=w=>options.balanced?B.project(w):normalize(w);
    // Each coverage target and chronological fold owns its state and RNG. User
@@ -113,6 +108,7 @@ const JointSearchEngine=(()=>{
    const score=(points,coefficients)=>points.map(p=>({...p,score:p.features?S.jointScore(p.features,coefficients):null}));
    function candidate(scope,points,weights,coefficients,threshold){
     if(scope.year&&points.length<200)return null;
+    if(!S.jointConfig({version:S.JOINT_VERSION,coefficients,threshold:threshold??0,target:scope.target}))return null;
     const scored=score(points,coefficients),fit=threshold===undefined?calibrate(scored,scope.target):{threshold,all:aggregate(scored,threshold)};
     if(!fit||!fit.all.evaluated||fit.all.evaluated<Math.ceil(fit.all.total*scope.target/100))return null;
     return {settings:{...baseSettings,...(fitness?{fitness,searchObjective:'product'}:{}),weights:weights.slice(),screening:{version:S.JOINT_VERSION,coefficients:coefficients.slice(),threshold:fit.threshold,target:scope.target}},all:fit.all,metrics:H.metrics(fit.all),...(fitness?{training:P.summarize(scored,fitness,'product',p=>p.score!==null&&p.score>=fit.threshold)}:{})};
@@ -141,7 +137,7 @@ const JointSearchEngine=(()=>{
     if(stage==='initial'){
      const points=await evaluate({...baseSettings,weights:scope.weights},options.from,trainTo,active);if(!points)break;
      scope.points=points;
-     if(!scope.year&&seed?.settings.screening)accept(scope,candidate(scope,points,scope.weights,seed.settings.screening.coefficients,seed.settings.screening.threshold),points);
+     if(!scope.year&&S.jointConfig(seed?.settings.screening)?.version===S.JOINT_VERSION)accept(scope,candidate(scope,points,scope.weights,seed.settings.screening.coefficients,seed.settings.screening.threshold),points);
      if(!scope.year&&savedScreen)accept(scope,candidate(scope,points,scope.weights,savedScreen.coefficients,savedScreen.threshold),points);
      for(const coefficients of [...initialProfiles,...(!scope.year&&savedScreen?[savedScreen.coefficients]:[])])accept(scope,candidate(scope,points,scope.weights,coefficients),points);
      scope.phase='screening';

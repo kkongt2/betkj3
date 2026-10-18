@@ -8,13 +8,13 @@ function fixture(index=0){return {venue:'seoul',date:'20260913',race_no:index+1,
 const analyzed=(race,settings=config)=>P.apply(T.apply(M.analyze(race),settings),null,settings);
 const good=fixture(),scored=S.score(analyzed(good),config);
 assert(scored.available&&scored.score>=0&&scored.score<=100);
-assert.equal(scored.components.completeness,1);
+assert.equal(scored.components[S.JOINT_LABELS[4]],1);
 const changed=structuredClone(good);changed.official_result.pair.payouts=[{numbers:[8,9],odds:999}];
 assert.deepEqual(S.score(analyzed(changed),config),scored,'outcomes and payouts cannot affect screening');
 const poor=structuredClone(good);poor.horses.forEach(h=>delete h.weighted_v3_support);
 assert(S.score(analyzed(poor),config).score<scored.score,'unknown field data must lower quality');
 const tied=structuredClone(good);tied.horses.forEach(h=>h.weighted_v3_features.fill(.5));
-assert.equal(S.score(analyzed(tied),config).components.stability,0,'number tie breaks are not stability evidence');
+assert(Math.abs(S.score(analyzed(tied),config).components[S.JOINT_LABELS[2]]-.5)<1e-12,'uniform scores have neutral concentration');
 const noPair=analyzed(good,{...config,min:20,max:20});assert.equal(S.score(noPair,config).available,false);
 assert(!S.qualifies(S.score(noPair,config),0));assert(S.qualifies(scored,0));assert(!S.qualifies(scored,100));
 assert.equal(S.strictness(NaN),0);assert.equal(S.strictness(-1),0);assert.equal(S.strictness(120),100);
