@@ -25,6 +25,11 @@ for(const ranks of [[3],[4],[5],[6],[3,4],[4,5],[4,6],[5,6]]){
  assert(S.label(summary).includes(detail));assert(S.preview(summary).includes(detail));assert(S.label(S.summarize(summary)).includes(detail));
 }
 const legacyHybrid=fixture('hybrid');delete legacyHybrid.request.settings.hybridRanks;delete legacyHybrid.result.best.settings.hybridRanks;assert(S.label(S.summarize(legacyHybrid)).includes('4·5위 · 삼복승 2조합 (총 3조합)'));
+for(const value of [.7996710526315788,0,null]){
+ const p=fixture('hybrid');p.result.best.training={score:1.29,worst:value};const summary=S.summarize(p),expected=value===null?'표본 부족':value.toFixed(4)+'배';
+ assert(S.label(summary).includes('Worst quarter '+expected));assert(S.preview(summary).includes('Worst quarter · 최저 분기 환급배수</th><td>'+expected));assert.equal(summary.result.best.training.worst,value);assert.deepEqual(S.summarize(summary),summary);
+}
+assert(S.label(S.summarize(fixture())).includes('Worst quarter 미저장'));
 const empty=fixture();empty.result.best=null;empty.request.seconds=empty.result.elapsed=42000;assert(S.label(S.summarize(empty)).includes('조건 만족 후보 없음'));assert(!S.summarize(empty).result.partial);
 const old=fixture('qpl-single');old.modelVersion='user-weighted-seoul-trainer22-v1';delete old.request.minHitRate;old.request.settings.weights=Array(22).fill(1);old.result.best.settings.weights=Array(22).fill(1);
 assert.equal(S.summarize(old).request.minHitRate,15);assert(S.preview(S.summarize(old)).includes('22개 보기'));
