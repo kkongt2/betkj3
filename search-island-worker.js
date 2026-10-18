@@ -1,5 +1,5 @@
 'use strict';
-importScripts('model.js?v=search-robust-1','tuning-model.js?v=calculation-reuse-1','qpl-policy.js?v=search-robust-1','race-selection-model.js?v=screening-v2-2','search-policy.js?v=worst-floor-1','qpl-history-engine.js?v=calculation-reuse-1','weight-curve-engine.js?v=search-robust-1','weight-balance.js?v=search-robust-1','global-weight-search.js?v=search-robust-1','weight-search-engine.js?v=worst-floor-1','joint-search-engine.js?v=worst-floor-1');
+importScripts('model.js?v=search-robust-1','tuning-model.js?v=trio-two-1','qpl-policy.js?v=search-robust-1','race-selection-model.js?v=trio-two-1','search-policy.js?v=worst-floor-1','qpl-history-engine.js?v=trio-two-1','weight-curve-engine.js?v=search-robust-1','weight-balance.js?v=search-robust-1','global-weight-search.js?v=search-robust-1','weight-search-engine.js?v=worst-floor-1','joint-search-engine.js?v=worst-floor-1');
 let migrants=[];
 let prepared=null,stopped=false;
 // MessageChannel gives stop messages a turn without the nested-timer 4 ms clamp.

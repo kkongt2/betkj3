@@ -23,7 +23,7 @@ const history=H.create(rows),withAnalysis=history.evaluateRow(0,cfg,true);
 assert(withAnalysis.analysis);assert(!('analysis' in history.evaluateRow(0,cfg,true)),'cached outcomes do not retain the large analyzed object');
 assert(!('analysis' in H.create(rows).evaluateRow(0,cfg)),'public outcome shape stays unchanged');
 (async()=>{
- for(const betStrategy of ['place-single','qpl-anchor2','trio-box3','trio-box4','hybrid']){
+ for(const betStrategy of ['place-single','qpl-anchor2','trio-box3','trio-box3-2','trio-box4','hybrid']){
   const engine=J.create(rows,()=>Promise.resolve());
   for(const version of [S.JOINT_VERSION,S.LEGACY_JOINT_VERSION]){
    const settings={...cfg,betStrategy,screening:{version,coefficients:version===S.JOINT_VERSION?S.DEFAULT_COEFFICIENTS.slice():Array(12).fill(1),threshold:0,target:50}};

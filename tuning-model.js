@@ -44,7 +44,7 @@ const TuningModel=(()=>{
   const weights=validWeights(candidate)?migrateWeights(candidate):defaults();
   const selection=typeof module!=='undefined'?require('./race-selection-model.js'):RaceSelectionModel;
   const screening=selection.jointConfig(s.screening);
-  return {betStrategy:['place-single','qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...((s.betStrategy==='hybrid'||s.hybridRanks!==undefined)?{hybridRanks:validHybridRanks(s.hybridRanks)?s.hybridRanks.slice():[4,5]}:{}),...(screening?{screening}:{})};
+  return {betStrategy:['place-single','qpl-single','qpl-anchor2','trio-box4','trio-box3','trio-box3-2','hybrid'].includes(s.betStrategy)?s.betStrategy:'qpl-single',anchorRank:[1,2,3].includes(+s.anchorRank)?+s.anchorRank:1,modelMode:'custom',weights,...((s.betStrategy==='hybrid'||s.hybridRanks!==undefined)?{hybridRanks:validHybridRanks(s.hybridRanks)?s.hybridRanks.slice():[4,5]}:{}),...(screening?{screening}:{})};
  }
  const label=()=> '서울 최근 5경주 가중치 ('+ACTIVE.length+'개)';
  function featureValues(values){return FEATURES.map((_,i)=>Number.isFinite(values?.[i])?values[i]:.5);}

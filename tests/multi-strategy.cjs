@@ -3,7 +3,7 @@ const assert=require('node:assert/strict'),T=require('../tuning-model.js'),H=req
 const horses=Array.from({length:8},(_,i)=>[i+1,.3,1,[],null,null,Array(21).fill(1-i/10),{starts:5,available:Array(21).fill(true)}]);
 const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place:'fixture'},horses,pairs:horses.flatMap((a,i)=>horses.slice(i+1).map(b=>[a[0],b[0],.1])),starters:horses.map(h=>h[0]),settled:true,payouts:[{numbers:[1,2],odds:2},{numbers:[1,3],odds:4},{numbers:[2,3],odds:3}],placeSettled:true,placePayouts:[{numbers:[1],odds:1.5},{numbers:[2],odds:2},{numbers:[3],odds:3}],trioSettled:true,trioPayouts:[{numbers:[1,2,3],odds:3}]};
 (async()=>{
- for(const [betStrategy,expected] of [['place-single',1.5],['qpl-single',2],['qpl-anchor2',3],['trio-box4',.75],['trio-box3',1],['hybrid',2/3]]){
+ for(const [betStrategy,expected] of [['place-single',1.5],['qpl-single',2],['qpl-anchor2',3],['trio-box4',.75],['trio-box3',1],['trio-box3-2',1.5],['hybrid',2/3]]){
   const cfg={...T.settings({betStrategy}),min:2,max:8,includeScreening:true},h=H.create([row]);
   const g=await h.evaluate(cfg,'20230101','20261231');assert.equal(g.all.payoutTotal,expected);assert.equal(g.screening.points[0].product,expected);assert.equal(g.screening.points[0].hits,1);assert.equal(g.screening.points[100].evaluated,0);
   const fast=await C.create([row]).evaluate(cfg,'20230101','20261231');assert.equal(fast.metrics.product,expected);
@@ -51,6 +51,20 @@ const row={venue:'seoul',date:'20250101',race:1,k:3,models:{pair:'fixture',place
  assert.equal((await H.create([{...row,horses:horses.slice(0,3)}]).evaluate(anchored,'20230101','20261231')).all.evaluated,0);
  assert.equal((await H.create([missing]).evaluate(anchored,'20230101','20261231')).all.evaluated,0);
  assert.equal((await H.create([unknown]).evaluate(anchored,'20230101','20261231')).screening.points[0].product,null);
+ const two={...anchored,betStrategy:'trio-box3-2'};
+ assert.deepEqual(H.create([row]).evaluateRow(0,two).candidates.map(x=>x.pick.numbers),[[1,2,3],[1,2,4]]);
+ for(const numbers of [[1,2,3],[1,2,4],[1,3,4],[2,3,4]]){
+  const result=H.create([{...row,trioPayouts:[{numbers,odds:12}]}]).evaluateRow(0,two);
+  assert.equal(result.hit,numbers.includes(1)&&numbers.includes(2));
+  assert.equal(result.payout,numbers.includes(1)&&numbers.includes(2)?6:null);
+ }
+ assert.equal(H.create([deadHeat]).evaluateRow(0,two).payout,4);
+ assert.equal(H.create([missing]).evaluateRow(0,two).settled,false);
+ assert.equal(H.create([unknown]).evaluateRow(0,two).payout,null);
+ assert.equal(H.create([{...row,horses:horses.slice(0,3)}]).evaluateRow(0,two).ready,false);
+ const twoBase=T.apply(T.unpack(row),two),twoLive=P.apply(twoBase,null,two);twoLive.allPairs=twoBase.pairs;
+ const twoPairs=S.strategyPairs(twoLive,two).map(p=>p.pick.numbers.slice().sort().join(','));
+ assert.equal(twoPairs.length,6);assert.equal(twoPairs.filter(p=>p==='1,2').length,2);assert(!twoPairs.includes('3,4'));
  const hybrid={...T.settings({betStrategy:'hybrid'}),anchorRank:3,min:20,max:20,includeScreening:true};
  const hybridRow={...row,trioPayouts:[{numbers:[1,2,4],odds:12}]};
  const he=H.create([hybridRow]);

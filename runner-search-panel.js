@@ -1,7 +1,7 @@
 'use strict';
 const RunnerSearchPanel=(()=>{
  const base='https://raw.githubusercontent.com/kkongt2/betkj3/refs/heads/runner-results/';
- const modes={'place-single':'연승 1두','qpl-single':'복연승 1조합','qpl-anchor2':'복연승 2조합','trio-box3':'삼복승 3두 박스','trio-box4':'삼복승 4두 박스',hybrid:'복연승+삼복승 하이브리드'};
+ const modes={'place-single':'연승 1두','qpl-single':'복연승 1조합','qpl-anchor2':'복연승 2조합','trio-box3-2':'삼복승 3두 박스 2조합','trio-box3':'삼복승 3두 박스','trio-box4':'삼복승 4두 박스',hybrid:'복연승+삼복승 하이브리드'};
  const goals={product:'적중률×평균배당',rate:'적중률',average:'평균 적중배당'};
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const duration=s=>s>=86400&&s%86400===0?(s/86400)+'일':s>=3600&&s%3600===0?(s/3600)+'시간':Number((s/60).toFixed(2))+'분';
@@ -41,6 +41,7 @@ const RunnerSearchPanel=(()=>{
  function selection(s){
   if(s.betStrategy==='place-single')return '연승확률 분석 '+s.anchorRank+'위 · 1두';
   if(s.betStrategy==='trio-box4')return '분석 상위 4두 · 4조합';
+  if(s.betStrategy==='trio-box3-2')return '분석 1·2위 고정 · 1·2·3위 / 1·2·4위 · 2조합';
   if(s.betStrategy==='trio-box3')return '분석 상위 4두 · 1위 축 고정 · 3조합';
   if(s.betStrategy==='hybrid')return '분석 1·2위 고정 + 복병 '+s.hybridRanks.join('·')+'위 · 총 '+(1+s.hybridRanks.length)+'조합';
   return '축마 분석 '+s.anchorRank+'위 · 상대 '+s.min+'~'+s.max+'위 · '+(s.betStrategy==='qpl-anchor2'?2:1)+'조합';

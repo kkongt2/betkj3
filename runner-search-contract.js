@@ -10,7 +10,7 @@ const RunnerSearchContract=(()=>{
   if(!s||!T.validWeights(s.weights)||![22,T.FEATURES.length].includes(s.weights.length)||![1,2,3].includes(s.anchorRank)||![s.min,s.max].every(x=>Number.isInteger(x)&&x>=2&&x<=20)||s.min>s.max)fail();
   if(s.hybridRanks!==undefined&&!T.validHybridRanks(s.hybridRanks))fail();
   if(s.screening&&!S.jointConfig(s.screening))fail();
-  if(s.betStrategy!==undefined&&!['place-single','qpl-single','qpl-anchor2','trio-box4','trio-box3','hybrid'].includes(s.betStrategy))fail();
+  if(s.betStrategy!==undefined&&!['place-single','qpl-single','qpl-anchor2','trio-box4','trio-box3','trio-box3-2','hybrid'].includes(s.betStrategy))fail();
   return {...T.settings(s),anchorRank:s.anchorRank,min:s.min,max:s.max};
  }
  function request(x){

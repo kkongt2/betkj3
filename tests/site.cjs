@@ -127,6 +127,13 @@ for(const p of ['model.js','qpl-policy.js','tuning-model.js','race-selection-mod
  vm.runInContext('applySavedStrategy({...strategySettings(),anchorRank:2})',sandbox);await flush();
  assert.equal(nodes['#betStrategy'].value,'place-single-2');
  nodes['#anchorRank'].value='3';nodes['#anchorRank'].onchange();await flush();assert.equal(nodes['#betStrategy'].value,'place-single-3');
+ nodes['#betStrategy'].value='trio-box3-2';nodes['#betStrategy'].onchange();await flush();
+ assert.equal(vm.runInContext('betStrategy',sandbox),'trio-box3-2');
+ assert(vm.runInContext('JSON.stringify(strategySelection(ranked).combos.map(c=>c.numbers))===JSON.stringify([[0,1,2],[0,1,3]].map(ids=>ids.map(i=>strategySelection(ranked).box[i].number)))',sandbox));
+ assert.equal((nodes['#pairList'].innerHTML.match(/class="candidate"/g)||[]).length,2);
+ assert(nodes['#pairLead'].innerHTML.includes('총 2조합'));assert(nodes['#rangeHelp'].textContent.includes('분석 1·2위 고정'));
+ assert.equal(savedData.get('betkj3-bet-strategy'),'trio-box3-2');
+ vm.runInContext('applySavedStrategy({...strategySettings(),betStrategy:"qpl-single"});applySavedStrategy({...strategySettings(),betStrategy:"trio-box3-2"})',sandbox);await flush();assert.equal(nodes['#betStrategy'].value,'trio-box3-2');
  nodes['#betStrategy'].value='trio-box3';nodes['#betStrategy'].onchange();await flush();
  assert.equal(vm.runInContext('betStrategy',sandbox),'trio-box3');
  assert.equal(vm.runInContext('strategySelection(ranked).combos.length',sandbox),3);

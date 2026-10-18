@@ -83,14 +83,15 @@ const RaceSelectionModel=(()=>{
     if(!pick)return [];pairs.push({pick,anchor:result.horses.find(h=>+h.number===+numbers[0]),partner:result.horses.find(h=>+h.number===+numbers[1])});
    }return pairs;
   }
-  if(['trio-box4','trio-box3'].includes(settings.betStrategy)){
+  if(['trio-box4','trio-box3','trio-box3-2'].includes(settings.betStrategy)){
    const box=result.horses.slice().sort((a,b)=>b.prob-a.prob||a.number-b.number).slice(0,4);
    if(box.length!==4)return [];
    const pairs=[];for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){
+    if(settings.betStrategy==='trio-box3-2'&&i===2&&j===3)continue;
     const numbers=[box[i].number,box[j].number],pick=(result.allPairs||result.pairs).find(p=>pairKey(p.numbers)===pairKey(numbers));
     if(!pick)return [];pairs.push({pick,anchor:box[i],partner:box[j]});
     // Each anchor pair occurs in two purchased triples; each other pair occurs once.
-    if(settings.betStrategy==='trio-box3'&&i===0)pairs.push({pick,anchor:box[i],partner:box[j]});
+    if(settings.betStrategy==='trio-box3'&&i===0||settings.betStrategy==='trio-box3-2'&&i===0&&j===1)pairs.push({pick,anchor:box[i],partner:box[j]});
    }return pairs;
   }
   const p=result.qplPolicy,need=settings.betStrategy==='qpl-anchor2'?2:1;
@@ -108,7 +109,7 @@ const RaceSelectionModel=(()=>{
    return features.every(Boolean)?LEGACY_JOINT_LABELS.map((_,j)=>mean(features.map(f=>f[j]))):null;
   }
   const selected=[...new Set(pairs.flatMap(p=>p.pick.numbers.map(Number)))];
-  const anchor=['hybrid','trio-box3','trio-box4'].includes(settings.betStrategy)?result.horses.filter(h=>selected.includes(+h.number)).slice().sort((a,b)=>b.prob-a.prob||+a.number-+b.number)[0]?.number:pairs[0].anchor.number;
+  const anchor=['hybrid','trio-box3','trio-box4','trio-box3-2'].includes(settings.betStrategy)?result.horses.filter(h=>selected.includes(+h.number)).slice().sort((a,b)=>b.prob-a.prob||+a.number-+b.number)[0]?.number:pairs[0].anchor.number;
   return selectionFeatures(result.horses,settings.weights,selected,anchor,result);
  }
  function score(result,settings){
