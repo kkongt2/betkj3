@@ -56,6 +56,7 @@ jobs:
           path: training/trio-reports
           key: betkj3-trio-reports-${{ github.run_id }}
           restore-keys: betkj3-trio-reports-
+      - run: python tests/calendar-window.py
       - run: python scripts/seoul-only.py
       - run: python scripts/backfill-trio.py
       - run: python tests/rolling-features.py

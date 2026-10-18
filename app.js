@@ -290,7 +290,7 @@ function policyExplanationHTML(r){
  const p=r.qplPolicy;if(p?.status!=='ready')return '<p class="hint">'+esc(p?.reason||'분석 순위 확인 필요')+'</p>';
  return '<div class="qpl-policy"><b>'+anchorLabel()+': '+p.anchor.number+'번 · 추정 '+pct(p.anchor.prob)+'</b><span>동반입상확률 비교</span>'+[...p.candidates].sort((a,b)=>a.partner.rank-b.partner.rank).map(c=>'<span class="'+(c.partner.number===p.partner.number?'policy-chosen':'')+'">분석 '+c.partner.rank+'위 '+c.partner.number+'번 · 연승 '+pct(c.partner.prob)+' · 조합 '+pct(c.pick.prob)+(c.partner.number===p.partner.number?' · 선택':'')+'</span>').join('')+'<small>연승확률 동률: 마번 순. 조합 확률 동률: 상대 말 연승확률 → 마번 순.</small></div>';
 }
-function browseFrom(){const d=day().split('-').map(Number),last=new Date(Date.UTC(d[0]-1,d[1],0)).getUTCDate();return String(d[0]-1)+String(d[1]).padStart(2,'0')+String(Math.min(d[2],last)).padStart(2,'0');}
+function browseFrom(){const d=day().split('-').map(Number),last=new Date(Date.UTC(d[0]-2,d[1],0)).getUTCDate();return String(d[0]-2)+String(d[1]).padStart(2,'0')+String(Math.min(d[2],last)).padStart(2,'0');}
 function matchingPayout(market,numbers){const key=a=>a.map(Number).sort((a,b)=>a-b).join('-');return market?.status==='confirmed'&&Array.isArray(numbers)&&market.payouts?.find(p=>key(p.numbers)===key(numbers));}
 function hitHTML(r,type,numbers){return matchingPayout(r.official_result?.[type],numbers)?'<span class="hit-badge">✓ 적중</span>':'';}
 function breakEvenOdds(p){const odds=1/p;return Number.isFinite(p)&&p>0&&p<=1+1e-9&&Number.isFinite(odds)?Math.max(1,odds).toFixed(2):null;}

@@ -1,6 +1,23 @@
 """Keep only Seoul source records and public data before any feature calculation."""
 import gzip,json,shutil
 from pathlib import Path
+from datetime import datetime
+from calendar import monthrange
+from zoneinfo import ZoneInfo
+
+def restore_calendar(data,history,from_date):
+    days={}
+    for p in sorted(history.glob("[0-9][0-9][0-9][0-9].jsonl.gz")):
+        for line in gzip.decompress(p.read_bytes()).splitlines():
+            r=json.loads(line)["race"];date=str(r.get("date",""))
+            if r.get("venue")=="seoul" and date>=from_date:
+                days.setdefault(date,[]).append(r)
+    (data/"calendar").mkdir(parents=True,exist_ok=True)
+    for date,rows in days.items():
+        target=data/"calendar"/(date+".json")
+        if not target.exists():
+            write(target,{"date":date,"scope":"seoul","venue":"seoul","races":sorted(rows,key=lambda r:int(r["race_no"]))})
+
 
 def write(path,doc):path.write_text(json.dumps(doc,ensure_ascii=False,separators=(',',':')))
 def card(r):
@@ -12,6 +29,9 @@ def card(r):
     return r
 def main():
     data=Path('data'); counts={}
+    now=datetime.now(ZoneInfo('Asia/Seoul')).date();year=now.year-2
+    start=now.replace(year=year,day=min(now.day,monthrange(year,now.month)[1])).strftime('%Y%m%d')
+    restore_calendar(data,Path('history'),start)
     for p in (data/'calendar').glob('????????.json'):
         d=json.loads(p.read_text());d['races']=[card(r) for r in d.get('races',[]) if r.get('venue')=='seoul' and r.get('date','')>='20230101']
         if not d['races']:p.unlink();continue
