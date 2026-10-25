@@ -34,7 +34,7 @@
     "trainer_form": 39715,
     "early_speed": 38611,
     "late_kick": 38613,
-    "pace_fit": 36763,
+    "pace_fit": 36762,
     "jockey_upgrade": 37778
   },
   "observedCoverage": {
@@ -62,7 +62,7 @@
     "trainer_form": 39715,
     "early_speed": 38611,
     "late_kick": 38613,
-    "pace_fit": 36763,
+    "pace_fit": 36762,
     "jockey_upgrade": 37778
   },
   "fallbackCoverage": {
@@ -90,7 +90,7 @@
     "trainer_form": 1484,
     "early_speed": 2588,
     "late_kick": 2586,
-    "pace_fit": 4436,
+    "pace_fit": 4437,
     "jockey_upgrade": 3421
   },
   "coverageDefinition": "coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions",
