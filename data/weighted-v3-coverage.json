@@ -18,7 +18,7 @@
     "jockey": 41106,
     "trainer": 41129,
     "burden": 21907,
-    "body": 15891,
+    "body": 15922,
     "interval": 31636,
     "speed": 37089,
     "margin": 38613,
@@ -34,7 +34,7 @@
     "trainer_form": 39715,
     "early_speed": 38611,
     "late_kick": 38613,
-    "pace_fit": 36764,
+    "pace_fit": 36763,
     "jockey_upgrade": 37778
   },
   "observedCoverage": {
@@ -46,7 +46,7 @@
     "jockey": 41106,
     "trainer": 41129,
     "burden": 21907,
-    "body": 15891,
+    "body": 15922,
     "interval": 31636,
     "speed": 37089,
     "margin": 38613,
@@ -62,7 +62,7 @@
     "trainer_form": 39715,
     "early_speed": 38611,
     "late_kick": 38613,
-    "pace_fit": 36764,
+    "pace_fit": 36763,
     "jockey_upgrade": 37778
   },
   "fallbackCoverage": {
@@ -74,7 +74,7 @@
     "jockey": 93,
     "trainer": 70,
     "burden": 19292,
-    "body": 25308,
+    "body": 25277,
     "interval": 9563,
     "speed": 4110,
     "margin": 2586,
@@ -90,7 +90,7 @@
     "trainer_form": 1484,
     "early_speed": 2588,
     "late_kick": 2586,
-    "pace_fit": 4435,
+    "pace_fit": 4436,
     "jockey_upgrade": 3421
   },
   "coverageDefinition": "coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions",
