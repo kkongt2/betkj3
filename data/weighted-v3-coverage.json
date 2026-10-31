@@ -2,10 +2,10 @@
   "schema": 1,
   "scope": "seoul",
   "version": "weighted-seoul-pace21-v1",
-  "sourceRaces": 4875,
+  "sourceRaces": 4885,
   "targetRaces": 3988,
   "horseStarts": 41428,
-  "historyThrough": "20261025",
+  "historyThrough": "20261031",
   "sourceFrom": "20220101",
   "evaluationFrom": "20230101",
   "fitThrough": "20221231",
@@ -18,7 +18,7 @@
     "jockey": 41335,
     "trainer": 41358,
     "burden": 22014,
-    "body": 15877,
+    "body": 15910,
     "interval": 31793,
     "speed": 37292,
     "margin": 38817,
@@ -34,7 +34,7 @@
     "trainer_form": 39926,
     "early_speed": 38815,
     "late_kick": 38817,
-    "pace_fit": 36951,
+    "pace_fit": 36948,
     "jockey_upgrade": 37982
   },
   "observedCoverage": {
@@ -46,7 +46,7 @@
     "jockey": 41335,
     "trainer": 41358,
     "burden": 22014,
-    "body": 15877,
+    "body": 15910,
     "interval": 31793,
     "speed": 37292,
     "margin": 38817,
@@ -62,7 +62,7 @@
     "trainer_form": 39926,
     "early_speed": 38815,
     "late_kick": 38817,
-    "pace_fit": 36951,
+    "pace_fit": 36948,
     "jockey_upgrade": 37982
   },
   "fallbackCoverage": {
@@ -74,7 +74,7 @@
     "jockey": 93,
     "trainer": 70,
     "burden": 19414,
-    "body": 25551,
+    "body": 25518,
     "interval": 9635,
     "speed": 4136,
     "margin": 2611,
@@ -90,17 +90,11 @@
     "trainer_form": 1502,
     "early_speed": 2613,
     "late_kick": 2611,
-    "pace_fit": 4477,
+    "pace_fit": 4480,
     "jockey_upgrade": 3446
   },
   "coverageDefinition": "coverage includes populated defaults; observedCoverage requires feature-specific prior observations and eligibility conditions",
-  "tailDownloadErrors": [
-    {
-      "date": "20261031",
-      "venue": "seoul",
-      "error": "HTTPSConnectionPool(host='race.kra.co.kr', port=443): Max retries exceeded with url: /dbdata/fileDownLoad.do?fn=chollian/seoul/jungbo/rcresult/20261031dacom11.rpt&meet=1 (Caused by ConnectTimeoutError(<HTTPSConnection(host='race.kra.co.kr', port=443) at 0x7cd4c0cb0ce0>, 'Connection to race.kra.co.kr timed out. (connect timeout=15)'))"
-    }
-  ],
+  "tailDownloadErrors": [],
   "marginDefinition": "Previous race time minus winner time, seconds normalized to 1200m; not lengths",
   "speedDefinition": "Previous race time vs preceding-date median winning time for venue/distance/grade/track, fallback venue/distance/grade (minimum 20 earlier records); unknown grade is neutral",
   "recentDefinition": "Latest five previous Seoul starts; equal-weight place/win rates; distance rate uses their subset within 200m; no older starts are included",
