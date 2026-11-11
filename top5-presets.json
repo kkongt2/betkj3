@@ -81,12 +81,12 @@
       }
     ]
   },
-  "generatedAt": "2026-11-11T13:50:08+09:00",
+  "generatedAt": "2026-11-11T21:14:28+09:00",
   "from": "20230107",
-  "to": "20261108",
-  "sourceRaces": 4009,
+  "to": "20261115",
+  "sourceRaces": 4030,
   "minimumCoverageRatio": 0.4,
-  "minimumEvaluated": 1604,
+  "minimumEvaluated": 1612,
   "presets": [
     {
       "rank": 1,
@@ -127,10 +127,10 @@
         "max": 8
       },
       "all": {
-        "total": 4009,
+        "total": 4030,
         "evaluated": 4008,
         "hits": 832,
-        "excluded": 1,
+        "excluded": 22,
         "paidHits": 832,
         "payoutTotal": 3113.500000000002
       },
@@ -160,10 +160,10 @@
           "payoutTotal": 709.6000000000001
         },
         "2026": {
-          "total": 895,
+          "total": 916,
           "evaluated": 895,
           "hits": 204,
-          "excluded": 0,
+          "excluded": 21,
           "paidHits": 204,
           "payoutTotal": 757.1000000000001
         }
@@ -222,7 +222,7 @@
           }
         ]
       },
-      "coverage": 0.9997505612372163
+      "coverage": 0.9945409429280397
     }
   ],
   "note": "기존 프리셋의 삭제 지표 가중치를 이관하고 새 그룹 상한으로 조정한 뒤 2023년 이후 자료로 성적을 재계산했습니다. 2022년은 전적 참조와 척도 설정에만 사용하며 2021년은 제외합니다. 새 지표는 이관 시 0%에서 시작하며 그룹 상한 조정 과정에서 배분될 수 있습니다. 재탐색 결과가 아닙니다."
